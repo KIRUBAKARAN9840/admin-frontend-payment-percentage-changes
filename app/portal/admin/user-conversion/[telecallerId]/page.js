@@ -63,7 +63,7 @@ export default function TelecallerConvertedClients() {
     }
   }, [telecallerId, currentPage, itemsPerPage, debouncedSearchTerm]);
 
-  // Fetch purchase history for a client
+  // Fetch purchase history for a client (for toggle)
   const fetchPurchases = async (clientId) => {
     try {
       setLoadingPurchases((prev) => ({ ...prev, [clientId]: true }));
@@ -343,7 +343,7 @@ export default function TelecallerConvertedClients() {
                 <th>Name</th>
                 <th>Mobile</th>
                 <th>Gym</th>
-                <th>Purchased Plan</th>
+                <th>Last Purchased</th>
                 <th>Converted Date</th>
                 <th></th>
               </tr>
@@ -376,12 +376,16 @@ export default function TelecallerConvertedClients() {
                         <span
                           className="plan-badge"
                           style={{
-                            backgroundColor: client.purchased_plan ? "rgba(79, 140, 79, 0.1)" : "rgba(255, 0, 0, 0.1)",
-                            borderColor: client.purchased_plan ? "green" : "red",
-                            color: client.purchased_plan ? "#4ade80" : "#ef4444",
+                            backgroundColor: "#2a2a2a",
+                            borderColor: "#555",
+                            color: "#ccc",
+                            fontSize: "13px",
+                            padding: "4px 10px",
+                            borderRadius: "4px",
+                            textTransform: "capitalize",
                           }}
                         >
-                          {client.purchased_plan || "No Plan"}
+                          {client.latest_purchase_type || "No Data"}
                         </span>
                       </td>
                       <td>{formatDate(client.converted_at)}</td>
@@ -414,27 +418,7 @@ export default function TelecallerConvertedClients() {
                           }}
                         >
                           <div className="user-row-dropdown">
-                            {loadingPurchases[clientId] ? (
-                              <div
-                                style={{
-                                  display: "flex",
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  padding: "20px",
-                                }}
-                              >
-                                <div
-                                  style={{
-                                    width: "24px",
-                                    height: "24px",
-                                    border: "3px solid #3a3a3a",
-                                    borderTop: "3px solid #FF5757",
-                                    borderRadius: "50%",
-                                    animation: "spin 1s linear infinite",
-                                  }}
-                                />
-                              </div>
-                            ) : purchasesData[clientId] ? (
+                            {purchasesData[clientId] ? (
                               <div className="purchases-list">
                                 <div style={{ marginBottom: "12px", fontSize: "14px", color: "#888", fontWeight: "500" }}>
                                   Purchase Details
@@ -461,7 +445,18 @@ export default function TelecallerConvertedClients() {
                                     </div>
                                   )}
                               </div>
-                            ) : null}
+                            ) : (
+                              <div
+                                style={{
+                                  padding: "20px",
+                                  textAlign: "center",
+                                  color: "#666",
+                                  fontSize: "14px",
+                                }}
+                              >
+                                No purchase data available
+                              </div>
+                            )}
                           </div>
                         </td>
                       </tr>
