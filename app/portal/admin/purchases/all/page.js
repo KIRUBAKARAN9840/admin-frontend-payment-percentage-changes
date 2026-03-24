@@ -246,6 +246,7 @@ export default function AllPurchases() {
                 <th>Days / Sessions</th>
                 <th>Amount</th>
                 <th>Purchased At</th>
+                <th>Platform</th>
               </tr>
             </thead>
             <tbody>
@@ -287,10 +288,27 @@ export default function AllPurchases() {
                       <td className="days-total">{getDisplayValue(purchase)}</td>
                       <td className="amount">{formatAmount(purchase.amount)}</td>
                       <td className="purchased-at">{formatDate(purchase.purchased_at)}</td>
+                      <td className="platform">
+                        <span
+                          style={{
+                            color: purchase.platform === "android" ? "#a8d5a2" : purchase.platform === "ios" ? "#a2c4d5" : "#888",
+                            backgroundColor: purchase.platform === "android" ? "rgba(100, 200, 80, 0.1)" : purchase.platform === "ios" ? "rgba(80, 150, 200, 0.1)" : "rgba(128,128,128,0.1)",
+                            border: `1px solid ${purchase.platform === "android" ? "#4caf50" : purchase.platform === "ios" ? "#5097c8" : "#555"}`,
+                            borderRadius: "6px",
+                            padding: "4px 10px",
+                            fontSize: "12px",
+                            fontWeight: 500,
+                            textTransform: "capitalize",
+                            display: "inline-block"
+                          }}
+                        >
+                          {purchase.platform || "N/A"}
+                        </span>
+                      </td>
                     </tr>
                     {isExpanded && (
                       <tr className="schedule-row">
-                        <td colSpan="8" style={{ padding: "0 !important" }}>
+                        <td colSpan="9" style={{ padding: "0 !important" }}>
                           <div
                             style={{
                               backgroundColor: "#151515",

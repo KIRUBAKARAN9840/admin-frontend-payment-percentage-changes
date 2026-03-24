@@ -206,6 +206,7 @@ export default function TodaySchedule() {
                 <th>Status</th>
                 {/* <th>Amount</th> */}
                 <th>Purchased At</th>
+                <th>Platform</th>
               </tr>
             </thead>
             <tbody>
@@ -232,6 +233,23 @@ export default function TodaySchedule() {
                   </td>
                   {/* <td className="amount">{formatAmount(item.amount)}</td> */}
                   <td className="purchased-at">{formatDateTime(item.purchased_at)}</td>
+                  <td className="platform">
+                    <span
+                      style={{
+                        color: item.platform === "android" ? "#a8d5a2" : item.platform === "ios" ? "#a2c4d5" : "#888",
+                        backgroundColor: item.platform === "android" ? "rgba(100, 200, 80, 0.1)" : item.platform === "ios" ? "rgba(80, 150, 200, 0.1)" : "rgba(128,128,128,0.1)",
+                        border: `1px solid ${item.platform === "android" ? "#4caf50" : item.platform === "ios" ? "#5097c8" : "#555"}`,
+                        borderRadius: "6px",
+                        padding: "4px 10px",
+                        fontSize: "12px",
+                        fontWeight: 500,
+                        textTransform: "capitalize",
+                        display: "inline-block"
+                      }}
+                    >
+                      {item.platform || "N/A"}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>
