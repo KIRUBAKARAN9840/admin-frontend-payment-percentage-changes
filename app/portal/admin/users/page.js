@@ -45,6 +45,11 @@ export default function Users() {
     offline_members: 0,
     total_members: 0
   });
+  const [platformCounts, setPlatformCounts] = useState({
+    android: 0,
+    ios: 0,
+    total_platform_users: 0
+  });
   // Track if initial data has been loaded
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   // Track if we've completed the initial mount phase
@@ -114,6 +119,7 @@ export default function Users() {
         setAvailablePlans(data.plans);
         setClientCounts(data.clientCounts);
         setOnlineOfflineCounts(data.onlineOfflineCounts);
+        setPlatformCounts(data.platformCounts || { android: 0, ios: 0, total_platform_users: 0 });
         setInitialDataLoaded(true);
         hasFetchedInitialData.current = true;
 
@@ -179,6 +185,7 @@ export default function Users() {
         // Also update counts in case they changed
         setClientCounts(data.clientCounts);
         setOnlineOfflineCounts(data.onlineOfflineCounts);
+        setPlatformCounts(data.platformCounts || { android: 0, ios: 0, total_platform_users: 0 });
       }
     } catch (error) {
       setUsers([]);
@@ -274,6 +281,7 @@ export default function Users() {
                 setAvailablePlans(data.plans);
                 setClientCounts(data.clientCounts);
                 setOnlineOfflineCounts(data.onlineOfflineCounts);
+                setPlatformCounts(data.platformCounts || { android: 0, ios: 0, total_platform_users: 0 });
               }
             } catch (error) {
               setUsers([]);
@@ -873,6 +881,27 @@ export default function Users() {
             )}
           </button>
           <div className="users-count">Total: {totalUsers} users</div>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            padding: "6px 12px",
+            backgroundColor: "#2a2a2a",
+            borderRadius: "6px",
+            border: "1px solid #444"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <div style={{ width: "8px", height: "8px", borderRadius: "2px", backgroundColor: "#4caf50" }}></div>
+              <span style={{ color: "#9ca3af", fontSize: "12px" }}>Android:</span>
+              <span style={{ color: "#4caf50", fontSize: "13px", fontWeight: "600" }}>{platformCounts.android.toLocaleString()}</span>
+            </div>
+            <div style={{ width: "1px", height: "16px", backgroundColor: "#444" }}></div>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <div style={{ width: "8px", height: "8px", borderRadius: "2px", backgroundColor: "#5097c8" }}></div>
+              <span style={{ color: "#9ca3af", fontSize: "12px" }}>iOS:</span>
+              <span style={{ color: "#5097c8", fontSize: "13px", fontWeight: "600" }}>{platformCounts.ios.toLocaleString()}</span>
+            </div>
+          </div>
         </div>
       </div>
 
