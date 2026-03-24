@@ -46,6 +46,10 @@ export default function ExpensesPage() {
     description: ""
   });
 
+  // Pie chart states
+  const [hoveredSegment, setHoveredSegment] = useState(null);
+  const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, data: null });
+
   // Fetch overview data (summary + types + default operational list)
   const fetchOverview = useCallback(async (isInitialLoad = false) => {
     try {
@@ -304,6 +308,234 @@ export default function ExpensesPage() {
             <div style={{ color: "#9ca3af", fontSize: "0.75rem", marginTop: "0.25rem" }}>
               {summary.category_percentages?.marketing != null ? `${summary.category_percentages.marketing}% of total` : `${summary.category_counts?.marketing || 0} entries`}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pie Chart Section */}
+      {summary && (
+        <div style={{ ...cardStyle, padding: "2rem" }}>
+          <h3 style={{ color: "white", fontSize: "1.125rem", fontWeight: "600", marginBottom: "1.5rem" }}>
+            {activeTab === "operational" ? "Operational" : "Marketing"} Expenses Breakdown
+          </h3>
+
+          {(() => {
+            const breakdown = activeTab === "operational"
+              ? summary.operational_breakdown
+              : summary.marketing_breakdown;
+
+            const categoryTotal = activeTab === "operational"
+              ? summary.category_totals?.operational || 0
+              : summary.category_totals?.marketing || 0;
+
+            const entries = Object.entries(breakdown || {}).filter(([_, amount]) => amount > 0);
+
+            if (entries.length === 0) {
+              return (
+                <div style={{ textAlign: "center", padding: "3rem", color: "#9ca3af" }}>
+                  No {activeTab === "operational" ? "operational" : "marketing"} expenses found
+                </div>
+              );
+            }
+
+            // Colors for pie chart
+            const colors = [
+              "#FF5757", "#FF8C42", "#FFC947", "#7FE4A3", "#4CAF50",
+              "#2196F3", "#9C27B0", "#E91E63", "#00BCD4", "#FF5722"
+            ];
+
+            // Calculate pie chart data
+            const data = entries.map(([type, amount], index) => ({
+              type,
+              amount,
+              percentage: (amount / categoryTotal * 100).toFixed(2),
+              color: colors[index % colors.length]
+            })).sort((a, b) => b.amount - a.amount);
+
+            // Create pie chart SVG
+            let currentAngle = -Math.PI / 2; // Start from top (12 o'clock position)
+            const radius = 120;
+            const centerX = 150;
+            const centerY = 150;
+            const innerRadius = 70; // For donut effect
+
+            return (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "3rem", alignItems: "center", justifyContent: "center" }}>
+                {/* Pie Chart */}
+                <div style={{ position: "relative" }}>
+                  <svg width="300" height="300" viewBox="0 0 300 300" style={{ display: "block" }}>
+                    {data.map((slice, index) => {
+                      const sliceAngle = (slice.amount / categoryTotal) * 2 * Math.PI;
+                      const endAngle = currentAngle + sliceAngle;
+
+                      // Calculate outer arc points
+                      const x1 = centerX + radius * Math.cos(currentAngle);
+                      const y1 = centerY + radius * Math.sin(currentAngle);
+                      const x2 = centerX + radius * Math.cos(endAngle);
+                      const y2 = centerY + radius * Math.sin(endAngle);
+
+                      // Calculate inner arc points (for donut)
+                      const x3 = centerX + innerRadius * Math.cos(endAngle);
+                      const y3 = centerY + innerRadius * Math.sin(endAngle);
+                      const x4 = centerX + innerRadius * Math.cos(currentAngle);
+                      const y4 = centerY + innerRadius * Math.sin(currentAngle);
+
+                      const largeArcFlag = sliceAngle > Math.PI ? 1 : 0;
+
+                      // Create donut slice path
+                      const pathData = [
+                        `M ${x1} ${y1}`,                           // Move to outer start
+                        `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,  // Outer arc
+                        `L ${x3} ${y3}`,                           // Line to inner end
+                        `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x4} ${y4}`,  // Inner arc (reverse)
+                        `Z`                                        // Close path
+                      ].join(" ");
+
+                      currentAngle = endAngle;
+
+                      return (
+                        <g key={slice.type}>
+                          <path
+                            d={pathData}
+                            fill={slice.color}
+                            stroke="#1f2937"
+                            strokeWidth="2"
+                            style={{
+                              cursor: "pointer",
+                              transition: "all 0.2s ease",
+                              opacity: hoveredSegment === slice.type ? 0.9 : 1,
+                              transform: hoveredSegment === slice.type ? "scale(1.02)" : "scale(1)",
+                              transformOrigin: `${centerX}px ${centerY}px`
+                            }}
+                            onMouseEnter={(e) => {
+                              setHoveredSegment(slice.type);
+                              setTooltip({
+                                visible: true,
+                                x: e.clientX,
+                                y: e.clientY,
+                                data: slice
+                              });
+                            }}
+                            onMouseLeave={() => {
+                              setHoveredSegment(null);
+                              setTooltip({ visible: false, x: 0, y: 0, data: null });
+                            }}
+                            onMouseMove={(e) => {
+                              if (tooltip.visible) {
+                                setTooltip({
+                                  visible: true,
+                                  x: e.clientX,
+                                  y: e.clientY,
+                                  data: slice
+                                });
+                              }
+                            }}
+                          />
+                        </g>
+                      );
+                    })}
+
+                    {/* Center text for donut */}
+                    <text
+                      x={centerX}
+                      y={centerY - 8}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      style={{ fill: "#9ca3af", fontSize: "0.7rem", fontWeight: "500", textTransform: "uppercase", letterSpacing: "0.5px" }}
+                    >
+                      Total
+                    </text>
+                    <text
+                      x={centerX}
+                      y={centerY + 12}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      style={{ fill: "white", fontSize: "1.1rem", fontWeight: "700" }}
+                    >
+                      ₹{categoryTotal.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    </text>
+                  </svg>
+                </div>
+
+                {/* Legend */}
+                <div style={{ flex: 1, minWidth: "250px" }}>
+                  <div style={{ color: "white", fontSize: "1rem", fontWeight: "600", marginBottom: "1rem" }}>
+                    Expense Types
+                  </div>
+                  <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                    {data.map((slice) => (
+                      <div
+                        key={slice.type}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "0.5rem 0",
+                          borderBottom: "1px solid #374151",
+                          cursor: "pointer",
+                          transition: "background 0.2s",
+                          backgroundColor: hoveredSegment === slice.type ? "#374151" : "transparent"
+                        }}
+                        onMouseEnter={() => setHoveredSegment(slice.type)}
+                        onMouseLeave={() => setHoveredSegment(null)}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flex: 1 }}>
+                          <div
+                            style={{
+                              width: "12px",
+                              height: "12px",
+                              borderRadius: "2px",
+                              backgroundColor: slice.color
+                            }}
+                          />
+                          <span style={{ color: "#e5e7eb", fontSize: "0.875rem" }}>
+                            {slice.type}
+                          </span>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ color: "white", fontWeight: "600", fontSize: "0.875rem" }}>
+                            ₹{slice.amount.toFixed(2)}
+                          </div>
+                          <div style={{ color: "#9ca3af", fontSize: "0.75rem" }}>
+                            {slice.percentage}%
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* Tooltip */}
+      {tooltip.visible && tooltip.data && (
+        <div
+          style={{
+            position: "fixed",
+            left: Math.min(tooltip.x + 15, window.innerWidth - 200),
+            top: Math.min(tooltip.y + 15, window.innerHeight - 100),
+            backgroundColor: "rgba(31, 41, 55, 0.98)",
+            border: "1px solid #4b5563",
+            borderRadius: "8px",
+            padding: "0.6rem 0.8rem",
+            pointerEvents: "none",
+            zIndex: 9999,
+            boxShadow: "0 10px 15px rgba(0, 0, 0, 0.5)",
+            minWidth: "140px",
+            backdropFilter: "blur(8px)"
+          }}
+        >
+          <div style={{ color: tooltip.data.color, fontSize: "0.7rem", fontWeight: "600", marginBottom: "0.2rem", textTransform: "uppercase", letterSpacing: "0.3px" }}>
+            {tooltip.data.type}
+          </div>
+          <div style={{ color: "white", fontSize: "0.95rem", fontWeight: "700" }}>
+            ₹{tooltip.data.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <div style={{ color: "#9ca3af", fontSize: "0.75rem", marginTop: "0.1rem" }}>
+            {tooltip.data.percentage}% of total
           </div>
         </div>
       )}
