@@ -275,7 +275,7 @@ export default function FinancialsDashboard() {
                         <span style={{ color: "#fff" }}>{formatCurrency(financialsData.revenueSourceBreakdown.daily_pass)}</span>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                        <span style={{ color: "#888" }}>Sessions:</span>
+                        <span style={{ color: "#888" }}>Fitness class:</span>
                         <span style={{ color: "#fff" }}>{formatCurrency(financialsData.revenueSourceBreakdown.sessions)}</span>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
@@ -283,7 +283,7 @@ export default function FinancialsDashboard() {
                         <span style={{ color: "#fff" }}>{formatCurrency(financialsData.revenueSourceBreakdown.gym_membership)}</span>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                        <span style={{ color: "#888" }}>Fymble Subscription:</span>
+                        <span style={{ color: "#888" }}>Nutritionist Plan:</span>
                         <span style={{ color: "#FF5757" }}>{formatCurrency(financialsData.revenueSourceBreakdown.fittbot_subscription)}</span>
                       </div>
                     </div>
@@ -304,7 +304,7 @@ export default function FinancialsDashboard() {
                   {financialsData ? formatCurrency(financialsData.actualGymPayout) : "₹0"}
                 </div>
                 <div style={{ fontSize: "13px", color: "#888", marginTop: "8px" }}>
-                  Excluding Fymble Subscription
+                  Excluding Nutritionist Plan
                 </div>
                 {financialsData && financialsData.payoutBreakdown && (
                   <div style={{ marginTop: "15px", paddingTop: "15px", borderTop: "1px solid #333" }}>
@@ -321,7 +321,7 @@ export default function FinancialsDashboard() {
                         <span style={{ color: "#4ade80" }}>{formatCurrency(financialsData.payoutBreakdown.daily_pass.payout)}</span>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                        <span style={{ color: "#888" }}>Sessions:</span>
+                        <span style={{ color: "#888" }}>Fitness class:</span>
                         <span style={{ color: "#4ade80" }}>{formatCurrency(financialsData.payoutBreakdown.sessions.payout)}</span>
                       </div>
                     </div>
@@ -444,7 +444,7 @@ export default function FinancialsDashboard() {
                             </span>
                           </div>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 15px", backgroundColor: "#1e1e1e", borderRadius: "6px" }}>
-                            <span style={{ fontSize: "13px", color: "#aaa" }}>Sessions</span>
+                            <span style={{ fontSize: "13px", color: "#aaa" }}>Fitness class</span>
                             <span style={{ fontSize: "16px", fontWeight: "700", color: "#fff" }}>
                               {formatCurrency(financialsData.netRevenueBreakdown.sessions.net_revenue)}
                             </span>
@@ -456,7 +456,7 @@ export default function FinancialsDashboard() {
                             </span>
                           </div>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 15px", backgroundColor: "#1e1e1e", borderRadius: "6px" }}>
-                            <span style={{ fontSize: "13px", color: "#aaa" }}>Fymble Subscription</span>
+                            <span style={{ fontSize: "13px", color: "#aaa" }}>Nutritionist Plan</span>
                             <span style={{ fontSize: "16px", fontWeight: "700", color: "#fff" }}>
                               {formatCurrency(financialsData.netRevenueBreakdown.fittbot_subscription.net_revenue)}
                             </span>
@@ -489,7 +489,7 @@ export default function FinancialsDashboard() {
             const segments = [
               {
                 id: 'fymble',
-                name: 'Fymble Subscription',
+                name: 'Nutritionist Plan',
                 shortName: 'Fymble Sub',
                 value: fymbleNet,
                 percent: fymblePercent,
@@ -522,8 +522,8 @@ export default function FinancialsDashboard() {
               },
               {
                 id: 'sessions',
-                name: 'Sessions',
-                shortName: 'Sessions',
+                name: 'Fitness class',
+                shortName: 'Fitness class',
                 value: sessionsNet,
                 percent: sessionsPercent,
                 color: '#f59e0b',
@@ -835,11 +835,11 @@ export default function FinancialsDashboard() {
             <span style={{ color: "#FF5757" }}>Net</span> Revenue Breakdown
           </h3>
           <div className="row g-4">
-            {/* Fymble Subscription Net Revenue */}
+            {/* Nutritionist Plan Net Revenue */}
             <div className="col-xl-6 col-lg-6">
               <div className="dashboard-card">
                 <div className="card-header-custom extra-space">
-                  <h6 className="card-title">Fymble Subscription</h6>
+                  <h6 className="card-title">Nutritionist Plan</h6>
                 </div>
                 <div className="card-body-custom">
                   <div className="metric-number" style={{ fontSize: "24px" }}>
@@ -907,11 +907,11 @@ export default function FinancialsDashboard() {
               </div>
             </div>
 
-            {/* Sessions Net Revenue */}
+            {/* Fitness class Net Revenue */}
             <div className="col-xl-6 col-lg-6">
               <div className="dashboard-card">
                 <div className="card-header-custom extra-space">
-                  <h6 className="card-title">Sessions</h6>
+                  <h6 className="card-title">Fitness class</h6>
                 </div>
                 <div className="card-body-custom">
                   <div className="metric-number" style={{ fontSize: "24px" }}>
@@ -973,7 +973,7 @@ export default function FinancialsDashboard() {
                             </span>
                           </div>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 15px", backgroundColor: "#1e1e1e", borderRadius: "6px" }}>
-                            <span style={{ fontSize: "13px", color: "#aaa" }}>Sessions</span>
+                            <span style={{ fontSize: "13px", color: "#aaa" }}>Fitness class</span>
                             <span style={{ fontSize: "16px", fontWeight: "700", color: "#fff" }}>
                               {formatCurrency(financialsData.grossProfitBreakdown.sessions.gross_profit)}
                             </span>
@@ -985,7 +985,7 @@ export default function FinancialsDashboard() {
                             </span>
                           </div>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 15px", backgroundColor: "#1e1e1e", borderRadius: "6px" }}>
-                            <span style={{ fontSize: "13px", color: "#aaa" }}>Fymble Subscription</span>
+                            <span style={{ fontSize: "13px", color: "#aaa" }}>Nutritionist Plan</span>
                             <span style={{ fontSize: "16px", fontWeight: "700", color: "#fff" }}>
                               {formatCurrency(financialsData.grossProfitBreakdown.fittbot_subscription.gross_profit)}
                             </span>
@@ -1008,11 +1008,11 @@ export default function FinancialsDashboard() {
             <span style={{ color: "#FF5757" }}>Gross</span> Profit Breakdown
           </h3>
           <div className="row g-4">
-            {/* Fymble Subscription Gross Profit */}
+            {/* Nutritionist Plan Gross Profit */}
             <div className="col-xl-6 col-lg-6">
               <div className="dashboard-card">
                 <div className="card-header-custom extra-space">
-                  <h6 className="card-title">Fymble Subscription</h6>
+                  <h6 className="card-title">Nutritionist Plan</h6>
                 </div>
                 <div className="card-body-custom">
                   <div className="metric-number" style={{ fontSize: "24px" }}>
@@ -1080,11 +1080,11 @@ export default function FinancialsDashboard() {
               </div>
             </div>
 
-            {/* Sessions Gross Profit */}
+            {/* Fitness class Gross Profit */}
             <div className="col-xl-6 col-lg-6">
               <div className="dashboard-card">
                 <div className="card-header-custom extra-space">
-                  <h6 className="card-title">Sessions</h6>
+                  <h6 className="card-title">Fitness class</h6>
                 </div>
                 <div className="card-body-custom">
                   <div className="metric-number" style={{ fontSize: "24px" }}>

@@ -243,7 +243,7 @@ export default function AllPurchases() {
                 <th>Contact</th>
                 <th>Gym Name</th>
                 <th>Type</th>
-                <th>Days / Sessions</th>
+                <th>Days / Classes</th>
                 <th>Amount</th>
                 <th>Purchased At</th>
                 <th>Platform</th>
@@ -284,7 +284,7 @@ export default function AllPurchases() {
                       <td className="client-name">{purchase.client_name || "N/A"}</td>
                       <td className="client-contact">{purchase.client_contact || "N/A"}</td>
                       <td className="gym-name">{purchase.gym_name || "N/A"}</td>
-                      <td className="type">{purchase.type}</td>
+                      <td className="type">{purchase.type === "Session" ? "Fitness Class" : purchase.type}</td>
                       <td className="days-total">{getDisplayValue(purchase)}</td>
                       <td className="amount">{formatAmount(purchase.amount)}</td>
                       <td className="purchased-at">{formatDate(purchase.purchased_at)}</td>
@@ -327,7 +327,7 @@ export default function AllPurchases() {
                                     marginBottom: "12px",
                                   }}
                                 >
-                                  {isSession ? "Session Schedule" : "Scheduled Dates"}
+                                  {isSession ? "Class Schedule" : "Scheduled Dates"}
                                 </p>
                                 <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "16px" }}>
                                   {isSession

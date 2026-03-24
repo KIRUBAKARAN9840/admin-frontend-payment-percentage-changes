@@ -471,8 +471,8 @@ export default function RevenueAnalytics() {
 
   const sourceLabels = {
     daily_pass: "Daily Pass",
-    sessions: "Sessions",
-    fittbot_subscription: "Fymble Subscription",
+    sessions: "Fitness Class",
+    fittbot_subscription: "Nutritionist Plan",
     gym_membership: "Gym Membership"
   };
 
@@ -710,8 +710,8 @@ export default function RevenueAnalytics() {
             >
               <option value="all">All Sources</option>
               <option value="daily_pass">Daily Pass</option>
-              <option value="sessions">Sessions</option>
-              <option value="fittbot_subscription">Fymble Subscription</option>
+              <option value="sessions">Fitness Class</option>
+              <option value="fittbot_subscription">Nutritionist Plan</option>
               <option value="gym_membership">Gym Membership</option>
             </select>
           </div>

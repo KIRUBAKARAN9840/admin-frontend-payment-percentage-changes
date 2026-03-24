@@ -1004,7 +1004,7 @@ export default function Home() {
       {/* Plans Section */}
       <div className="section-container">
         <h3 className="section-heading">
-          <span style={{ color: "#FF5757" }}>Fy</span><span style={{ color: "#fff" }}>mble</span> Subscriptions
+          <span style={{ color: "#FF5757" }}>Nutrition</span><span style={{ color: "#fff" }}>ist Plans</span>
         </h3>
         <div className="row g-4">
           {/* Free Trial Card */}
@@ -1026,7 +1026,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Fymble Subscriptions Card */}
+          {/* Nutritionist Plans Card */}
           <div className="col-xl-4 col-lg-6 col-md-6">
             <div
               className="dashboard-card"
@@ -1034,7 +1034,7 @@ export default function Home() {
               onClick={() => router.push("/portal/admin/fittbot-subscriptions")}
             >
               <div className="card-header-custom">
-                <h6 className="card-title">Fymble Subscriptions</h6>
+                <h6 className="card-title">Nutritionist Plans</h6>
                 <select
                   className="filter-dropdown"
                   value={fittbotSubscriptionsFilter}
@@ -1106,7 +1106,7 @@ export default function Home() {
               onClick={() => (window.location.href = "/portal/admin/gymplans?type=session")}
             >
               <div className="card-header-custom extra-space">
-                <h6 className="card-title">Session Plans</h6>
+                <h6 className="card-title">Fitness Classes</h6>
               </div>
               <div className="card-body-custom">
                 <div className="metric-number">

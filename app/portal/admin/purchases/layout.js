@@ -28,7 +28,7 @@ export default function PurchasesLayout({ children }) {
 
   // Define tabs - include purchase-count only for non-support roles
   const tabs = [
-    { id: "all", name: "Session/Daily pass", path: "/portal/admin/purchases/all" },
+    { id: "all", name: "Fitness Class/Daily Pass", path: "/portal/admin/purchases/all" },
     { id: "today", name: "Today's Schedule", path: "/portal/admin/purchases/today" },
     { id: "gym-memberships", name: "Gym Memberships", path: "/portal/admin/purchases/gym-memberships" },
     ...(role !== "support" ? [{ id: "purchase-count", name: "Purchase Analysis", path: "/portal/admin/purchases/purchase-count" }] : []),

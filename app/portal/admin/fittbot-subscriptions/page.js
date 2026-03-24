@@ -140,7 +140,7 @@ export default function FittbotSubscriptions() {
       <div className="users-container">
         <div className="users-header">
           <h2 className="users-title">
-            <span style={{ color: "#FF5757" }}>Fy</span><span style={{ color: "#fff" }}>mble</span> Subscriptions
+            <span style={{ color: "#FF5757" }}>Nutrition</span><span style={{ color: "#fff" }}>ist Plans</span>
           </h2>
         </div>
         <div
@@ -190,7 +190,7 @@ export default function FittbotSubscriptions() {
             <FaArrowLeft style={{ color: "#FF5757" }} />
           </button>
           <h2 className="users-title" style={{ margin: 0 }}>
-            <span style={{ color: "#FF5757" }}>Fy</span><span style={{ color: "#fff" }}>mble</span> Subscriptions
+            <span style={{ color: "#FF5757" }}>Nutrition</span><span style={{ color: "#fff" }}>ist Plans</span>
           </h2>
         </div>
         <div className="users-count">Total: {totalUsers} users</div>

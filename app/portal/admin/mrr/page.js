@@ -166,7 +166,7 @@ export default function MRR() {
             const segments = [
               {
                 id: 'fittbot',
-                name: 'Fymble Subscription',
+                name: 'Nutritionist Plan',
                 value: breakdown.fittbot_subscription || 0,
                 percent: fittbotPercent,
                 color: '#FF5757',
@@ -193,7 +193,7 @@ export default function MRR() {
               },
               {
                 id: 'sessions',
-                name: 'Sessions',
+                name: 'Fitness class',
                 value: breakdown.sessions || 0,
                 percent: sessionsPercent,
                 color: '#fbbf24',
