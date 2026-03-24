@@ -999,7 +999,7 @@ export default function PurchaseCountPage() {
                               width: "10px",
                               height: "10px",
                               borderRadius: "3px",
-                              backgroundColor: sourceColors[key] || "#888",
+                              backgroundColor: "#888",
                             }}
                           />
                           <span style={{ fontSize: "14px", color: "#fff" }}>
@@ -1007,7 +1007,7 @@ export default function PurchaseCountPage() {
                           </span>
                         </div>
                       </td>
-                      <td style={{ padding: "12px", textAlign: "right", fontSize: "14px", color: sourceColors[key] || "#888", fontWeight: "600" }}>
+                      <td style={{ padding: "12px", textAlign: "right", fontSize: "14px", color: "#fff", fontWeight: "600" }}>
                         {value.purchases.toLocaleString('en-IN')}
                       </td>
                       <td style={{ padding: "12px", textAlign: "right", fontSize: "14px", color: "#fff" }}>
@@ -1022,7 +1022,7 @@ export default function PurchaseCountPage() {
                 <tfoot>
                   <tr style={{ borderTop: "2px solid #3a3a3a", fontWeight: "600" }}>
                     <td style={{ padding: "12px", fontSize: "14px", color: "#fff" }}>Total</td>
-                    <td style={{ padding: "12px", textAlign: "right", fontSize: "14px", color: "#FF5757" }}>
+                    <td style={{ padding: "12px", textAlign: "right", fontSize: "14px", color: "#fff" }}>
                       {purchaseData.totalPurchases.toLocaleString('en-IN')}
                     </td>
                     <td style={{ padding: "12px", textAlign: "right", fontSize: "14px", color: "#fff" }}>
