@@ -1,0 +1,518 @@
+"use client";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import axiosInstance from "@/lib/axios";
+import { FaDownload } from "react-icons/fa";
+
+export default function AllPurchases() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [purchases, setPurchases] = useState([]);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    limit: 10,
+    totalPages: 0,
+    hasNext: false,
+    hasPrev: false,
+  });
+  const [search, setSearch] = useState("");
+  const [expandedRows, setExpandedRows] = useState(new Set());
+  const [exporting, setExporting] = useState(false);
+
+  const isFetchingRef = useRef(false);
+
+  const fetchPurchases = useCallback(async (pageNum, searchQuery) => {
+    if (isFetchingRef.current) return;
+
+    try {
+      isFetchingRef.current = true;
+      setLoading(true);
+      setError(null);
+
+      const params = {
+        page: pageNum,
+        limit: 10,
+      };
+
+      if (searchQuery) params.search = searchQuery;
+
+      const response = await axiosInstance.get("/api/admin/purchases/all-purchases", {
+        params,
+      });
+
+      if (response.data.success) {
+        setPurchases(response.data.data.purchases);
+        setPagination(response.data.data.pagination);
+      } else {
+        throw new Error(response.data.message || "Failed to fetch purchases");
+      }
+    } catch (err) {
+      const errorMsg = err.response?.data?.detail || err.message || "Failed to fetch purchases";
+      setError(errorMsg);
+      setPurchases([]);
+    } finally {
+      setLoading(false);
+      isFetchingRef.current = false;
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPurchases(page, search);
+  }, [page, search, fetchPurchases]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setPage(1);
+  };
+
+  const handleExport = async () => {
+    try {
+      setExporting(true);
+
+      const params = {};
+      if (search) params.search = search;
+
+      const response = await axiosInstance.get("/api/admin/purchases/export-purchases", {
+        params,
+        responseType: "blob",
+      });
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      }));
+      const link = document.createElement("a");
+      link.href = url;
+
+      // Extract filename from Content-Disposition header or generate default
+      const contentDisposition = response.headers["content-disposition"];
+      let filename = "purchases_export.xlsx";
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename=(.+)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/"/g, "");
+        }
+      }
+
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export failed:", err);
+      alert("Failed to export purchases. Please try again.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const toggleRow = (id) => {
+    setExpandedRows(prev => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(id)) {
+        newExpanded.delete(id);
+      } else {
+        newExpanded.add(id);
+      }
+      return newExpanded;
+    });
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const formatScheduleDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const formatAmount = (amount) => {
+    return `₹${amount?.toFixed(2) || "0.00"}`;
+  };
+
+  const getDisplayValue = (purchase) => {
+    if (purchase.type === "Daily Pass") {
+      return purchase.days_total || "N/A";
+    } else {
+      return purchase.session_display || "N/A";
+    }
+  };
+
+  return (
+    <div>
+      {/* Search */}
+      <div className="row mb-4">
+        <div className="col-md-4">
+          <form onSubmit={handleSearch}>
+            <div className="input-group">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search by client or gym name..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{
+                  backgroundColor: "#1a1a1a",
+                  border: "1px solid #333",
+                  color: "#fff",
+                }}
+              />
+              <button
+                className="btn"
+                type="submit"
+                style={{ backgroundColor: "#FF5757", border: "none", color: "#fff" }}
+              >
+                Search
+              </button>
+            </div>
+          </form>
+        </div>
+        <div className="col-md-8 text-end">
+          <button
+            className="btn"
+            onClick={handleExport}
+            disabled={exporting || loading}
+            style={{
+              backgroundColor: exporting || loading ? "#444" : "#28a745",
+              border: "none",
+              color: "#fff",
+              padding: "8px 16px",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              cursor: exporting || loading ? "not-allowed" : "pointer",
+            }}
+          >
+            <FaDownload />
+            {exporting ? "Exporting..." : "Export Excel"}
+          </button>
+        </div>
+      </div>
+
+      {/* Purchases Table */}
+      {loading ? (
+        <div className="text-center py-5">
+          <div
+            style={{
+              width: "50px",
+              height: "50px",
+              border: "4px solid #3a3a3a",
+              borderTop: "4px solid #FF5757",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite",
+              margin: "0 auto 1rem",
+            }}
+          />
+          <p style={{ fontSize: "14px", color: "#ccc" }}>Loading purchases...</p>
+        </div>
+      ) : error ? (
+        <div className="text-center py-5">
+          <p style={{ fontSize: "16px", color: "#ef4444" }}>Error: {error}</p>
+          <button
+            className="btn btn-sm mt-3"
+            onClick={() => fetchPurchases(page, search)}
+            style={{ backgroundColor: "#FF5757", border: "none", color: "#fff" }}
+          >
+            Retry
+          </button>
+        </div>
+      ) : purchases.length === 0 ? (
+        <div className="text-center py-5">
+          <p style={{ fontSize: "16px", color: "#888" }}>No purchases found</p>
+        </div>
+      ) : (
+        <div className="table-responsive">
+          <table className="table purchases-table">
+            <thead>
+              <tr>
+                <th style={{ width: "40px" }}></th>
+                <th>Client Name</th>
+                <th>Contact</th>
+                <th>Gym Name</th>
+                <th>Type</th>
+                <th>Days / Sessions</th>
+                <th>Amount</th>
+                <th>Purchased At</th>
+              </tr>
+            </thead>
+            <tbody>
+              {purchases.map((purchase) => {
+                const isSession = purchase.type === "Session";
+                const hasSchedule = isSession
+                  ? purchase.session_schedule?.length > 0
+                  : purchase.scheduled_date?.length > 0;
+                const hasContacts = !!(purchase.gym_contact || purchase.owner_contact || purchase.client_contact || purchase.gym_area || purchase.owner_name);
+                const isExpandable = hasSchedule || hasContacts;
+                const isExpanded = expandedRows.has(purchase.id);
+
+                return (
+                  <React.Fragment key={purchase.id}>
+                    <tr>
+                      <td style={{ padding: "8px !important" }}>
+                        {isExpandable && (
+                          <button
+                            onClick={() => toggleRow(purchase.id)}
+                            style={{
+                              background: "transparent",
+                              border: "none",
+                              color: "#FF5757",
+                              cursor: "pointer",
+                              padding: "4px 8px",
+                              fontSize: "16px",
+                              transition: "transform 0.2s",
+                              transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
+                            }}
+                          >
+                            ▶
+                          </button>
+                        )}
+                      </td>
+                      <td className="client-name">{purchase.client_name || "N/A"}</td>
+                      <td className="client-contact">{purchase.client_contact || "N/A"}</td>
+                      <td className="gym-name">{purchase.gym_name || "N/A"}</td>
+                      <td className="type">{purchase.type}</td>
+                      <td className="days-total">{getDisplayValue(purchase)}</td>
+                      <td className="amount">{formatAmount(purchase.amount)}</td>
+                      <td className="purchased-at">{formatDate(purchase.purchased_at)}</td>
+                    </tr>
+                    {isExpanded && (
+                      <tr className="schedule-row">
+                        <td colSpan="8" style={{ padding: "0 !important" }}>
+                          <div
+                            style={{
+                              backgroundColor: "#151515",
+                              padding: "16px",
+
+                              borderBottom: "1px solid #333",
+                            }}
+                          >
+                            {hasSchedule && (
+                              <>
+                                <p
+                                  style={{
+                                    fontSize: "14px",
+                                    fontWeight: "600",
+                                    color: "#FF5757",
+                                    marginBottom: "12px",
+                                  }}
+                                >
+                                  {isSession ? "Session Schedule" : "Scheduled Dates"}
+                                </p>
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "16px" }}>
+                                  {isSession
+                                    ? purchase.session_schedule.map((schedule, idx) => (
+                                      <div
+                                        key={`${purchase.id}-schedule-${idx}`}
+                                        style={{
+                                          backgroundColor: "#1a1a1a",
+                                          border: "1px solid #333",
+                                          borderRadius: "6px",
+                                          padding: "10px 14px",
+                                          fontSize: "13px",
+                                        }}
+                                      >
+                                        <div style={{ color: "#fff", fontWeight: "500" }}>
+                                          {formatScheduleDate(schedule.date)}
+                                        </div>
+                                        <div style={{ color: "#888", fontSize: "12px", marginTop: "4px" }}>
+                                          {schedule.start_time}
+                                        </div>
+                                      </div>
+                                    ))
+                                    : purchase.scheduled_date.map((date, idx) => (
+                                      <div
+                                        key={`${purchase.id}-date-${idx}`}
+                                        style={{
+                                          backgroundColor: "#1a1a1a",
+                                          border: "1px solid #333",
+                                          borderRadius: "6px",
+                                          padding: "10px 14px",
+                                          fontSize: "13px",
+                                          color: "#fff",
+                                          fontWeight: "500",
+                                        }}
+                                      >
+                                        {formatScheduleDate(date)}
+                                      </div>
+                                    ))}
+                                </div>
+                              </>
+                            )}
+                            {(purchase.gym_contact || purchase.owner_contact || purchase.client_contact || purchase.gym_area || purchase.owner_name) && (
+                              <div style={{ display: "flex", gap: "24px", flexWrap: "wrap" }}>
+                                {purchase.owner_name && (
+                                  <div style={{ fontSize: "13px" }}>
+                                    <span style={{ color: "#888" }}>Owner Name: </span>
+                                    <span style={{ color: "#fff", fontWeight: "500" }}>{purchase.owner_name}</span>
+                                  </div>
+                                )}
+                                {purchase.gym_contact && (
+                                  <div style={{ fontSize: "13px" }}>
+                                    <span style={{ color: "#888" }}>Gym Contact: </span>
+                                    <span style={{ color: "#fff", fontWeight: "500" }}>{purchase.gym_contact}</span>
+                                  </div>
+                                )}
+                                {purchase.owner_contact && (
+                                  <div style={{ fontSize: "13px" }}>
+                                    <span style={{ color: "#888" }}>Owner Contact: </span>
+                                    <span style={{ color: "#fff", fontWeight: "500" }}>{purchase.owner_contact}</span>
+                                  </div>
+                                )}
+                                {purchase.gym_area && (
+                                  <div style={{ fontSize: "13px" }}>
+                                    <span style={{ color: "#888" }}>Gym Area: </span>
+                                    <span style={{ color: "#fff", fontWeight: "500" }}>{purchase.gym_area}</span>
+                                  </div>
+                                )}
+
+
+
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!loading && purchases.length > 0 && (
+        <div className="d-flex justify-content-between align-items-center mt-4">
+          <div style={{ color: "#888", fontSize: "14px" }}>
+            Showing {((page - 1) * pagination.limit) + 1} to{" "}
+            {Math.min(page * pagination.limit, pagination.total)} of {pagination.total} purchases
+          </div>
+          <div className="btn-group">
+            <button
+              className="btn btn-sm"
+              disabled={!pagination.hasPrev || loading}
+              onClick={() => setPage(page - 1)}
+              style={{
+                backgroundColor: "#1a1a1a",
+                border: "1px solid #333",
+                color: pagination.hasPrev && !loading ? "#fff" : "#555",
+                cursor: pagination.hasPrev && !loading ? "pointer" : "not-allowed",
+              }}
+            >
+              Previous
+            </button>
+            <button
+              className="btn btn-sm"
+              disabled={!pagination.hasNext || loading}
+              onClick={() => setPage(page + 1)}
+              style={{
+                backgroundColor: "#1a1a1a",
+                border: "1px solid #333",
+                color: pagination.hasNext && !loading ? "#fff" : "#555",
+                cursor: pagination.hasNext && !loading ? "pointer" : "not-allowed",
+              }}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+
+      <style jsx global>{`
+        table.purchases-table {
+          width: 100% !important;
+          border-collapse: separate !important;
+          border-spacing: 0 !important;
+          background-color: #1a1a1a !important;
+          color: #fff !important;
+          border-radius: 8px !important;
+          overflow: hidden !important;
+        }
+
+        table.purchases-table > thead {
+          background-color: #222 !important;
+          border-bottom: 2px solid #FF5757 !important;
+        }
+
+        table.purchases-table > thead > tr > th {
+          padding: 12px !important;
+          font-weight: 600 !important;
+          text-align: left !important;
+          color: #fff !important;
+          border: none !important;
+          background-color: transparent !important;
+        }
+
+        table.purchases-table > tbody > tr {
+          border-bottom: 1px solid #333 !important;
+          transition: background-color 0.2s ease !important;
+          background-color: transparent !important;
+        }
+
+        table.purchases-table > tbody > tr:hover {
+          background-color: #222 !important;
+        }
+
+        table.purchases-table > tbody > tr:last-child {
+          border-bottom: none !important;
+        }
+
+        table.purchases-table > tbody > tr > td {
+          padding: 12px !important;
+          color: #fff !important;
+          border: none !important;
+          background-color: transparent !important;
+        }
+
+        table.purchases-table .client-name {
+          font-weight: 500 !important;
+        }
+
+        table.purchases-table .gym-name {
+          color: #ccc !important;
+        }
+
+        table.purchases-table .type {
+          font-weight: 500 !important;
+        }
+
+        table.purchases-table .amount {
+          font-weight: 600 !important;
+          color: #4ade80 !important;
+        }
+
+        table.purchases-table .purchased-at {
+          font-size: 14px !important;
+          color: #888 !important;
+        }
+
+        table.purchases-table .schedule-row {
+          background-color: #151515 !important;
+        }
+
+        table.purchases-table .schedule-row:hover {
+          background-color: #151515 !important;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  );
+}
