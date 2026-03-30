@@ -8,6 +8,8 @@ export default function GymMemberships() {
   const [error, setError] = useState(null);
   const [memberships, setMemberships] = useState([]);
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [pagination, setPagination] = useState({
     total: 0,
     limit: 10,
@@ -19,6 +21,14 @@ export default function GymMemberships() {
   const [expandedRows, setExpandedRows] = useState(new Set());
 
   const isFetchingRef = useRef(false);
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const fetchGymMemberships = useCallback(async (pageNum) => {
     if (isFetchingRef.current) return;
@@ -32,6 +42,7 @@ export default function GymMemberships() {
         params: {
           page: pageNum,
           limit: 10,
+          ...(debouncedSearch && { search: debouncedSearch }),
         },
       });
 
@@ -49,7 +60,7 @@ export default function GymMemberships() {
       setLoading(false);
       isFetchingRef.current = false;
     }
-  }, []);
+  }, [debouncedSearch]);
 
   useEffect(() => {
     fetchGymMemberships(page);
@@ -127,27 +138,54 @@ export default function GymMemberships() {
 
   return (
     <div>
-      {/* Header and Export Button */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h4 style={{ color: "#fff", margin: 0 }}>Gym Memberships</h4>
-        <button
-          className="btn"
-          onClick={handleExport}
-          disabled={exporting || loading}
-          style={{
-            backgroundColor: exporting || loading ? "#444" : "#28a745",
-            border: "none",
-            color: "#fff",
-            padding: "8px 16px",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-            cursor: exporting || loading ? "not-allowed" : "pointer",
-          }}
-        >
-          <FaDownload />
-          {exporting ? "Exporting..." : "Export Excel"}
-        </button>
+      {/* Search and Export Button */}
+      <div className="row mb-4">
+        <div className="col-md-4">
+          <div className="input-group">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by name, contact, or gym..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              style={{
+                backgroundColor: "#1a1a1a",
+                border: "1px solid #333",
+                color: "#fff",
+              }}
+            />
+            <button
+              className="btn"
+              type="button"
+              style={{ backgroundColor: "#FF5757", border: "none", color: "#fff" }}
+            >
+              Search
+            </button>
+          </div>
+        </div>
+        <div className="col-md-8 text-end">
+          <button
+            className="btn"
+            onClick={handleExport}
+            disabled={exporting || loading}
+            style={{
+              backgroundColor: exporting || loading ? "#444" : "#28a745",
+              border: "none",
+              color: "#fff",
+              padding: "8px 16px",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              cursor: exporting || loading ? "not-allowed" : "pointer",
+            }}
+          >
+            <FaDownload />
+            {exporting ? "Exporting..." : "Export Excel"}
+          </button>
+        </div>
       </div>
 
       {/* Memberships Table */}

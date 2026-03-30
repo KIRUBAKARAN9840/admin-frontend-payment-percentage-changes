@@ -161,7 +161,7 @@ export default function AllPurchases() {
               <input
                 type="text"
                 className="form-control"
-                placeholder="Search by client or gym name..."
+                placeholder="Search by name, contact, or gym..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 style={{
