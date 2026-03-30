@@ -77,6 +77,12 @@ export default function AdminTrackingPage() {
     }
     return "";
   });
+  const [activityDate, setActivityDate] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('trackingActivityDate') || "";
+    }
+    return "";
+  });
   const hasInitialized = useRef(false);
   const debounceRef = useRef(null);
   const pageRef = useRef(1);
@@ -98,6 +104,7 @@ export default function AdminTrackingPage() {
     searchQuery = search,
     statusFilter = activeStatus,
     telecallerFilter = selectedTelecaller,
+    activityDateFilter = activityDate,
   ) => {
     try {
       setLoading(true);
@@ -117,6 +124,10 @@ export default function AdminTrackingPage() {
 
       if (telecallerFilter) {
         params.last_called_by = telecallerFilter;
+      }
+
+      if (activityDateFilter) {
+        params.last_activity_date = activityDateFilter;
       }
 
       const response = await axiosInstance.get(
@@ -141,7 +152,7 @@ export default function AdminTrackingPage() {
   useEffect(() => {
     if (!hasInitialized.current) {
       hasInitialized.current = true;
-      fetchClients(page, search, activeStatus, selectedTelecaller);
+      fetchClients(page, search, activeStatus, selectedTelecaller, activityDate);
     }
   }, []);
 
@@ -167,6 +178,7 @@ export default function AdminTrackingPage() {
       sessionStorage.removeItem('trackingSearch');
       sessionStorage.removeItem('trackingStatus');
       sessionStorage.removeItem('trackingTelecaller');
+      sessionStorage.removeItem('trackingActivityDate');
     }
   }, [pathname]);
 
@@ -177,7 +189,7 @@ export default function AdminTrackingPage() {
     setPage(1);
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      fetchClients(1, value, activeStatus, selectedTelecaller);
+      fetchClients(1, value, activeStatus, selectedTelecaller, activityDate);
     }, 400);
   };
 
@@ -187,7 +199,7 @@ export default function AdminTrackingPage() {
     sessionStorage.setItem('trackingStatus', next);
     setPage(1);
     pageRef.current = 1;
-    fetchClients(1, search, next, selectedTelecaller);
+    fetchClients(1, search, next, selectedTelecaller, activityDate);
   };
 
   const handleTelecallerChange = (e) => {
@@ -196,7 +208,16 @@ export default function AdminTrackingPage() {
     sessionStorage.setItem('trackingTelecaller', value);
     setPage(1);
     pageRef.current = 1;
-    fetchClients(1, search, activeStatus, value);
+    fetchClients(1, search, activeStatus, value, activityDate);
+  };
+
+  const handleActivityDateChange = (e) => {
+    const value = e.target.value;
+    setActivityDate(value);
+    sessionStorage.setItem('trackingActivityDate', value);
+    setPage(1);
+    pageRef.current = 1;
+    fetchClients(1, search, activeStatus, selectedTelecaller, value);
   };
 
   const handlePageChange = (newPage) => {
@@ -205,7 +226,7 @@ export default function AdminTrackingPage() {
     pageRef.current = newPage;
     sessionStorage.setItem('trackingPage', newPage.toString());
     setPageInput("");
-    fetchClients(newPage, search, activeStatus);
+    fetchClients(newPage, search, activeStatus, selectedTelecaller, activityDate);
   };
 
   const handlePageInputSubmit = (e) => {
@@ -360,49 +381,91 @@ export default function AdminTrackingPage() {
         />
       </div>
 
-      {/* Last Called By Filter */}
-      <div style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-        <span style={{ color: "#9ca3af", fontSize: "0.875rem" }}>Last Called By:</span>
-        <select
-          value={selectedTelecaller}
-          onChange={handleTelecallerChange}
-          style={{
-            padding: "0.5rem 2rem 0.5rem 0.75rem",
-            backgroundColor: "#1f2937",
-            border: "1px solid #374151",
-            borderRadius: "0.5rem",
-            color: "white",
-            fontSize: "0.875rem",
-            outline: "none",
-            cursor: "pointer",
-          }}
-        >
-          <option value="">All Telecallers</option>
-          {telecallers.map((telecaller) => (
-            <option key={telecaller.id} value={telecaller.id}>
-              {telecaller.name}
-            </option>
-          ))}
-        </select>
-        {selectedTelecaller && (
-          <button
-            onClick={() => handleTelecallerChange({ target: { value: "" } })}
+      {/* Last Called By and Last Activity Date Filters - Same Row */}
+      <div style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+        {/* Last Called By Filter */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <span style={{ color: "#9ca3af", fontSize: "0.875rem" }}>Last Called By:</span>
+          <select
+            value={selectedTelecaller}
+            onChange={handleTelecallerChange}
             style={{
-              padding: "0.375rem 0.75rem",
-              fontSize: "0.875rem",
-              borderRadius: "9999px",
-              borderWidth: "1px",
-              borderStyle: "solid",
-              borderColor: "#4b5563",
+              padding: "0.5rem 2rem 0.5rem 0.75rem",
               backgroundColor: "#1f2937",
-              color: "#9ca3af",
+              border: "1px solid #374151",
+              borderRadius: "0.5rem",
+              color: "white",
+              fontSize: "0.875rem",
+              outline: "none",
               cursor: "pointer",
-              transition: "all 0.2s",
             }}
           >
-            Clear
-          </button>
-        )}
+            <option value="">All Telecallers</option>
+            {telecallers.map((telecaller) => (
+              <option key={telecaller.id} value={telecaller.id}>
+                {telecaller.name}
+              </option>
+            ))}
+          </select>
+          {selectedTelecaller && (
+            <button
+              onClick={() => handleTelecallerChange({ target: { value: "" } })}
+              style={{
+                padding: "0.375rem 0.75rem",
+                fontSize: "0.875rem",
+                borderRadius: "9999px",
+                borderWidth: "1px",
+                borderStyle: "solid",
+                borderColor: "#4b5563",
+                backgroundColor: "#1f2937",
+                color: "#9ca3af",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        {/* Last Activity Date Filter */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <span style={{ color: "#9ca3af", fontSize: "0.875rem" }}>Last Activity Date:</span>
+          <input
+            type="date"
+            value={activityDate}
+            onChange={handleActivityDateChange}
+            style={{
+              padding: "0.5rem 0.75rem",
+              backgroundColor: "#1f2937",
+              border: "1px solid #374151",
+              borderRadius: "0.5rem",
+              color: "white",
+              fontSize: "0.875rem",
+              outline: "none",
+              cursor: "pointer",
+            }}
+          />
+          {activityDate && (
+            <button
+              onClick={() => handleActivityDateChange({ target: { value: "" } })}
+              style={{
+                padding: "0.375rem 0.75rem",
+                fontSize: "0.875rem",
+                borderRadius: "9999px",
+                borderWidth: "1px",
+                borderStyle: "solid",
+                borderColor: "#4b5563",
+                backgroundColor: "#1f2937",
+                color: "#9ca3af",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Status Tabs */}
