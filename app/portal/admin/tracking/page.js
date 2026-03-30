@@ -70,6 +70,13 @@ export default function AdminTrackingPage() {
     }
     return "";
   });
+  const [telecallers, setTelecallers] = useState([]);
+  const [selectedTelecaller, setSelectedTelecaller] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('trackingTelecaller') || "";
+    }
+    return "";
+  });
   const hasInitialized = useRef(false);
   const debounceRef = useRef(null);
   const pageRef = useRef(1);
@@ -90,6 +97,7 @@ export default function AdminTrackingPage() {
     currentPage = 1,
     searchQuery = search,
     statusFilter = activeStatus,
+    telecallerFilter = selectedTelecaller,
   ) => {
     try {
       setLoading(true);
@@ -105,6 +113,10 @@ export default function AdminTrackingPage() {
 
       if (statusFilter) {
         params.call_status = statusFilter;
+      }
+
+      if (telecallerFilter) {
+        params.last_called_by = telecallerFilter;
       }
 
       const response = await axiosInstance.get(
@@ -129,8 +141,23 @@ export default function AdminTrackingPage() {
   useEffect(() => {
     if (!hasInitialized.current) {
       hasInitialized.current = true;
-      fetchClients(page, search, activeStatus);
+      fetchClients(page, search, activeStatus, selectedTelecaller);
     }
+  }, []);
+
+  // Fetch telecallers list for the filter dropdown
+  useEffect(() => {
+    const fetchTelecallers = async () => {
+      try {
+        const response = await axiosInstance.get("/api/admin/user-conversion/telecallers");
+        if (response.data.success) {
+          setTelecallers(response.data.data.telecallers || []);
+        }
+      } catch (error) {
+        console.error("Error fetching telecallers:", error);
+      }
+    };
+    fetchTelecallers();
   }, []);
 
   // Reset filters when navigating away from tracking page
@@ -139,6 +166,7 @@ export default function AdminTrackingPage() {
       sessionStorage.removeItem('trackingPage');
       sessionStorage.removeItem('trackingSearch');
       sessionStorage.removeItem('trackingStatus');
+      sessionStorage.removeItem('trackingTelecaller');
     }
   }, [pathname]);
 
@@ -149,7 +177,7 @@ export default function AdminTrackingPage() {
     setPage(1);
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      fetchClients(1, value, activeStatus);
+      fetchClients(1, value, activeStatus, selectedTelecaller);
     }, 400);
   };
 
@@ -159,7 +187,16 @@ export default function AdminTrackingPage() {
     sessionStorage.setItem('trackingStatus', next);
     setPage(1);
     pageRef.current = 1;
-    fetchClients(1, search, next);
+    fetchClients(1, search, next, selectedTelecaller);
+  };
+
+  const handleTelecallerChange = (e) => {
+    const value = e.target.value;
+    setSelectedTelecaller(value);
+    sessionStorage.setItem('trackingTelecaller', value);
+    setPage(1);
+    pageRef.current = 1;
+    fetchClients(1, search, activeStatus, value);
   };
 
   const handlePageChange = (newPage) => {
@@ -321,6 +358,51 @@ export default function AdminTrackingPage() {
             boxSizing: "border-box",
           }}
         />
+      </div>
+
+      {/* Last Called By Filter */}
+      <div style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <span style={{ color: "#9ca3af", fontSize: "0.875rem" }}>Last Called By:</span>
+        <select
+          value={selectedTelecaller}
+          onChange={handleTelecallerChange}
+          style={{
+            padding: "0.5rem 2rem 0.5rem 0.75rem",
+            backgroundColor: "#1f2937",
+            border: "1px solid #374151",
+            borderRadius: "0.5rem",
+            color: "white",
+            fontSize: "0.875rem",
+            outline: "none",
+            cursor: "pointer",
+          }}
+        >
+          <option value="">All Telecallers</option>
+          {telecallers.map((telecaller) => (
+            <option key={telecaller.id} value={telecaller.id}>
+              {telecaller.name}
+            </option>
+          ))}
+        </select>
+        {selectedTelecaller && (
+          <button
+            onClick={() => handleTelecallerChange({ target: { value: "" } })}
+            style={{
+              padding: "0.375rem 0.75rem",
+              fontSize: "0.875rem",
+              borderRadius: "9999px",
+              borderWidth: "1px",
+              borderStyle: "solid",
+              borderColor: "#4b5563",
+              backgroundColor: "#1f2937",
+              color: "#9ca3af",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       {/* Status Tabs */}

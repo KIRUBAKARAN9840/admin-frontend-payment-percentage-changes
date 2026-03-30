@@ -214,62 +214,64 @@ export default function NutritionistPlans() {
       ) : (
         <>
           {/* Table Section */}
-          <div className="table-responsive">
-            <table style={{ width: "100%", borderCollapse: "collapse", background: "#1e2529" }}>
-              <thead>
-                <tr style={{ background: "#2d3748" }}>
-                  <th style={{ color: "#fff", padding: "14px 16px", borderBottom: "1px solid #4a5568", textAlign: "left" }}>User Name</th>
-                  <th style={{ color: "#fff", padding: "14px 16px", borderBottom: "1px solid #4a5568", textAlign: "left" }}>Contact</th>
-                  <th style={{ color: "#fff", padding: "14px 16px", borderBottom: "1px solid #4a5568", textAlign: "left" }}>Gym</th>
-                  <th style={{ color: "#fff", padding: "14px 16px", borderBottom: "1px solid #4a5568", textAlign: "left" }}>Subscription Period</th>
-                  <th style={{ color: "#fff", padding: "14px 16px", borderBottom: "1px solid #4a5568", textAlign: "left" }}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.customer_id} style={{ borderBottom: "1px solid #4a5568" }}>
-                    <td style={{ color: "#fff", padding: "14px 16px", verticalAlign: "top" }}>
-                      <div>{user.name}</div>
-                      <div style={{ fontSize: "12px", color: "#888", marginTop: "2px" }}>
-                        Joined: {formatDate(user.client_joined_date)}
-                      </div>
-                    </td>
-                    <td style={{ color: "#fff", padding: "14px 16px", verticalAlign: "top" }}>
-                      <div>{user.mobile}</div>
-                      <div style={{ fontSize: "12px", color: "#888", marginTop: "2px" }}>
-                        {user.email}
-                      </div>
-                    </td>
-                    <td style={{ color: "#fff", padding: "14px 16px", verticalAlign: "top" }}>
-                      <div>{user.gym_name}</div>
-                      <div style={{ fontSize: "12px", color: "#888", marginTop: "2px" }}>
-                        {user.gym_location}
-                      </div>
-                    </td>
-                    <td style={{ color: "#fff", padding: "14px 16px", verticalAlign: "top" }}>
-                      <div style={{ fontSize: "13px" }}>
-                        <div style={{ color: "#888" }}>Start: {formatDate(user.subscription_start_date)}</div>
-                        <div style={{ color: "#888" }}>End: {formatDate(user.subscription_end_date)}</div>
-                      </div>
-                    </td>
-                    <td style={{ padding: "14px 16px", verticalAlign: "top" }}>
-                      <span
-                        style={{
-                          padding: "4px 12px",
-                          borderRadius: "12px",
-                          fontSize: "13px",
-                          fontWeight: "600",
-                          backgroundColor: getDaysLeftColor(user.days_left) + "20",
-                          color: getDaysLeftColor(user.days_left),
-                        }}
-                      >
-                        {getDaysLeftLabel(user.days_left)}
-                      </span>
-                    </td>
+          <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid #333" }}>
+            <div className="table-responsive" style={{ margin: 0 }}>
+              <table className="purchase-table" style={{ marginBottom: 0 }}>
+                <thead style={{ background: "#3d3d3d" }}>
+                  <tr>
+                    <th style={{ background: "#3d3d3d" }}>Client Name</th>
+                    <th style={{ background: "#3d3d3d" }}>Contact</th>
+                    <th style={{ background: "#3d3d3d" }}>Gym</th>
+                    <th style={{ background: "#3d3d3d" }}>Subscription Period</th>
+                    <th style={{ background: "#3d3d3d" }}>Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {users.map((user) => (
+                    <tr key={user.customer_id}>
+                      <td>
+                        <div>{user.name}</div>
+                        <div style={{ fontSize: "12px", color: "#888", marginTop: "2px" }}>
+                          Joined: {formatDate(user.client_joined_date)}
+                        </div>
+                      </td>
+                      <td>
+                        <div>{user.mobile}</div>
+                        <div style={{ fontSize: "12px", color: "#888", marginTop: "2px" }}>
+                          {user.email}
+                        </div>
+                      </td>
+                      <td>
+                        <div>{user.gym_name}</div>
+                        <div style={{ fontSize: "12px", color: "#888", marginTop: "2px" }}>
+                          {user.gym_location}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: "13px" }}>
+                          <div style={{ color: "#888" }}>Start: {formatDate(user.subscription_start_date)}</div>
+                          <div style={{ color: "#888" }}>End: {formatDate(user.subscription_end_date)}</div>
+                        </div>
+                      </td>
+                      <td>
+                        <span
+                          style={{
+                            padding: "4px 12px",
+                            borderRadius: "12px",
+                            fontSize: "13px",
+                            fontWeight: "600",
+                            backgroundColor: getDaysLeftColor(user.days_left) + "20",
+                            color: getDaysLeftColor(user.days_left),
+                          }}
+                        >
+                          {getDaysLeftLabel(user.days_left)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Pagination */}
