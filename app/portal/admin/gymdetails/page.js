@@ -138,13 +138,13 @@ const GymDetails = () => {
             backdropFilter: "blur(2px)",
           }}
         >
-          <div style={{ textAlign: "center", color: "#FF5757" }}>
+          <div style={{ textAlign: "center", color: "white" }}>
             <div
               style={{
                 width: "50px",
                 height: "50px",
                 border: "4px solid #3a3a3a",
-                borderTop: "4px solid #FF5757",
+                borderTop: "4px solid white",
                 borderRadius: "50%",
                 animation: "spin 1s linear infinite",
                 margin: "0 auto 1rem",
@@ -172,7 +172,7 @@ const GymDetails = () => {
               fontSize: "20px",
             }}
           >
-            <FaArrowLeft style={{ color: "#FF5757" }} />
+            <FaArrowLeft style={{ color: "white" }} />
           </button>
           {gymLogo && (
             <img
@@ -188,7 +188,7 @@ const GymDetails = () => {
             />
           )}
           <h2 className="users-title">
-            <span style={{ color: "#FF5757" }}>{gymName || `Gym ${gymId}`}</span>
+            <span style={{ color: "white" }}>{gymName || `Gym ${gymId}`}</span>
           </h2>
         </div>
       </div>
@@ -200,7 +200,7 @@ const GymDetails = () => {
           style={{ backgroundColor: "#1a1f1f", border: "1px solid #333", minHeight: "100px" }}
         >
           <div className="card-body">
-            <h5 style={{ color: "#FF5757", marginBottom: "15px" }}>Clients</h5>
+            <h5 style={{ color: "white", marginBottom: "15px" }}>Clients</h5>
             {!loading ? (
               <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
                 <div
@@ -388,7 +388,7 @@ const GymDetails = () => {
           style={{ backgroundColor: "#1a1f1f", border: "1px solid #333", minHeight: "120px" }}
         >
           <div className="card-body">
-            <h5 style={{ color: "#FF5757", marginBottom: "20px" }}>Session Plans</h5>
+            <h5 style={{ color: "white", marginBottom: "20px" }}>Session Plans</h5>
             {!loading && sessionPlans.length > 0 ? (
               <div className="row">
                 {sessionPlans.map((plan, index) => (
@@ -404,7 +404,7 @@ const GymDetails = () => {
                       }}
                     >
                       <div style={{ marginBottom: "15px" }}>
-                        <h5 style={{ color: "#FF5757", margin: 0, marginBottom: "10px" }}>
+                        <h5 style={{ color: "white", margin: 0, marginBottom: "10px" }}>
                           {plan.session_name}
                         </h5>
                         {plan.session_description && (
@@ -471,7 +471,7 @@ const GymDetails = () => {
                                     <div
                                       style={{
                                         fontSize: "12px",
-                                        color: "#FF5757",
+                                        color: "white",
                                       }}
                                     >
                                       {plan.discount_percent}% OFF
@@ -544,14 +544,14 @@ const GymDetails = () => {
           style={{ backgroundColor: "#1a1f1f", border: "1px solid #333", minHeight: "120px" }}
         >
           <div className="card-body">
-            <h5 style={{ color: "#FF5757", marginBottom: "20px" }}>Membership Plans</h5>
+            <h5 style={{ color: "white", marginBottom: "20px" }}>Membership Plans</h5>
 
             {!loading && (personalTrainingPlans.length > 0 || normalMembershipPlans.length > 0) ? (
               <>
                 {/* Personal Training Plans */}
                 {personalTrainingPlans.length > 0 && (
                   <>
-                    <h5 style={{ color: "#FF5757", marginBottom: "15px" }}>
+                    <h5 style={{ color: "white", marginBottom: "15px" }}>
                       Personal Training
                     </h5>
                     {Object.entries(groupPlansBy(personalTrainingPlans)).map(([groupKey, plans], groupIndex) => (
@@ -581,7 +581,7 @@ const GymDetails = () => {
                                 }}
                               >
                                 <div style={{ marginBottom: "15px" }}>
-                                  <h5 style={{ color: "#FF5757", margin: 0, marginBottom: "10px" }}>
+                                  <h5 style={{ color: "white", margin: 0, marginBottom: "10px" }}>
                                     {plan.plan_name}
                                   </h5>
                                 </div>
@@ -657,7 +657,7 @@ const GymDetails = () => {
                                               <div
                                                 style={{
                                                   fontSize: "12px",
-                                                  color: "#FF5757",
+                                                  color: "white",
                                                 }}
                                               >
                                                 {plan.discount_percent}% OFF
@@ -695,7 +695,7 @@ const GymDetails = () => {
                       borderTop: "1px solid #333",
                       margin: personalTrainingPlans.length > 0 ? "30px 0 20px 0" : "0"
                     }}></div>
-                    <h5 style={{ color: "#FF5757", marginBottom: "15px" }}>
+                    <h5 style={{ color: "white", marginBottom: "15px" }}>
                       Normal Membership
                     </h5>
                     {Object.entries(groupPlansBy(normalMembershipPlans)).map(([groupKey, plans], groupIndex) => (
@@ -725,7 +725,7 @@ const GymDetails = () => {
                                 }}
                               >
                                 <div style={{ marginBottom: "15px" }}>
-                                  <h5 style={{ color: "#FF5757", margin: 0, marginBottom: "10px" }}>
+                                  <h5 style={{ color: "white", margin: 0, marginBottom: "10px" }}>
                                     {plan.plan_name}
                                   </h5>
                                 </div>
@@ -801,7 +801,7 @@ const GymDetails = () => {
                                               <div
                                                 style={{
                                                   fontSize: "12px",
-                                                  color: "#FF5757",
+                                                  color: "white",
                                                 }}
                                               >
                                                 {plan.discount_percent}% OFF
@@ -856,7 +856,7 @@ const GymDetails = () => {
           style={{ backgroundColor: "#1a1f1f", border: "1px solid #333", minHeight: "150px" }}
         >
           <div className="card-body">
-            <h5 style={{ color: "#FF5757", marginBottom: "20px" }}>Daily Pass Pricing</h5>
+            <h5 style={{ color: "white", marginBottom: "20px" }}>Daily Pass Pricing</h5>
             {!loading && dailyPass ? (
               <div
                 style={{
@@ -901,7 +901,7 @@ const GymDetails = () => {
                               <div
                                 style={{
                                   fontSize: "12px",
-                                  color: "#FF5757",
+                                  color: "white",
                                 }}
                               >
                                 {dailyPass.discount_percentage}% OFF
@@ -958,7 +958,7 @@ const GymDetails = () => {
         >
           <div className="card-body">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-              <h5 style={{ color: "#FF5757", margin: 0 }}>Gym Pictures</h5>
+              <h5 style={{ color: "white", margin: 0 }}>Gym Pictures</h5>
               {!loading && studioPictures.length > 0 && (
                 <span
                   style={{
@@ -1106,7 +1106,7 @@ const GymDetails = () => {
                           height: "60px",
                           borderRadius: "6px",
                           overflow: "hidden",
-                          border: index === currentImageIndex ? "2px solid #FF5757" : "2px solid #333",
+                          border: index === currentImageIndex ? "2px solid white" : "2px solid #333",
                           backgroundColor: "#121717",
                           cursor: "pointer",
                           padding: 0,
@@ -1161,7 +1161,7 @@ const GymDetails = () => {
           style={{ backgroundColor: "#1a1f1f", border: "1px solid #333", minHeight: "100px" }}
         >
           <div className="card-body">
-            <h5 style={{ color: "#FF5757", marginBottom: "15px" }}>Recurring Gym Subscribers</h5>
+            <h5 style={{ color: "white", marginBottom: "15px" }}>Recurring Gym Subscribers</h5>
             <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
               <div
                 style={{
@@ -1270,7 +1270,7 @@ const GymDetails = () => {
             borderBottom: "1px solid #333",
           }}
         >
-          <Modal.Title style={{ color: "#FF5757" }}>
+          <Modal.Title style={{ color: "white" }}>
             {selectedPlan?.plan_name}
           </Modal.Title>
         </Modal.Header>
@@ -1294,7 +1294,7 @@ const GymDetails = () => {
           )}
           {selectedPlan?.services && Array.isArray(selectedPlan.services) && selectedPlan.services.length > 0 ? (
             <>
-              <h6 style={{ color: "#FF5757", marginBottom: "10px" }}>Services:</h6>
+              <h6 style={{ color: "white", marginBottom: "10px" }}>Services:</h6>
               <ul style={{ color: "#ccc", paddingLeft: "20px" }}>
                 {selectedPlan.services.map((service, idx) => (
                   <li key={idx} style={{ marginBottom: "5px" }}>
@@ -1316,7 +1316,7 @@ const GymDetails = () => {
           <button
             onClick={() => setSelectedPlan(null)}
             style={{
-              backgroundColor: "#FF5757",
+              backgroundColor: "white",
               color: "white",
               border: "none",
               padding: "8px 16px",
@@ -1328,7 +1328,7 @@ const GymDetails = () => {
               e.target.style.backgroundColor = "#e64848";
             }}
             onMouseLeave={(e) => {
-              e.target.style.backgroundColor = "#FF5757";
+              e.target.style.backgroundColor = "white";
             }}
           >
             Close

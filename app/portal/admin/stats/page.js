@@ -8,7 +8,6 @@ import {
   FaSortDown,
   FaChevronLeft,
   FaChevronRight,
-  FaFilter,
   FaInfoCircle,
 } from "react-icons/fa";
 
@@ -26,6 +25,8 @@ export default function GymStats() {
   const [itemsPerPage, setItemsPerPage] = useState(parseInt(searchParams.get("limit") || "10"));
   const [totalGyms, setTotalGyms] = useState(0);
   const [registeredUsersFilter, setRegisteredUsersFilter] = useState(searchParams.get("registered_users") || "");
+  const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
+  const [cities, setCities] = useState([]);
   const [planTypeFilters, setPlanTypeFilters] = useState({
     sessionPlans: searchParams.get("has_session_plans") === "true",
     membershipPlans: searchParams.get("has_membership_plans") === "true",
@@ -76,6 +77,12 @@ export default function GymStats() {
       params.delete("registered_users");
     }
 
+    if (cityFilter) {
+      params.set("city", cityFilter);
+    } else {
+      params.delete("city");
+    }
+
     if (planTypeFilters.sessionPlans) {
       params.set("has_session_plans", "true");
     } else {
@@ -100,7 +107,7 @@ export default function GymStats() {
     // Replace URL with new params without triggering navigation
     const newUrl = `${window.location.pathname}?${params.toString()}`;
     window.history.replaceState({}, "", newUrl);
-  }, [searchTerm, sortOrder, registeredUsersFilter, planTypeFilters, currentPage, itemsPerPage, searchParams]);
+  }, [searchTerm, sortOrder, registeredUsersFilter, cityFilter, planTypeFilters, currentPage, itemsPerPage, searchParams]);
 
   const fetchGyms = useCallback(async () => {
     try {
@@ -132,6 +139,11 @@ export default function GymStats() {
         params.registered_users_filter = registeredUsersFilter;
       }
 
+      // Add city filter
+      if (cityFilter) {
+        params.city = cityFilter;
+      }
+
       const response = await axiosInstance.get("/api/admin/gym-stats", { params });
 
       if (response.data.success) {
@@ -143,12 +155,27 @@ export default function GymStats() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearchTerm, sortOrder, currentPage, itemsPerPage, planTypeFilters, registeredUsersFilter]);
+  }, [debouncedSearchTerm, sortOrder, currentPage, itemsPerPage, planTypeFilters, registeredUsersFilter, cityFilter]);
 
   // Fetch gyms when filters change
   useEffect(() => {
     fetchGyms();
   }, [fetchGyms]);
+
+  // Fetch unique cities
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const response = await axiosInstance.get("/api/admin/gym-stats/cities");
+        if (response.data.success) {
+          setCities(response.data.data.cities || []);
+        }
+      } catch (error) {
+        console.error("Error fetching cities:", error);
+      }
+    };
+    fetchCities();
+  }, []);
 
   const handleFilterChange = (filterType, value) => {
     setCurrentPage(1);
@@ -311,6 +338,24 @@ export default function GymStats() {
               <option value="150">&gt; 150 Clients</option>
               <option value="200">&gt; 200 Clients</option>
               <option value="250">&gt; 250 Clients</option>
+            </select>
+          </div>
+
+          <div className="col-lg-2 col-md-6 col-sm-12">
+            <select
+              className="filter-select"
+              value={cityFilter}
+              onChange={(e) => {
+                setCityFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+            >
+              <option value="">All Cities</option>
+              {cities.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
             </select>
           </div>
         </div>
