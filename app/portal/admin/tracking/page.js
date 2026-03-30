@@ -83,6 +83,12 @@ export default function AdminTrackingPage() {
     }
     return "";
   });
+  const [purchaseDate, setPurchaseDate] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('trackingPurchaseDate') || "";
+    }
+    return "";
+  });
   const hasInitialized = useRef(false);
   const debounceRef = useRef(null);
   const pageRef = useRef(1);
@@ -105,6 +111,7 @@ export default function AdminTrackingPage() {
     statusFilter = activeStatus,
     telecallerFilter = selectedTelecaller,
     activityDateFilter = activityDate,
+    purchaseDateFilter = purchaseDate,
   ) => {
     try {
       setLoading(true);
@@ -130,6 +137,10 @@ export default function AdminTrackingPage() {
         params.last_activity_date = activityDateFilter;
       }
 
+      if (purchaseDateFilter) {
+        params.last_purchase_date = purchaseDateFilter;
+      }
+
       const response = await axiosInstance.get(
         "/telecaller/client-tracking/clients-summary",
         { params },
@@ -152,7 +163,7 @@ export default function AdminTrackingPage() {
   useEffect(() => {
     if (!hasInitialized.current) {
       hasInitialized.current = true;
-      fetchClients(page, search, activeStatus, selectedTelecaller, activityDate);
+      fetchClients(page, search, activeStatus, selectedTelecaller, activityDate, purchaseDate);
     }
   }, []);
 
@@ -179,6 +190,7 @@ export default function AdminTrackingPage() {
       sessionStorage.removeItem('trackingStatus');
       sessionStorage.removeItem('trackingTelecaller');
       sessionStorage.removeItem('trackingActivityDate');
+      sessionStorage.removeItem('trackingPurchaseDate');
     }
   }, [pathname]);
 
@@ -189,7 +201,7 @@ export default function AdminTrackingPage() {
     setPage(1);
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      fetchClients(1, value, activeStatus, selectedTelecaller, activityDate);
+      fetchClients(1, value, activeStatus, selectedTelecaller, activityDate, purchaseDate);
     }, 400);
   };
 
@@ -199,7 +211,7 @@ export default function AdminTrackingPage() {
     sessionStorage.setItem('trackingStatus', next);
     setPage(1);
     pageRef.current = 1;
-    fetchClients(1, search, next, selectedTelecaller, activityDate);
+    fetchClients(1, search, next, selectedTelecaller, activityDate, purchaseDate);
   };
 
   const handleTelecallerChange = (e) => {
@@ -208,7 +220,7 @@ export default function AdminTrackingPage() {
     sessionStorage.setItem('trackingTelecaller', value);
     setPage(1);
     pageRef.current = 1;
-    fetchClients(1, search, activeStatus, value, activityDate);
+    fetchClients(1, search, activeStatus, value, activityDate, purchaseDate);
   };
 
   const handleActivityDateChange = (e) => {
@@ -217,7 +229,16 @@ export default function AdminTrackingPage() {
     sessionStorage.setItem('trackingActivityDate', value);
     setPage(1);
     pageRef.current = 1;
-    fetchClients(1, search, activeStatus, selectedTelecaller, value);
+    fetchClients(1, search, activeStatus, selectedTelecaller, value, purchaseDate);
+  };
+
+  const handlePurchaseDateChange = (e) => {
+    const value = e.target.value;
+    setPurchaseDate(value);
+    sessionStorage.setItem('trackingPurchaseDate', value);
+    setPage(1);
+    pageRef.current = 1;
+    fetchClients(1, search, activeStatus, selectedTelecaller, activityDate, value);
   };
 
   const handlePageChange = (newPage) => {
@@ -226,7 +247,7 @@ export default function AdminTrackingPage() {
     pageRef.current = newPage;
     sessionStorage.setItem('trackingPage', newPage.toString());
     setPageInput("");
-    fetchClients(newPage, search, activeStatus, selectedTelecaller, activityDate);
+    fetchClients(newPage, search, activeStatus, selectedTelecaller, activityDate, purchaseDate);
   };
 
   const handlePageInputSubmit = (e) => {
@@ -449,6 +470,45 @@ export default function AdminTrackingPage() {
           {activityDate && (
             <button
               onClick={() => handleActivityDateChange({ target: { value: "" } })}
+              style={{
+                padding: "0.375rem 0.75rem",
+                fontSize: "0.875rem",
+                borderRadius: "9999px",
+                borderWidth: "1px",
+                borderStyle: "solid",
+                borderColor: "#4b5563",
+                backgroundColor: "#1f2937",
+                color: "#9ca3af",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        {/* Last Purchase Date Filter */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <span style={{ color: "#9ca3af", fontSize: "0.875rem" }}>Last Purchase Date:</span>
+          <input
+            type="date"
+            value={purchaseDate}
+            onChange={handlePurchaseDateChange}
+            style={{
+              padding: "0.5rem 0.75rem",
+              backgroundColor: "#1f2937",
+              border: "1px solid #374151",
+              borderRadius: "0.5rem",
+              color: "white",
+              fontSize: "0.875rem",
+              outline: "none",
+              cursor: "pointer",
+            }}
+          />
+          {purchaseDate && (
+            <button
+              onClick={() => handlePurchaseDateChange({ target: { value: "" } })}
               style={{
                 padding: "0.375rem 0.75rem",
                 fontSize: "0.875rem",
