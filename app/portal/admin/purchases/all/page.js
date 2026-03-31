@@ -143,6 +143,23 @@ export default function AllPurchases() {
     return `₹${amount?.toFixed(2) || "0.00"}`;
   };
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "scheduled":
+        return "#FFA500";
+      case "attended":
+        return "#4ade80";
+      case "missed":
+        return "#ef4444";
+      case "rescheduled":
+        return "#3b82f6";
+      case "canceled":
+        return "#888";
+      default:
+        return "#ccc";
+    }
+  };
+
   const getDisplayValue = (purchase) => {
     if (purchase.type === "Daily Pass") {
       return purchase.days_total || "N/A";
@@ -234,7 +251,7 @@ export default function AllPurchases() {
           <p style={{ fontSize: "16px", color: "#888" }}>No purchases found</p>
         </div>
       ) : (
-        <div className="table-responsive">
+        <div className="table-responsive" style={{ overflowX: "auto" }}>
           <table className="table purchases-table">
             <thead>
               <tr>
@@ -246,6 +263,7 @@ export default function AllPurchases() {
                 <th>Days / Classes</th>
                 <th>Amount</th>
                 <th>Purchased At</th>
+                <th>Status</th>
                 <th>Platform</th>
               </tr>
             </thead>
@@ -288,6 +306,25 @@ export default function AllPurchases() {
                       <td className="days-total">{getDisplayValue(purchase)}</td>
                       <td className="amount">{formatAmount(purchase.amount)}</td>
                       <td className="purchased-at">{formatDate(purchase.purchased_at)}</td>
+                      <td className="status">
+                        {purchase.status ? (
+                          <span
+                            style={{
+                              padding: "4px 12px",
+                              borderRadius: "4px",
+                              fontSize: "12px",
+                              fontWeight: "600",
+                              textTransform: "uppercase",
+                              backgroundColor: "rgba(255, 255, 255, 0.1)",
+                              color: getStatusColor(purchase.status),
+                            }}
+                          >
+                            {purchase.status}
+                          </span>
+                        ) : (
+                          <span style={{ color: "#666", fontSize: "12px" }}>N/A</span>
+                        )}
+                      </td>
                       <td className="platform">
                         <span
                           style={{
@@ -308,7 +345,7 @@ export default function AllPurchases() {
                     </tr>
                     {isExpanded && (
                       <tr className="schedule-row">
-                        <td colSpan="9" style={{ padding: "0 !important" }}>
+                        <td colSpan="10" style={{ padding: "0 !important" }}>
                           <div
                             style={{
                               backgroundColor: "#151515",
@@ -451,8 +488,13 @@ export default function AllPurchases() {
       )}
 
       <style jsx global>{`
+        .table-responsive {
+          overflow-x: auto !important;
+        }
+
         table.purchases-table {
           width: 100% !important;
+          min-width: 1200px !important;
           border-collapse: separate !important;
           border-spacing: 0 !important;
           background-color: #1a1a1a !important;
@@ -516,6 +558,10 @@ export default function AllPurchases() {
         table.purchases-table .purchased-at {
           font-size: 14px !important;
           color: #888 !important;
+        }
+
+        table.purchases-table .status {
+          text-align: center !important;
         }
 
         table.purchases-table .schedule-row {
