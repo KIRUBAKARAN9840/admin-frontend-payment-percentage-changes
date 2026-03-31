@@ -17,12 +17,14 @@ export default function AllPurchases() {
   });
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [expandedRows, setExpandedRows] = useState(new Set());
   const [exporting, setExporting] = useState(false);
 
   const isFetchingRef = useRef(false);
 
-  const fetchPurchases = useCallback(async (pageNum, searchQuery, type) => {
+  const fetchPurchases = useCallback(async (pageNum, searchQuery, type, start, end) => {
     if (isFetchingRef.current) return;
 
     try {
@@ -37,6 +39,8 @@ export default function AllPurchases() {
 
       if (searchQuery) params.search = searchQuery;
       if (type && type !== "all") params.type = type;
+      if (start) params.start_date = start;
+      if (end) params.end_date = end;
 
       const response = await axiosInstance.get("/api/admin/purchases/all-purchases", {
         params,
@@ -59,8 +63,8 @@ export default function AllPurchases() {
   }, []);
 
   useEffect(() => {
-    fetchPurchases(page, search, typeFilter);
-  }, [page, search, typeFilter, fetchPurchases]);
+    fetchPurchases(page, search, typeFilter, startDate, endDate);
+  }, [page, search, typeFilter, startDate, endDate, fetchPurchases]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -74,6 +78,8 @@ export default function AllPurchases() {
       const params = {};
       if (search) params.search = search;
       if (typeFilter && typeFilter !== "all") params.type = typeFilter;
+      if (startDate) params.start_date = startDate;
+      if (endDate) params.end_date = endDate;
 
       const response = await axiosInstance.get("/api/admin/purchases/export-purchases", {
         params,
@@ -222,6 +228,40 @@ export default function AllPurchases() {
               <option value="Session">Fitness Class</option>
               <option value="Daily Pass">Daily Pass</option>
             </select>
+
+            {/* Date Filter */}
+            <input
+              type="date"
+              className="form-control"
+              value={startDate}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                setPage(1);
+              }}
+              style={{
+                backgroundColor: "#1a1a1a",
+                border: "1px solid #333",
+                color: "#fff",
+                width: "140px",
+              }}
+              title="Start Date"
+            />
+            <input
+              type="date"
+              className="form-control"
+              value={endDate}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                setPage(1);
+              }}
+              style={{
+                backgroundColor: "#1a1a1a",
+                border: "1px solid #333",
+                color: "#fff",
+                width: "140px",
+              }}
+              title="End Date"
+            />
           </div>
         </div>
         <div className="col-md-4 text-end">
