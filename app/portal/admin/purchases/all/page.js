@@ -179,6 +179,12 @@ export default function AllPurchases() {
 
   return (
     <div>
+      <style>{`
+        input[type="date"]::-webkit-calendar-picker-indicator {
+          filter: invert(1);
+          cursor: pointer;
+        }
+      `}</style>
       {/* Search and Filter */}
       <div className="row mb-4">
         <div className="col-md-8">
