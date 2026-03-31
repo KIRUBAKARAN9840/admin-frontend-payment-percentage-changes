@@ -16,12 +16,13 @@ export default function AllPurchases() {
     hasPrev: false,
   });
   const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [expandedRows, setExpandedRows] = useState(new Set());
   const [exporting, setExporting] = useState(false);
 
   const isFetchingRef = useRef(false);
 
-  const fetchPurchases = useCallback(async (pageNum, searchQuery) => {
+  const fetchPurchases = useCallback(async (pageNum, searchQuery, type) => {
     if (isFetchingRef.current) return;
 
     try {
@@ -35,6 +36,7 @@ export default function AllPurchases() {
       };
 
       if (searchQuery) params.search = searchQuery;
+      if (type && type !== "all") params.type = type;
 
       const response = await axiosInstance.get("/api/admin/purchases/all-purchases", {
         params,
@@ -57,8 +59,8 @@ export default function AllPurchases() {
   }, []);
 
   useEffect(() => {
-    fetchPurchases(page, search);
-  }, [page, search, fetchPurchases]);
+    fetchPurchases(page, search, typeFilter);
+  }, [page, search, typeFilter, fetchPurchases]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -71,6 +73,7 @@ export default function AllPurchases() {
 
       const params = {};
       if (search) params.search = search;
+      if (typeFilter && typeFilter !== "all") params.type = typeFilter;
 
       const response = await axiosInstance.get("/api/admin/purchases/export-purchases", {
         params,
@@ -170,34 +173,58 @@ export default function AllPurchases() {
 
   return (
     <div>
-      {/* Search */}
+      {/* Search and Filter */}
       <div className="row mb-4">
-        <div className="col-md-4">
-          <form onSubmit={handleSearch}>
-            <div className="input-group">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search by name, contact, or gym..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                style={{
-                  backgroundColor: "#1a1a1a",
-                  border: "1px solid #333",
-                  color: "#fff",
-                }}
-              />
-              <button
-                className="btn"
-                type="submit"
-                style={{ backgroundColor: "#FF5757", border: "none", color: "#fff" }}
-              >
-                Search
-              </button>
-            </div>
-          </form>
+        <div className="col-md-8">
+          <div className="d-flex gap-3">
+            {/* Search */}
+            <form onSubmit={handleSearch} className="flex-grow-1" style={{ maxWidth: "320px" }}>
+              <div className="input-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search by name, contact, or gym..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  style={{
+                    backgroundColor: "#1a1a1a",
+                    border: "1px solid #333",
+                    color: "#fff",
+                  }}
+                />
+                <button
+                  className="btn"
+                  type="submit"
+                  style={{ backgroundColor: "#FF5757", border: "none", color: "#fff" }}
+                >
+                  Search
+                </button>
+              </div>
+            </form>
+
+            {/* Type Filter */}
+            <select
+              className="form-select"
+              value={typeFilter}
+              onChange={(e) => {
+                setTypeFilter(e.target.value);
+                setPage(1);
+              }}
+              style={{
+                backgroundColor: "#1a1a1a",
+                border: "1px solid #333",
+                color: "#fff",
+                minWidth: "135px",
+                width: "135px",
+              }}
+            >
+              <option value="all">All Types</option>
+              <option value="Session">Fitness Class</option>
+              <option value="Daily Pass">Daily Pass</option>
+            </select>
+          </div>
         </div>
-        <div className="col-md-8 text-end">
+        <div className="col-md-4 text-end">
           <button
             className="btn"
             onClick={handleExport}
