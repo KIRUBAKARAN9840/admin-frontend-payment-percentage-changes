@@ -388,7 +388,7 @@ const GymDetails = () => {
           style={{ backgroundColor: "#1a1f1f", border: "1px solid #333", minHeight: "120px" }}
         >
           <div className="card-body">
-            <h5 style={{ color: "white", marginBottom: "20px" }}>Session Plans</h5>
+            <h5 style={{ color: "white", marginBottom: "20px" }}>Fitness Classes</h5>
             {!loading && sessionPlans.length > 0 ? (
               <div className="row">
                 {sessionPlans.map((plan, index) => (
@@ -1316,7 +1316,7 @@ const GymDetails = () => {
           <button
             onClick={() => setSelectedPlan(null)}
             style={{
-              backgroundColor: "white",
+              backgroundColor: "#FF5757",
               color: "white",
               border: "none",
               padding: "8px 16px",
@@ -1328,7 +1328,7 @@ const GymDetails = () => {
               e.target.style.backgroundColor = "#e64848";
             }}
             onMouseLeave={(e) => {
-              e.target.style.backgroundColor = "white";
+              e.target.style.backgroundColor = "#FF5757";
             }}
           >
             Close
