@@ -490,6 +490,7 @@ export default function AllPurchases() {
       <style jsx global>{`
         .table-responsive {
           overflow-x: auto !important;
+          position: relative !important;
         }
 
         table.purchases-table {
@@ -500,7 +501,79 @@ export default function AllPurchases() {
           background-color: #1a1a1a !important;
           color: #fff !important;
           border-radius: 8px !important;
-          overflow: hidden !important;
+          overflow: visible !important;
+        }
+
+        /* Sticky columns */
+        table.purchases-table > thead > tr > th:nth-child(1),
+        table.purchases-table > tbody > tr > td:nth-child(1) {
+          position: sticky !important;
+          left: 0 !important;
+          z-index: 11 !important;
+          background-color: #222 !important;
+          border-right: 1px solid #333 !important;
+        }
+
+        table.purchases-table > thead > tr > th:nth-child(2),
+        table.purchases-table > tbody > tr > td:nth-child(2) {
+          position: sticky !important;
+          left: 40px !important;
+          z-index: 11 !important;
+          background-color: #222 !important;
+          border-right: 1px solid #333 !important;
+        }
+
+        table.purchases-table > thead > tr > th:nth-child(3),
+        table.purchases-table > tbody > tr > td:nth-child(3) {
+          position: sticky !important;
+          left: 180px !important;
+          z-index: 11 !important;
+          background-color: #222 !important;
+          border-right: 1px solid #333 !important;
+        }
+
+        table.purchases-table > thead > tr > th:nth-child(4),
+        table.purchases-table > tbody > tr > td:nth-child(4) {
+          position: sticky !important;
+          left: 320px !important;
+          z-index: 11 !important;
+          background-color: #222 !important;
+          border-right: 1px solid #333 !important;
+        }
+
+        table.purchases-table > thead > tr > th:nth-child(5),
+        table.purchases-table > tbody > tr > td:nth-child(5) {
+          position: sticky !important;
+          left: 480px !important;
+          z-index: 11 !important;
+          background-color: #222 !important;
+          border-right: 1px solid #333 !important;
+        }
+
+        /* Header cells need higher z-index */
+        table.purchases-table > thead > tr > th:nth-child(1),
+        table.purchases-table > thead > tr > th:nth-child(2),
+        table.purchases-table > thead > tr > th:nth-child(3),
+        table.purchases-table > thead > tr > th:nth-child(4),
+        table.purchases-table > thead > tr > th:nth-child(5) {
+          z-index: 12 !important;
+        }
+
+        /* Body sticky cells need body background */
+        table.purchases-table > tbody > tr > td:nth-child(1),
+        table.purchases-table > tbody > tr > td:nth-child(2),
+        table.purchases-table > tbody > tr > td:nth-child(3),
+        table.purchases-table > tbody > tr > td:nth-child(4),
+        table.purchases-table > tbody > tr > td:nth-child(5) {
+          background-color: #1a1a1a !important;
+        }
+
+        table.purchases-table > tbody > tr:hover > td:nth-child(1),
+        table.purchases-table > tbody > tr:hover > td:nth-child(2),
+        table.purchases-table > tbody > tr:hover > td:nth-child(3),
+        table.purchases-table > tbody > tr:hover > td:nth-child(4),
+        table.purchases-table > tbody > tr:hover > td:nth-child(5) {
+          background-color: #222 !important;
         }
 
         table.purchases-table > thead {
