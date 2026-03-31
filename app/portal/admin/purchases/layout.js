@@ -50,6 +50,8 @@ export default function PurchasesLayout({ children }) {
           style={{
             display: "flex",
             gap: "1rem",
+            flexWrap: "nowrap",
+            overflowX: "auto",
             borderBottom: "2px solid #333",
             marginBottom: "2rem",
           }}
@@ -66,6 +68,7 @@ export default function PurchasesLayout({ children }) {
                 fontSize: "16px",
                 fontWeight: activeTab === tab.id ? "600" : "400",
                 cursor: "pointer",
+                whiteSpace: "nowrap",
                 borderBottom: activeTab === tab.id ? "2px solid #FF5757" : "2px solid transparent",
                 transition: "all 0.2s",
               }}
