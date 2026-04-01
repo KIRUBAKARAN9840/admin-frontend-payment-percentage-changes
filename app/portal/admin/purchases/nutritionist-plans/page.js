@@ -144,7 +144,7 @@ export default function NutritionistPlans() {
               value={searchTerm}
               onChange={(e) => handleFilterChange("search", e.target.value)}
               style={{
-                backgroundColor: "#1a1a1a",
+                backgroundColor: "#222",
                 border: "1px solid #333",
                 color: "#fff",
               }}
@@ -214,118 +214,175 @@ export default function NutritionistPlans() {
       ) : (
         <>
           {/* Table Section */}
-          <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid #333" }}>
-            <div className="table-responsive" style={{ margin: 0 }}>
-              <table className="purchase-table" style={{ marginBottom: 0 }}>
-                <thead style={{ background: "#3d3d3d" }}>
-                  <tr>
-                    <th style={{ background: "#3d3d3d" }}>Client Name</th>
-                    <th style={{ background: "#3d3d3d" }}>Contact</th>
-                    <th style={{ background: "#3d3d3d" }}>Gym</th>
-                    <th style={{ background: "#3d3d3d" }}>Subscription Period</th>
-                    <th style={{ background: "#3d3d3d" }}>Status</th>
+          <div className="table-responsive" style={{ overflowX: "auto" }}>
+            <table className="table purchases-table">
+              <thead>
+                <tr>
+                  <th>Client Name</th>
+                  <th>Contact</th>
+                  <th>Gym Name</th>
+                  <th>Subscription Period</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.customer_id}>
+                    <td className="client-name">
+                      <div>{user.name || "N/A"}</div>
+                      <div style={{ fontSize: "12px", color: "#888", marginTop: "4px" }}>
+                        Joined: {formatDate(user.client_joined_date)}
+                      </div>
+                    </td>
+                    <td className="client-contact">
+                      <div>{user.mobile || "N/A"}</div>
+                      <div style={{ fontSize: "12px", color: "#888", marginTop: "4px" }}>
+                        {user.email || "N/A"}
+                      </div>
+                    </td>
+                    <td className="gym-name">
+                      <div>{user.gym_name || "N/A"}</div>
+                      <div style={{ fontSize: "12px", color: "#888", marginTop: "4px" }}>
+                        {user.gym_location || "N/A"}
+                      </div>
+                    </td>
+                    <td>
+                      <div style={{ fontSize: "13px", color: "#ccc" }}>
+                        <div>Start: {formatDate(user.subscription_start_date)}</div>
+                        <div>End: {formatDate(user.subscription_end_date)}</div>
+                      </div>
+                    </td>
+                    <td className="status" style={{ textAlign: "center" }}>
+                      <span
+                        style={{
+                          padding: "4px 12px",
+                          borderRadius: "4px",
+                          fontSize: "12px",
+                          fontWeight: "600",
+                          textTransform: "uppercase",
+                          backgroundColor: "rgba(255, 255, 255, 0.1)",
+                          color: getDaysLeftColor(user.days_left),
+                        }}
+                      >
+                        {getDaysLeftLabel(user.days_left)}
+                      </span>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => (
-                    <tr key={user.customer_id}>
-                      <td>
-                        <div>{user.name}</div>
-                        <div style={{ fontSize: "12px", color: "#888", marginTop: "2px" }}>
-                          Joined: {formatDate(user.client_joined_date)}
-                        </div>
-                      </td>
-                      <td>
-                        <div>{user.mobile}</div>
-                        <div style={{ fontSize: "12px", color: "#888", marginTop: "2px" }}>
-                          {user.email}
-                        </div>
-                      </td>
-                      <td>
-                        <div>{user.gym_name}</div>
-                        <div style={{ fontSize: "12px", color: "#888", marginTop: "2px" }}>
-                          {user.gym_location}
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ fontSize: "13px" }}>
-                          <div style={{ color: "#888" }}>Start: {formatDate(user.subscription_start_date)}</div>
-                          <div style={{ color: "#888" }}>End: {formatDate(user.subscription_end_date)}</div>
-                        </div>
-                      </td>
-                      <td>
-                        <span
-                          style={{
-                            padding: "4px 12px",
-                            borderRadius: "12px",
-                            fontSize: "13px",
-                            fontWeight: "600",
-                            backgroundColor: getDaysLeftColor(user.days_left) + "20",
-                            color: getDaysLeftColor(user.days_left),
-                          }}
-                        >
-                          {getDaysLeftLabel(user.days_left)}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="pagination-container">
-              <div className="pagination-info">
-                Showing {(currentPage - 1) * 10 + 1} to{" "}
+          {!loading && users.length > 0 && (
+            <div className="d-flex justify-content-between align-items-center mt-4">
+              <div style={{ color: "#888", fontSize: "14px" }}>
+                Showing {((currentPage - 1) * 10) + 1} to{" "}
                 {Math.min(currentPage * 10, totalUsers)} of {totalUsers} entries
               </div>
-
-              <div className="pagination">
+              <div className="btn-group">
                 <button
-                  className="pagination-btn"
+                  className="btn btn-sm"
+                  disabled={currentPage === 1 || loading}
                   onClick={() => setCurrentPage(currentPage - 1)}
-                  disabled={currentPage === 1}
+                  style={{
+                    backgroundColor: "#1a1a1a",
+                    border: "1px solid #333",
+                    color: currentPage > 1 && !loading ? "#fff" : "#555",
+                    cursor: currentPage > 1 && !loading ? "pointer" : "not-allowed",
+                  }}
                 >
-                  ‹
+                  Previous
                 </button>
-
-                {[...Array(Math.min(totalPages, 5))].map((_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-
-                  return (
-                    <button
-                      key={pageNum}
-                      className={`pagination-btn ${pageNum === currentPage ? "active" : ""}`}
-                      onClick={() => setCurrentPage(pageNum)}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
-
                 <button
-                  className="pagination-btn"
+                  className="btn btn-sm"
+                  disabled={currentPage >= totalPages || loading}
                   onClick={() => setCurrentPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
+                  style={{
+                    backgroundColor: "#1a1a1a",
+                    border: "1px solid #333",
+                    color: currentPage < totalPages && !loading ? "#fff" : "#555",
+                    cursor: currentPage < totalPages && !loading ? "pointer" : "not-allowed",
+                  }}
                 >
-                  ›
+                  Next
                 </button>
               </div>
             </div>
           )}
         </>
       )}
+
+      <style jsx global>{`
+        .table-responsive {
+          overflow-x: auto !important;
+          position: relative !important;
+        }
+
+        table.purchases-table {
+          width: 100% !important;
+          min-width: 1200px !important;
+          border-collapse: separate !important;
+          border-spacing: 0 !important;
+          background-color: #1a1a1a !important;
+          color: #fff !important;
+          border-radius: 8px !important;
+          overflow: visible !important;
+        }
+
+        table.purchases-table > thead {
+          background-color: #222 !important;
+          border-bottom: 2px solid #FF5757 !important;
+        }
+
+        table.purchases-table > thead > tr > th {
+          padding: 12px !important;
+          font-weight: 600 !important;
+          text-align: left !important;
+          color: #fff !important;
+          border: none !important;
+          background-color: transparent !important;
+        }
+
+        table.purchases-table > tbody > tr {
+          border-bottom: 1px solid #333 !important;
+          transition: background-color 0.2s ease !important;
+          background-color: transparent !important;
+        }
+
+        table.purchases-table > tbody > tr:hover {
+          background-color: #222 !important;
+        }
+
+        table.purchases-table > tbody > tr:last-child {
+          border-bottom: none !important;
+        }
+
+        table.purchases-table > tbody > tr > td {
+          padding: 12px !important;
+          color: #fff !important;
+          border: none !important;
+          background-color: transparent !important;
+        }
+
+        table.purchases-table > tbody > tr > td.status {
+          text-align: center !important;
+          padding: 12px !important;
+        }
+
+        table.purchases-table .client-name {
+          font-weight: 500 !important;
+        }
+
+        table.purchases-table .gym-name {
+          color: #ccc !important;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
