@@ -582,6 +582,7 @@ export default function Home() {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <option value="today">Today</option>
+                  <option value="yesterday">Yesterday</option>
                   <option value="week">Last 7 days</option>
                   <option value="month">Last 30 days</option>
                   <option value="overall">Overall</option>

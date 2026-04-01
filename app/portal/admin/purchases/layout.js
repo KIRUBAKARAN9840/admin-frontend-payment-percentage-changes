@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useRole } from "../../layout";
+import BookingAverages from "./components/BookingAverages";
 
 export default function PurchasesLayout({ children }) {
   const router = useRouter();
@@ -45,6 +46,9 @@ export default function PurchasesLayout({ children }) {
   return (
     <div className="dashboard-container">
       <div className="section-container">
+        {/* Booking Averages Section */}
+        <BookingAverages />
+
         {/* Tabs */}
         <div
           style={{

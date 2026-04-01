@@ -65,25 +65,39 @@ export default function PurchaseCountPage() {
     };
   }, [dateFilter]);
 
-  // Fetch purchase analytics when filters change (single useEffect)
+  // Fetch purchase analytics when filters change
   useEffect(() => {
     if (dateFilter === "overall") {
       fetchPurchaseAnalytics(true);
-    } else if (dateFilter === "custom" && startDate && endDate) {
-      fetchPurchaseAnalytics(false);
+    } else if (dateFilter === "custom") {
+      // For custom, let the other useEffect handle it
+      return;
     } else if (["today", "last_7", "last_30", "last_month", "current_month"].includes(dateFilter)) {
       fetchPurchaseAnalytics(false);
     }
-  }, [dates, source, gymId, dateFilter, startDate, endDate]);
+  }, [dateFilter, source, gymId]);
+
+  // Separate useEffect for custom date changes
+  useEffect(() => {
+    // Only fetch when in custom mode and both dates are set
+    if (dateFilter === "custom" && startDate && endDate) {
+      fetchPurchaseAnalytics(false);
+    }
+  }, [startDate, endDate]);
 
   const fetchPurchaseAnalytics = async (isOverall = false) => {
     try {
       setLoading(true);
       const params = {};
 
-      if (!isOverall && dates.start && dates.end) {
-        params.start_date = dates.start;
-        params.end_date = dates.end;
+      // For custom filter, use startDate and endDate from state
+      // For predefined filters, use dates from memo
+      const effectiveStart = dateFilter === "custom" ? startDate : dates.start;
+      const effectiveEnd = dateFilter === "custom" ? endDate : dates.end;
+
+      if (!isOverall && effectiveStart && effectiveEnd) {
+        params.start_date = effectiveStart;
+        params.end_date = effectiveEnd;
       }
 
       if (source !== "all") {
