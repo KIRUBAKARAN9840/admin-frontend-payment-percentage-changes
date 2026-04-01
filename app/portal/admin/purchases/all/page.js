@@ -7,6 +7,8 @@ export default function AllPurchases() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [purchases, setPurchases] = useState([]);
+  const [distinctClients, setDistinctClients] = useState(new Set());
+  const [distinctGyms, setDistinctGyms] = useState(new Set());
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({
     total: 0,
@@ -49,6 +51,13 @@ export default function AllPurchases() {
       if (response.data.success) {
         setPurchases(response.data.data.purchases);
         setPagination(response.data.data.pagination);
+        // Store distinct clients and gyms from backend response
+        if (response.data.data.distinctClients) {
+          setDistinctClients(new Set(response.data.data.distinctClients));
+        }
+        if (response.data.data.distinctGyms) {
+          setDistinctGyms(new Set(response.data.data.distinctGyms));
+        }
       } else {
         throw new Error(response.data.message || "Failed to fetch purchases");
       }
@@ -150,6 +159,16 @@ export default function AllPurchases() {
 
   const formatAmount = (amount) => {
     return `₹${amount?.toFixed(2) || "0.00"}`;
+  };
+
+  // Check if client has exactly 1 booking (using backend data)
+  const getClientDistinctStatus = (clientName) => {
+    return distinctClients.has(clientName);
+  };
+
+  // Check if gym has exactly 1 booking (using backend data)
+  const getGymDistinctStatus = (gymName) => {
+    return distinctGyms.has(gymName);
   };
 
   const getStatusColor = (status) => {
@@ -372,9 +391,43 @@ export default function AllPurchases() {
                           </button>
                         )}
                       </td>
-                      <td className="client-name">{purchase.client_name || "N/A"}</td>
+                      <td className="client-name">
+                        <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          {getClientDistinctStatus(purchase.client_name) && (
+                            <span
+                              style={{
+                                width: "8px",
+                                height: "8px",
+                                borderRadius: "50%",
+                                backgroundColor: "#28a745",
+                                display: "inline-block",
+                                flexShrink: 0,
+                              }}
+                              title="Distinct: Single booking type"
+                            />
+                          )}
+                          {purchase.client_name || "N/A"}
+                        </span>
+                      </td>
                       <td className="client-contact">{purchase.client_contact || "N/A"}</td>
-                      <td className="gym-name">{purchase.gym_name || "N/A"}</td>
+                      <td className="gym-name">
+                        <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          {getGymDistinctStatus(purchase.gym_name) && (
+                            <span
+                              style={{
+                                width: "8px",
+                                height: "8px",
+                                borderRadius: "50%",
+                                backgroundColor: "#28a745",
+                                display: "inline-block",
+                                flexShrink: 0,
+                              }}
+                              title="Distinct: Single booking type"
+                            />
+                          )}
+                          {purchase.gym_name || "N/A"}
+                        </span>
+                      </td>
                       <td className="type">{purchase.type === "Session" ? "Fitness Class" : purchase.type}</td>
                       <td className="days-total">{getDisplayValue(purchase)}</td>
                       <td className="amount">{formatAmount(purchase.amount)}</td>
