@@ -9,9 +9,13 @@ export default function GymMemberships() {
   const [memberships, setMemberships] = useState([]);
   const [distinctClients, setDistinctClients] = useState(new Set());
   const [distinctGyms, setDistinctGyms] = useState(new Set());
+  const [distinctClientsFilter, setDistinctClientsFilter] = useState(false);
+  const [distinctGymsFilter, setDistinctGymsFilter] = useState(false);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [pagination, setPagination] = useState({
     total: 0,
     limit: 10,
@@ -40,12 +44,18 @@ export default function GymMemberships() {
       setLoading(true);
       setError(null);
 
+      const params = {
+        page: pageNum,
+        limit: 10,
+      };
+      if (debouncedSearch) params.search = debouncedSearch;
+      if (distinctClientsFilter) params.distinct_clients = true;
+      if (distinctGymsFilter) params.distinct_gyms = true;
+      if (startDate) params.start_date = startDate;
+      if (endDate) params.end_date = endDate;
+
       const response = await axiosInstance.get("/api/admin/purchases/gym-memberships", {
-        params: {
-          page: pageNum,
-          limit: 10,
-          ...(debouncedSearch && { search: debouncedSearch }),
-        },
+        params,
       });
 
       if (response.data.success) {
@@ -69,7 +79,7 @@ export default function GymMemberships() {
       setLoading(false);
       isFetchingRef.current = false;
     }
-  }, [debouncedSearch]);
+  }, [debouncedSearch, distinctClientsFilter, distinctGymsFilter, startDate, endDate]);
 
   useEffect(() => {
     fetchGymMemberships(page);
@@ -79,7 +89,15 @@ export default function GymMemberships() {
     try {
       setExporting(true);
 
+      const params = {};
+      if (debouncedSearch) params.search = debouncedSearch;
+      if (distinctClientsFilter) params.distinct_clients = true;
+      if (distinctGymsFilter) params.distinct_gyms = true;
+      if (startDate) params.start_date = startDate;
+      if (endDate) params.end_date = endDate;
+
       const response = await axiosInstance.get("/api/admin/purchases/export-gym-memberships", {
+        params,
         responseType: "blob",
       });
 
@@ -157,10 +175,20 @@ export default function GymMemberships() {
 
   return (
     <div>
-      {/* Search and Export Button */}
-      <div className="row mb-4">
-        <div className="col-md-4">
-          <div className="input-group">
+      {/* Filters Card */}
+      <div
+        style={{
+          backgroundColor: "#1a1a1a",
+          border: "1px solid #333",
+          borderRadius: "8px",
+          padding: "20px",
+          marginBottom: "20px",
+        }}
+      >
+        {/* First Row: Search, Export */}
+        <div className="d-flex gap-3 align-items-center" style={{ marginBottom: "15px" }}>
+          {/* Search */}
+          <div className="input-group flex-grow-1" style={{ maxWidth: "320px" }}>
             <input
               type="text"
               className="form-control"
@@ -171,7 +199,7 @@ export default function GymMemberships() {
                 setPage(1);
               }}
               style={{
-                backgroundColor: "#1a1a1a",
+                backgroundColor: "#222",
                 border: "1px solid #333",
                 color: "#fff",
               }}
@@ -184,8 +212,11 @@ export default function GymMemberships() {
               Search
             </button>
           </div>
-        </div>
-        <div className="col-md-8 text-end">
+
+          {/* Spacer */}
+          <div style={{ flex: 1 }}></div>
+
+          {/* Export Button */}
           <button
             className="btn"
             onClick={handleExport}
@@ -204,6 +235,113 @@ export default function GymMemberships() {
             <FaDownload />
             {exporting ? "Exporting..." : "Export Excel"}
           </button>
+        </div>
+
+        {/* Second Row: Date Filters, Distinct Filters */}
+        <div className="d-flex gap-3 align-items-center flex-wrap">
+          {/* Date Filters */}
+          <div className="d-flex gap-2 align-items-center">
+            <span style={{ color: "#888", fontSize: "14px" }}>From:</span>
+            <input
+              type="date"
+              className="form-control"
+              value={startDate}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                setPage(1);
+              }}
+              style={{
+                backgroundColor: "#222",
+                border: "1px solid #333",
+                color: "#fff",
+                width: "140px",
+              }}
+            />
+            <span style={{ color: "#888", fontSize: "14px", marginLeft: "8px" }}>To:</span>
+            <input
+              type="date"
+              className="form-control"
+              value={endDate}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                setPage(1);
+              }}
+              style={{
+                backgroundColor: "#222",
+                border: "1px solid #333",
+                color: "#fff",
+                width: "140px",
+              }}
+            />
+          </div>
+
+          {/* Divider */}
+          <div style={{ width: "1px", height: "30px", backgroundColor: "#333", margin: "0 10px" }}></div>
+
+          {/* Distinct Filters */}
+          <div className="d-flex gap-4">
+            {/* Distinct Clients */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <input
+                type="checkbox"
+                id="distinctClients"
+                checked={distinctClientsFilter}
+                onChange={(e) => {
+                  setDistinctClientsFilter(e.target.checked);
+                  setPage(1);
+                }}
+                style={{
+                  width: "16px",
+                  height: "16px",
+                  cursor: "pointer",
+                  accentColor: "#28a745",
+                }}
+              />
+              <label
+                htmlFor="distinctClients"
+                style={{
+                  color: "#ccc",
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  userSelect: "none",
+                  margin: 0,
+                }}
+              >
+                Distinct Clients
+              </label>
+            </div>
+
+            {/* Distinct Gyms */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <input
+                type="checkbox"
+                id="distinctGyms"
+                checked={distinctGymsFilter}
+                onChange={(e) => {
+                  setDistinctGymsFilter(e.target.checked);
+                  setPage(1);
+                }}
+                style={{
+                  width: "16px",
+                  height: "16px",
+                  cursor: "pointer",
+                  accentColor: "#ffc107",
+                }}
+              />
+              <label
+                htmlFor="distinctGyms"
+                style={{
+                  color: "#ccc",
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  userSelect: "none",
+                  margin: 0,
+                }}
+              >
+                Distinct Gyms
+              </label>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -504,6 +642,11 @@ export default function GymMemberships() {
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+          filter: invert(1);
+          cursor: pointer;
         }
       `}</style>
     </div>
