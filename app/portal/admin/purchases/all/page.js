@@ -21,12 +21,14 @@ export default function AllPurchases() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [distinctClientsFilter, setDistinctClientsFilter] = useState(false);
+  const [distinctGymsFilter, setDistinctGymsFilter] = useState(false);
   const [expandedRows, setExpandedRows] = useState(new Set());
   const [exporting, setExporting] = useState(false);
 
   const isFetchingRef = useRef(false);
 
-  const fetchPurchases = useCallback(async (pageNum, searchQuery, type, start, end) => {
+  const fetchPurchases = useCallback(async (pageNum, searchQuery, type, start, end, distinctClients, distinctGyms) => {
     if (isFetchingRef.current) return;
 
     try {
@@ -43,6 +45,8 @@ export default function AllPurchases() {
       if (type && type !== "all") params.type = type;
       if (start) params.start_date = start;
       if (end) params.end_date = end;
+      if (distinctClients) params.distinct_clients = true;
+      if (distinctGyms) params.distinct_gyms = true;
 
       const response = await axiosInstance.get("/api/admin/purchases/all-purchases", {
         params,
@@ -72,8 +76,8 @@ export default function AllPurchases() {
   }, []);
 
   useEffect(() => {
-    fetchPurchases(page, search, typeFilter, startDate, endDate);
-  }, [page, search, typeFilter, startDate, endDate, fetchPurchases]);
+    fetchPurchases(page, search, typeFilter, startDate, endDate, distinctClientsFilter, distinctGymsFilter);
+  }, [page, search, typeFilter, startDate, endDate, distinctClientsFilter, distinctGymsFilter, fetchPurchases]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -89,6 +93,8 @@ export default function AllPurchases() {
       if (typeFilter && typeFilter !== "all") params.type = typeFilter;
       if (startDate) params.start_date = startDate;
       if (endDate) params.end_date = endDate;
+      if (distinctClientsFilter) params.distinct_clients = true;
+      if (distinctGymsFilter) params.distinct_gyms = true;
 
       const response = await axiosInstance.get("/api/admin/purchases/export-purchases", {
         params,
@@ -198,98 +204,75 @@ export default function AllPurchases() {
 
   return (
     <div>
-      <style>{`
-        input[type="date"]::-webkit-calendar-picker-indicator {
-          filter: invert(1);
-          cursor: pointer;
-        }
-      `}</style>
-      {/* Search and Filter */}
-      <div className="row mb-4">
-        <div className="col-md-8">
-          <div className="d-flex gap-3">
-            {/* Search */}
-            <form onSubmit={handleSearch} className="flex-grow-1" style={{ maxWidth: "320px" }}>
-              <div className="input-group">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Search by name, contact, or gym..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  style={{
-                    backgroundColor: "#1a1a1a",
-                    border: "1px solid #333",
-                    color: "#fff",
-                  }}
-                />
-                <button
-                  className="btn"
-                  type="submit"
-                  style={{ backgroundColor: "#FF5757", border: "none", color: "#fff" }}
-                >
-                  Search
-                </button>
-              </div>
-            </form>
+      {/* Filters Card */}
+      <div
+        style={{
+          backgroundColor: "#1a1a1a",
+          border: "1px solid #333",
+          borderRadius: "8px",
+          padding: "20px",
+          marginBottom: "20px",
+        }}
+      >
+        <style>{`
+          input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+          }
+        `}</style>
 
-            {/* Type Filter */}
-            <select
-              className="form-select"
-              value={typeFilter}
-              onChange={(e) => {
-                setTypeFilter(e.target.value);
-                setPage(1);
-              }}
-              style={{
-                backgroundColor: "#1a1a1a",
-                border: "1px solid #333",
-                color: "#fff",
-                minWidth: "135px",
-                width: "135px",
-              }}
-            >
-              <option value="all">All Types</option>
-              <option value="Session">Fitness Class</option>
-              <option value="Daily Pass">Daily Pass</option>
-            </select>
+        {/* First Row: Search, Type, Export */}
+        <div className="d-flex gap-3 align-items-center" style={{ marginBottom: "15px" }}>
+          {/* Search */}
+          <form onSubmit={handleSearch} className="flex-grow-1" style={{ maxWidth: "320px" }}>
+            <div className="input-group">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search by name, contact, or gym..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{
+                  backgroundColor: "#222",
+                  border: "1px solid #333",
+                  color: "#fff",
+                }}
+              />
+              <button
+                className="btn"
+                type="submit"
+                style={{ backgroundColor: "#FF5757", border: "none", color: "#fff" }}
+              >
+                Search
+              </button>
+            </div>
+          </form>
 
-            {/* Date Filter */}
-            <input
-              type="date"
-              className="form-control"
-              value={startDate}
-              onChange={(e) => {
-                setStartDate(e.target.value);
-                setPage(1);
-              }}
-              style={{
-                backgroundColor: "#1a1a1a",
-                border: "1px solid #333",
-                color: "#fff",
-                width: "140px",
-              }}
-              title="Start Date"
-            />
-            <input
-              type="date"
-              className="form-control"
-              value={endDate}
-              onChange={(e) => {
-                setEndDate(e.target.value);
-                setPage(1);
-              }}
-              style={{
-                backgroundColor: "#1a1a1a",
-                border: "1px solid #333",
-                color: "#fff",
-                width: "140px",
-              }}
-              title="End Date"
-            />
-          </div>
-        </div>
-        <div className="col-md-4 text-end">
+          {/* Type Filter */}
+          <select
+            className="form-select"
+            value={typeFilter}
+            onChange={(e) => {
+              setTypeFilter(e.target.value);
+              setPage(1);
+            }}
+            style={{
+              backgroundColor: "#222",
+              border: "1px solid #333",
+              color: "#fff",
+              minWidth: "135px",
+              width: "135px",
+            }}
+          >
+            <option value="all">All Types</option>
+            <option value="Session">Fitness Class</option>
+            <option value="Daily Pass">Daily Pass</option>
+          </select>
+
+          {/* Spacer */}
+          <div style={{ flex: 1 }}></div>
+
+          {/* Export Button */}
           <button
             className="btn"
             onClick={handleExport}
@@ -308,6 +291,113 @@ export default function AllPurchases() {
             <FaDownload />
             {exporting ? "Exporting..." : "Export Excel"}
           </button>
+        </div>
+
+        {/* Second Row: Date Filters, Distinct Filters */}
+        <div className="d-flex gap-3 align-items-center flex-wrap">
+          {/* Date Filters */}
+          <div className="d-flex gap-2 align-items-center">
+            <span style={{ color: "#888", fontSize: "14px" }}>From:</span>
+            <input
+              type="date"
+              className="form-control"
+              value={startDate}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                setPage(1);
+              }}
+              style={{
+                backgroundColor: "#222",
+                border: "1px solid #333",
+                color: "#fff",
+                width: "140px",
+              }}
+            />
+            <span style={{ color: "#888", fontSize: "14px", marginLeft: "8px" }}>To:</span>
+            <input
+              type="date"
+              className="form-control"
+              value={endDate}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                setPage(1);
+              }}
+              style={{
+                backgroundColor: "#222",
+                border: "1px solid #333",
+                color: "#fff",
+                width: "140px",
+              }}
+            />
+          </div>
+
+          {/* Divider */}
+          <div style={{ width: "1px", height: "30px", backgroundColor: "#333", margin: "0 10px" }}></div>
+
+          {/* Distinct Filters */}
+          <div className="d-flex gap-4">
+            {/* Distinct Clients */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <input
+                type="checkbox"
+                id="distinctClients"
+                checked={distinctClientsFilter}
+                onChange={(e) => {
+                  setDistinctClientsFilter(e.target.checked);
+                  setPage(1);
+                }}
+                style={{
+                  width: "16px",
+                  height: "16px",
+                  cursor: "pointer",
+                  accentColor: "#28a745",
+                }}
+              />
+              <label
+                htmlFor="distinctClients"
+                style={{
+                  color: "#ccc",
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  userSelect: "none",
+                  margin: 0,
+                }}
+              >
+                Distinct Clients
+              </label>
+            </div>
+
+            {/* Distinct Gyms */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <input
+                type="checkbox"
+                id="distinctGyms"
+                checked={distinctGymsFilter}
+                onChange={(e) => {
+                  setDistinctGymsFilter(e.target.checked);
+                  setPage(1);
+                }}
+                style={{
+                  width: "16px",
+                  height: "16px",
+                  cursor: "pointer",
+                  accentColor: "#ffc107",
+                }}
+              />
+              <label
+                htmlFor="distinctGyms"
+                style={{
+                  color: "#ccc",
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  userSelect: "none",
+                  margin: 0,
+                }}
+              >
+                Distinct Gyms
+              </label>
+            </div>
+          </div>
         </div>
       </div>
 
