@@ -7,6 +7,8 @@ export default function GymMemberships() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [memberships, setMemberships] = useState([]);
+  const [distinctClients, setDistinctClients] = useState(new Set());
+  const [distinctGyms, setDistinctGyms] = useState(new Set());
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -49,6 +51,13 @@ export default function GymMemberships() {
       if (response.data.success) {
         setMemberships(response.data.data.memberships);
         setPagination(response.data.data.pagination);
+        // Store distinct clients and gyms from backend response
+        if (response.data.data.distinctClients) {
+          setDistinctClients(new Set(response.data.data.distinctClients));
+        }
+        if (response.data.data.distinctGyms) {
+          setDistinctGyms(new Set(response.data.data.distinctGyms));
+        }
       } else {
         throw new Error(response.data.message || "Failed to fetch gym memberships");
       }
@@ -134,6 +143,16 @@ export default function GymMemberships() {
 
   const formatAmount = (amount) => {
     return `₹${amount?.toFixed(2) || "0.00"}`;
+  };
+
+  // Check if client has exactly 1 booking (using backend data)
+  const getClientDistinctStatus = (clientName) => {
+    return distinctClients.has(clientName);
+  };
+
+  // Check if gym has exactly 1 booking (using backend data)
+  const getGymDistinctStatus = (gymName) => {
+    return distinctGyms.has(gymName);
   };
 
   return (
@@ -261,9 +280,43 @@ export default function GymMemberships() {
                           </button>
                         )}
                       </td>
-                      <td className="client-name">{item.client_name || "N/A"}</td>
+                      <td className="client-name">
+                        <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          {getClientDistinctStatus(item.client_name) && (
+                            <span
+                              style={{
+                                width: "8px",
+                                height: "8px",
+                                borderRadius: "50%",
+                                backgroundColor: "#28a745",
+                                display: "inline-block",
+                                flexShrink: 0,
+                              }}
+                              title="Distinct: Single booking type"
+                            />
+                          )}
+                          {item.client_name || "N/A"}
+                        </span>
+                      </td>
                       <td className="client-contact">{item.client_contact || "N/A"}</td>
-                      <td className="gym-name">{item.gym_name || "N/A"}</td>
+                      <td className="gym-name">
+                        <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          {getGymDistinctStatus(item.gym_name) && (
+                            <span
+                              style={{
+                                width: "8px",
+                                height: "8px",
+                                borderRadius: "50%",
+                                backgroundColor: "#28a745",
+                                display: "inline-block",
+                                flexShrink: 0,
+                              }}
+                              title="Distinct: Single booking type"
+                            />
+                          )}
+                          {item.gym_name || "N/A"}
+                        </span>
+                      </td>
                       <td className="type">{formatType(item.type)}</td>
                       <td className="amount">{formatAmount(item.amount)}</td>
                       <td className="purchased-at">{formatDate(item.purchased_at)}</td>
