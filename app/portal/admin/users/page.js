@@ -50,6 +50,12 @@ export default function Users() {
     ios: 0,
     total_platform_users: 0
   });
+  // Active users metrics state
+  const [activeUsersMetrics, setActiveUsersMetrics] = useState({
+    monthly_average_users: 0,
+    weekly_average_users: 0,
+    daily_average_users: 0,
+  });
   // Track if initial data has been loaded
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   // Track if we've completed the initial mount phase
@@ -120,6 +126,10 @@ export default function Users() {
         setClientCounts(data.clientCounts);
         setOnlineOfflineCounts(data.onlineOfflineCounts);
         setPlatformCounts(data.platformCounts || { android: 0, ios: 0, total_platform_users: 0 });
+        setActiveUsersMetrics(data.activeUsersMetrics || {
+          monthly_average_users: 0,
+          weekly_average_users: 0,
+        });
         setInitialDataLoaded(true);
         hasFetchedInitialData.current = true;
 
@@ -186,6 +196,10 @@ export default function Users() {
         setClientCounts(data.clientCounts);
         setOnlineOfflineCounts(data.onlineOfflineCounts);
         setPlatformCounts(data.platformCounts || { android: 0, ios: 0, total_platform_users: 0 });
+        setActiveUsersMetrics(data.activeUsersMetrics || {
+          monthly_average_users: 0,
+          weekly_average_users: 0,
+        });
       }
     } catch (error) {
       setUsers([]);
@@ -282,6 +296,10 @@ export default function Users() {
                 setClientCounts(data.clientCounts);
                 setOnlineOfflineCounts(data.onlineOfflineCounts);
                 setPlatformCounts(data.platformCounts || { android: 0, ios: 0, total_platform_users: 0 });
+                setActiveUsersMetrics(data.activeUsersMetrics || {
+                  monthly_average_users: 0,
+                  weekly_average_users: 0,
+                });
               }
             } catch (error) {
               setUsers([]);
@@ -1033,6 +1051,77 @@ export default function Users() {
           </div>
           <div style={{ fontSize: "32px", fontWeight: "600", color: "#8b5cf6" }}>
             {onlineOfflineCounts.offline_members.toLocaleString()}
+          </div>
+        </div>
+      </div>
+
+      {/* Active Users Metrics Cards */}
+      <div style={{
+        display: "flex",
+        gap: "20px",
+        marginBottom: "30px",
+        flexWrap: "wrap"
+      }}>
+        <div
+          style={{
+            backgroundColor: "#2a2a2a",
+            padding: "20px",
+            borderRadius: "8px",
+            minWidth: "200px",
+            flex: 1,
+            border: "1px solid #444",
+          }}
+        >
+          <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
+            Monthly Average Users
+          </div>
+          <div style={{ fontSize: "32px", fontWeight: "600", color: "#f59e0b" }}>
+            {Math.round(activeUsersMetrics.monthly_average_users).toLocaleString()}
+          </div>
+          <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
+            Last 3 months average
+          </div>
+        </div>
+
+        <div
+          style={{
+            backgroundColor: "#2a2a2a",
+            padding: "20px",
+            borderRadius: "8px",
+            minWidth: "200px",
+            flex: 1,
+            border: "1px solid #444",
+          }}
+        >
+          <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
+            Weekly Average Users
+          </div>
+          <div style={{ fontSize: "32px", fontWeight: "600", color: "#10b981" }}>
+            {activeUsersMetrics.weekly_average_users.toLocaleString()}
+          </div>
+          <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
+            Last 3 weeks average
+          </div>
+        </div>
+
+        <div
+          style={{
+            backgroundColor: "#2a2a2a",
+            padding: "20px",
+            borderRadius: "8px",
+            minWidth: "200px",
+            flex: 1,
+            border: "1px solid #444",
+          }}
+        >
+          <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
+            Daily Average Users
+          </div>
+          <div style={{ fontSize: "32px", fontWeight: "600", color: "#3b82f6" }}>
+            {activeUsersMetrics.daily_average_users.toLocaleString()}
+          </div>
+          <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
+            Last 3 days average
           </div>
         </div>
       </div>
