@@ -193,7 +193,7 @@ const GymDetails = () => {
         </div>
       </div>
 
-      {/* Total Clients Card */}
+      {/* 1. Total Clients Card */}
       <div className="table-container mb-4">
         <div
           className="card"
@@ -381,7 +381,108 @@ const GymDetails = () => {
         </div>
       </div>
 
-      {/* Session Plans Content */}
+      {/* 2. Daily Pass Pricing */}
+      <div className="table-container mb-4">
+        <div
+          className="card"
+          style={{ backgroundColor: "#1a1f1f", border: "1px solid #333", minHeight: "150px" }}
+        >
+          <div className="card-body">
+            <h5 style={{ color: "white", marginBottom: "20px" }}>Daily Pass Pricing</h5>
+            {!loading && dailyPass ? (
+              <div
+                style={{
+                  padding: "20px",
+                  backgroundColor: "#121717",
+                  border: "1px solid #333",
+                  borderRadius: "8px",
+                  maxWidth: "400px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <div>
+                    {dailyPass.discount_price ? (
+                      <>
+                        <div
+                          style={{
+                            fontSize: "20px",
+                            fontWeight: "bold",
+                            color: "white",
+                          }}
+                        >
+                          ₹{dailyPass.discount_price}
+                        </div>
+                        {dailyPass.price && dailyPass.price !== dailyPass.discount_price && (
+                          <>
+                            <div
+                              style={{
+                                fontSize: "13px",
+                                color: "#999",
+                                textDecoration: "line-through",
+                              }}
+                            >
+                              ₹{dailyPass.price}
+                            </div>
+                            {dailyPass.discount_percentage && dailyPass.discount_percentage > 0 && (
+                              <div
+                                style={{
+                                  fontSize: "12px",
+                                  color: "white",
+                                }}
+                              >
+                                {dailyPass.discount_percentage}% OFF
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </>
+                    ) : dailyPass.price ? (
+                      <div
+                        style={{
+                          fontSize: "20px",
+                          fontWeight: "bold",
+                          color: "white",
+                        }}
+                      >
+                        ₹{dailyPass.price}
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          fontSize: "14px",
+                          color: "#999",
+                        }}
+                      >
+                        Price not set
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : !loading && (
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "20px",
+                  color: "#999",
+                }}
+              >
+                <p style={{ margin: 0, fontSize: "14px" }}>
+                  No daily pass pricing configured for this gym.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Fitness Classes (Session Plans) */}
       <div className="table-container mb-4">
         <div
           className="card"
@@ -537,8 +638,8 @@ const GymDetails = () => {
         </div>
       </div>
 
-      {/* Membership Plans Content */}
-      <div className="table-container">
+      {/* 4. Membership Plans */}
+      <div className="table-container mb-4">
         <div
           className="card"
           style={{ backgroundColor: "#1a1f1f", border: "1px solid #333", minHeight: "120px" }}
@@ -849,109 +950,8 @@ const GymDetails = () => {
         </div>
       </div>
 
-      {/* Daily Pass Pricing */}
-      <div className="table-container">
-        <div
-          className="card"
-          style={{ backgroundColor: "#1a1f1f", border: "1px solid #333", minHeight: "150px" }}
-        >
-          <div className="card-body">
-            <h5 style={{ color: "white", marginBottom: "20px" }}>Daily Pass Pricing</h5>
-            {!loading && dailyPass ? (
-              <div
-                style={{
-                  padding: "20px",
-                  backgroundColor: "#121717",
-                  border: "1px solid #333",
-                  borderRadius: "8px",
-                  maxWidth: "400px",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "flex-start",
-                    marginBottom: "10px",
-                  }}
-                >
-                  <div>
-                    {dailyPass.discount_price ? (
-                      <>
-                        <div
-                          style={{
-                            fontSize: "20px",
-                            fontWeight: "bold",
-                            color: "white",
-                          }}
-                        >
-                          ₹{dailyPass.discount_price}
-                        </div>
-                        {dailyPass.price && dailyPass.price !== dailyPass.discount_price && (
-                          <>
-                            <div
-                              style={{
-                                fontSize: "13px",
-                                color: "#999",
-                                textDecoration: "line-through",
-                              }}
-                            >
-                              ₹{dailyPass.price}
-                            </div>
-                            {dailyPass.discount_percentage && dailyPass.discount_percentage > 0 && (
-                              <div
-                                style={{
-                                  fontSize: "12px",
-                                  color: "white",
-                                }}
-                              >
-                                {dailyPass.discount_percentage}% OFF
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </>
-                    ) : dailyPass.price ? (
-                      <div
-                        style={{
-                          fontSize: "20px",
-                          fontWeight: "bold",
-                          color: "white",
-                        }}
-                      >
-                        ₹{dailyPass.price}
-                      </div>
-                    ) : (
-                      <div
-                        style={{
-                          fontSize: "14px",
-                          color: "#999",
-                        }}
-                      >
-                        Price not set
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ) : !loading && (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "20px",
-                  color: "#999",
-                }}
-              >
-                <p style={{ margin: 0, fontSize: "14px" }}>
-                  No daily pass pricing configured for this gym.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Gym Studio Pictures */}
-      <div className="table-container">
+      {/* 5. Gym Studio Pictures */}
+      <div className="table-container mb-4">
         <div
           className="card"
           style={{ backgroundColor: "#1a1f1f", border: "1px solid #333", minHeight: "120px" }}
@@ -1154,7 +1154,7 @@ const GymDetails = () => {
         </div>
       </div>
 
-      {/* Recurring Gym Subscribers */}
+      {/* 6. Recurring Gym Subscribers */}
       <div className="table-container">
         <div
           className="card"

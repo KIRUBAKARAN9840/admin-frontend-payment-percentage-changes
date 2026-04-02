@@ -7,6 +7,7 @@ export default function GymsPage() {
   const [loading, setLoading] = useState(true);
   const [totalGyms, setTotalGyms] = useState(0);
   const [activeGyms, setActiveGyms] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
   const [citiesData, setCitiesData] = useState([]);
   const [statesData, setStatesData] = useState([]);
   const [viewMode, setViewMode] = useState("city"); // "city" or "state"
@@ -25,6 +26,7 @@ export default function GymsPage() {
       if (response.data.success) {
         setTotalGyms(response.data.data.total_gyms);
         setActiveGyms(response.data.data.active_gyms);
+        setTotalRevenue(response.data.data.total_revenue || 0);
         setCitiesData(response.data.data.cities);
         setStatesData(response.data.data.states || []);
       }
@@ -41,6 +43,9 @@ export default function GymsPage() {
 
   // Calculate active gym ratio - 2 decimal places
   const activeRatio = totalGyms > 0 ? ((activeGyms / totalGyms) * 100).toFixed(2) : "0.00";
+
+  // Calculate average revenue per active gym
+  const avgRevenuePerActiveGym = activeGyms > 0 ? (totalRevenue / activeGyms).toFixed(0) : "0";
 
   // Get current data based on view mode
   const currentData = viewMode === "city" ? citiesData : statesData;
@@ -143,8 +148,11 @@ export default function GymsPage() {
                   <h6 className="card-title">Revenue per Gym</h6>
                 </div>
                 <div className="card-body-custom">
+                  <div className="metric-number" style={{ fontSize: "32px", fontWeight: "700", color: "#22c55e" }}>
+                    ₹{parseInt(avgRevenuePerActiveGym).toLocaleString('en-IN')}
+                  </div>
                   <div style={{ fontSize: "13px", color: "#888", marginTop: "8px" }}>
-                    View revenue details by gym
+                    Average revenue of active gym
                   </div>
                   <div style={{ fontSize: "11px", color: "#FF5757", marginTop: "6px", fontWeight: "500" }}>
                     Click to view details →
