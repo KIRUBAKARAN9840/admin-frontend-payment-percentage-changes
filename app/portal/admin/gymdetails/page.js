@@ -649,13 +649,13 @@ const GymDetails = () => {
 
             {!loading && (personalTrainingPlans.length > 0 || normalMembershipPlans.length > 0) ? (
               <>
-                {/* Personal Training Plans */}
-                {personalTrainingPlans.length > 0 && (
+                {/* Normal Membership Plans */}
+                {normalMembershipPlans.length > 0 && (
                   <>
                     <h5 style={{ color: "white", marginBottom: "15px" }}>
-                      Personal Training
+                      Membership
                     </h5>
-                    {Object.entries(groupPlansBy(personalTrainingPlans)).map(([groupKey, plans], groupIndex) => (
+                    {Object.entries(groupPlansBy(normalMembershipPlans)).map(([groupKey, plans], groupIndex) => (
                       <div key={groupKey} style={groupIndex > 0 ? { marginTop: "20px" } : {}}>
                         <h6 style={{ color: "#ccc", marginBottom: "10px", fontSize: "14px" }}>
                           {groupKey}
@@ -789,17 +789,17 @@ const GymDetails = () => {
                   </>
                 )}
 
-                {/* Normal Membership Plans */}
-                {normalMembershipPlans.length > 0 && (
+                {/* Personal Training Plans */}
+                {personalTrainingPlans.length > 0 && (
                   <>
                     <div style={{
                       borderTop: "1px solid #333",
-                      margin: personalTrainingPlans.length > 0 ? "30px 0 20px 0" : "0"
+                      margin: normalMembershipPlans.length > 0 ? "30px 0 20px 0" : "0"
                     }}></div>
                     <h5 style={{ color: "white", marginBottom: "15px" }}>
-                      Normal Membership
+                      Personal Training
                     </h5>
-                    {Object.entries(groupPlansBy(normalMembershipPlans)).map(([groupKey, plans], groupIndex) => (
+                    {Object.entries(groupPlansBy(personalTrainingPlans)).map(([groupKey, plans], groupIndex) => (
                       <div key={groupKey} style={groupIndex > 0 ? { marginTop: "20px" } : {}}>
                         <h6 style={{ color: "#ccc", marginBottom: "10px", fontSize: "14px" }}>
                           {groupKey}
