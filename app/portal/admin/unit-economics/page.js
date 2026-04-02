@@ -322,6 +322,25 @@ export default function UnitEconomicsPage() {
               </div>
             )}
 
+            {/* D7 Retention Card */}
+            {unitEconomicsData && unitEconomicsData.d7_retained_users !== undefined && (
+              <div className="col-xl-4 col-lg-6">
+                <div className="dashboard-card">
+                  <div className="card-header-custom extra-space">
+                    <h6 className="card-title">D7 Retention</h6>
+                  </div>
+                  <div className="card-body-custom">
+                    <div className="metric-number" style={{ fontSize: "32px", fontWeight: "700", color: "#06b6d4" }}>
+                      {unitEconomicsData.d7_retained_users.toLocaleString()}
+                    </div>
+                    <div style={{ fontSize: "13px", color: "#888", marginTop: "8px" }}>
+                      Retained Users from previous weeks
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Cohort Retention (Month N) Card */}
             {unitEconomicsData && unitEconomicsData.cohortRetentionRate !== undefined && (
               <div className="col-xl-4 col-lg-6">
