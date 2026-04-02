@@ -318,30 +318,30 @@ export default function CashFlowPage() {
                         <td style={{ padding: "14px 12px", color: "#fff", fontWeight: "500" }}>
                           {row.month_display}
                         </td>
-                        <td style={{ padding: "14px 12px", textAlign: "right", color: "#8b5cf6", fontWeight: "500" }}>
+                        <td style={{ padding: "14px 12px", textAlign: "right", color: "#fff", fontWeight: "500" }}>
                           {formatCurrency(row.opening_balance)}
                         </td>
-                        <td style={{ padding: "14px 12px", textAlign: "right", color: "#ef4444", fontWeight: "500" }}>
+                        <td style={{ padding: "14px 12px", textAlign: "right", color: "#fff", fontWeight: "500" }}>
                           {formatCurrency(row.outflow)}
                         </td>
                         <td style={{
                           padding: "14px 12px",
                           textAlign: "right",
                           fontWeight: "600",
-                          color: row.net_cash_flow >= 0 ? "#10b981" : "#ef4444"
+                          color: "#fff"
                         }}>
                           {formatCurrency(row.net_cash_flow)}
                         </td>
-                        <td style={{ padding: "14px 12px", textAlign: "right", color: "#8b5cf6", fontWeight: "500" }}>
+                        <td style={{ padding: "14px 12px", textAlign: "right", color: "#fff", fontWeight: "500" }}>
                           {formatCurrency(row.closing_balance)}
                         </td>
-                        <td style={{ padding: "14px 12px", textAlign: "right", color: row.burn_rate > 0 ? "#ef4444" : "#10b981" }}>
+                        <td style={{ padding: "14px 12px", textAlign: "right", color: "#fff" }}>
                           {formatCurrency(row.burn_rate)}
                         </td>
                         <td style={{
                           padding: "14px 12px",
                           textAlign: "right",
-                          color: row.runway > 0 ? (row.runway >= 6 ? "#10b981" : row.runway >= 3 ? "#f59e0b" : "#ef4444") : "#10b981",
+                          color: "#fff",
                           fontWeight: "500"
                         }}>
                           {row.runway > 0 ? row.runway : "0"}
@@ -629,7 +629,7 @@ export default function CashFlowPage() {
                 style={{
                   fontSize: "24px",
                   fontWeight: "700",
-                  color: "#4ade80",
+                  color: "#fff",
                 }}
               >
                 {formatCurrency(selectedBalanceForEdit.amount)}
@@ -864,7 +864,7 @@ function CashFlowDetailView({ month, onBack }) {
                 <div style={{
                   fontSize: "36px",
                   fontWeight: "700",
-                  color: "#ef4444"
+                  color: "#fff"
                 }}>
                   {formatCurrency(cashFlowData?.outflow?.total_outflow)}
                 </div>
@@ -907,7 +907,7 @@ function CashFlowDetailView({ month, onBack }) {
                     <div style={{
                       fontSize: "18px",
                       fontWeight: "600",
-                      color: "#4ade80"
+                      color: "#fff"
                     }}>
                       {formatCurrency(cashFlowData?.outflow?.gym_payout)}
                     </div>
@@ -934,7 +934,7 @@ function CashFlowDetailView({ month, onBack }) {
                     <div style={{
                       fontSize: "18px",
                       fontWeight: "600",
-                      color: "#3b82f6"
+                      color: "#fff"
                     }}>
                       {formatCurrency(cashFlowData?.outflow?.gst_payable)}
                     </div>
@@ -961,7 +961,7 @@ function CashFlowDetailView({ month, onBack }) {
                     <div style={{
                       fontSize: "18px",
                       fontWeight: "600",
-                      color: "#f59e0b"
+                      color: "#fff"
                     }}>
                       {formatCurrency(cashFlowData?.outflow?.tds_payable)}
                     </div>
@@ -988,7 +988,7 @@ function CashFlowDetailView({ month, onBack }) {
                     <div style={{
                       fontSize: "18px",
                       fontWeight: "600",
-                      color: "#8b5cf6"
+                      color: "#fff"
                     }}>
                       {formatCurrency(cashFlowData?.outflow?.expenses)}
                     </div>
@@ -1098,7 +1098,7 @@ function CashFlowDetailView({ month, onBack }) {
                 <div style={{
                   fontSize: "36px",
                   fontWeight: "700",
-                  color: "#8b5cf6"
+                  color: "#fff"
                 }}>
                   {formatCurrency(getCurrentFinancialYearOpeningBalance() + (cashFlowData?.net_cash_flow || 0))}
                 </div>
@@ -1138,7 +1138,7 @@ function CashFlowDetailView({ month, onBack }) {
                 <div style={{
                   fontSize: "36px",
                   fontWeight: "700",
-                  color: cashFlowData?.net_cash_flow < 0 ? "#ef4444" : "#10b981"
+                  color: "#fff"
                 }}>
                   {formatCurrency(cashFlowData?.net_cash_flow < 0 ? Math.abs(cashFlowData.net_cash_flow) : 0)}
                 </div>
@@ -1156,7 +1156,7 @@ function CashFlowDetailView({ month, onBack }) {
                     backgroundColor: "rgba(16, 185, 129, 0.1)",
                     borderRadius: "6px",
                     fontSize: "14px",
-                    color: "#10b981",
+                    color: "#fff",
                     textAlign: "center",
                     fontWeight: "500"
                   }}>
@@ -1169,7 +1169,7 @@ function CashFlowDetailView({ month, onBack }) {
                     backgroundColor: "rgba(239, 68, 68, 0.1)",
                     borderRadius: "6px",
                     fontSize: "14px",
-                    color: "#ef4444",
+                    color: "#fff",
                     textAlign: "center",
                     fontWeight: "500"
                   }}>
@@ -1222,7 +1222,7 @@ function CashFlowDetailView({ month, onBack }) {
                       <div style={{
                         fontSize: "48px",
                         fontWeight: "700",
-                        color: shouldCalculate ? (runway >= 6 ? "#10b981" : runway >= 3 ? "#f59e0b" : "#ef4444") : "#10b981"
+                        color: "#fff"
                       }}>
                         {shouldCalculate ? runway.toFixed(1) : "0"}
                       </div>

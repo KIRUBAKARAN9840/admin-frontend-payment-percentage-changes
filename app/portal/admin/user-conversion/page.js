@@ -374,7 +374,7 @@ export default function UserConversion() {
                       <span
                         style={{
                           fontWeight: "600",
-                          color: telecaller.total_converted > 0 ? "#FF5757" : "#888",
+                          color: telecaller.total_converted > 0 ? "#fff" : "#888",
                         }}
                       >
                         {telecaller.total_converted}

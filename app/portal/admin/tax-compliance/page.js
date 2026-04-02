@@ -224,7 +224,7 @@ export default function TaxCompliancePage() {
                         <td style={{
                           padding: "16px",
                           textAlign: "right",
-                          color: "#22c55e",
+                          color: "#fff",
                           fontWeight: "500"
                         }}>
                           {formatCurrency(item.gst_collected)}
@@ -253,7 +253,7 @@ export default function TaxCompliancePage() {
                               }}
                             />
                           ) : (
-                            <span style={{ color: "#f59e0b", fontWeight: "500" }}>
+                            <span style={{ color: "#fff", fontWeight: "500" }}>
                               {formatCurrency(item.gst_paid)}
                             </span>
                           )}
@@ -263,7 +263,7 @@ export default function TaxCompliancePage() {
                         <td style={{
                           padding: "16px",
                           textAlign: "right",
-                          color: item.gst_payable >= 0 ? "#3b82f6" : "#ef4444",
+                          color: "#fff",
                           fontWeight: "600"
                         }}>
                           {formatCurrency(item.gst_payable)}
@@ -273,7 +273,7 @@ export default function TaxCompliancePage() {
                         <td style={{
                           padding: "16px",
                           textAlign: "right",
-                          color: "#22c55e",
+                          color: "#fff",
                           fontWeight: "500"
                         }}>
                           {formatCurrency(item.tds_collected)}
@@ -302,7 +302,7 @@ export default function TaxCompliancePage() {
                               }}
                             />
                           ) : (
-                            <span style={{ color: "#f59e0b", fontWeight: "500" }}>
+                            <span style={{ color: "#fff", fontWeight: "500" }}>
                               {formatCurrency(item.tds_paid)}
                             </span>
                           )}
@@ -312,7 +312,7 @@ export default function TaxCompliancePage() {
                         <td style={{
                           padding: "16px",
                           textAlign: "right",
-                          color: item.tds_payable >= 0 ? "#3b82f6" : "#ef4444",
+                          color: "#fff",
                           fontWeight: "600"
                         }}>
                           {formatCurrency(item.tds_payable)}
