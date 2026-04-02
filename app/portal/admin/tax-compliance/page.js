@@ -12,6 +12,12 @@ export default function TaxCompliancePage() {
   const [tdsPaidInput, setTdsPaidInput] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Export States
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportStartDate, setExportStartDate] = useState("");
+  const [exportEndDate, setExportEndDate] = useState("");
+  const [exporting, setExporting] = useState(false);
+
   const fetchTaxData = async (page = 1) => {
     setLoading(true);
     try {
@@ -99,6 +105,90 @@ export default function TaxCompliancePage() {
     }).format(amount || 0);
   };
 
+  const handleExport = async () => {
+    if (!exportStartDate || !exportEndDate) {
+      alert("Please select both start and end dates");
+      return;
+    }
+
+    if (new Date(exportStartDate) > new Date(exportEndDate)) {
+      alert("Start date cannot be after end date");
+      return;
+    }
+
+    setExporting(true);
+    try {
+      // Fetch data for the selected date range
+      const response = await axiosInstance.get(
+        `/api/admin/tax-compliance/export?start_date=${exportStartDate}&end_date=${exportEndDate}`
+      );
+
+      if (response.data && response.data.success) {
+        const data = response.data.data;
+
+        // Dynamically import xlsx library
+        const XLSX = await import('xlsx');
+
+        // Create workbook
+        const wb = XLSX.utils.book_new();
+
+        // Prepare data for Excel
+        const headers = [
+          "Month",
+          "GST Collected",
+          "GST Paid",
+          "GST Payable",
+          "TDS Collected",
+          "TDS Paid",
+          "TDS Payable"
+        ];
+
+        const excelData = [headers];
+
+        data.forEach((row) => {
+          excelData.push([
+            row.month_display,
+            row.gst_collected,
+            row.gst_paid,
+            row.gst_payable,
+            row.tds_collected,
+            row.tds_paid,
+            row.tds_payable
+          ]);
+        });
+
+        // Create worksheet
+        const ws = XLSX.utils.aoa_to_sheet(excelData);
+
+        // Set column widths
+        ws['!cols'] = [
+          { wch: 20 }, // Month
+          { wch: 15 }, // GST Collected
+          { wch: 15 }, // GST Paid
+          { wch: 15 }, // GST Payable
+          { wch: 15 }, // TDS Collected
+          { wch: 15 }, // TDS Paid
+          { wch: 15 }, // TDS Payable
+        ];
+
+        // Add worksheet to workbook
+        XLSX.utils.book_append_sheet(wb, ws, "Tax Compliance");
+
+        // Generate and download Excel file
+        XLSX.writeFile(wb, `tax-compliance-${exportStartDate}-to-${exportEndDate}.xlsx`);
+
+        setShowExportModal(false);
+        setExportStartDate("");
+        setExportEndDate("");
+      }
+    } catch (err) {
+      console.error("Export error:", err);
+      alert(err.response?.data?.detail || "Failed to export data");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="dashboard-container">
       {loading ? (
@@ -113,8 +203,26 @@ export default function TaxCompliancePage() {
       ) : (
         <div className="section-container">
           <div className="dashboard-card">
-            <div className="card-header-custom">
+            <div className="card-header-custom" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h6 className="card-title">Tax & Compliance - Monthly Overview</h6>
+              <button
+                onClick={() => setShowExportModal(true)}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#22c55e",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                  transition: "background-color 0.2s"
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = "#16a34a"}
+                onMouseLeave={(e) => e.target.style.backgroundColor = "#22c55e"}
+              >
+                Export
+              </button>
             </div>
             <div className="card-body-custom">
               <div style={{ overflowX: "auto" }}>
@@ -482,6 +590,219 @@ export default function TaxCompliancePage() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Export Modal */}
+      {showExportModal && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.7)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: "#1f2937",
+            borderRadius: "12px",
+            padding: "24px",
+            width: "100%",
+            maxWidth: "450px",
+            border: "1px solid #374151"
+          }}>
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "20px"
+            }}>
+              <h3 style={{ fontSize: "18px", fontWeight: "600", color: "white", margin: 0 }}>
+                Export Tax Compliance Data
+              </h3>
+              <button
+                onClick={() => setShowExportModal(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#9ca3af",
+                  fontSize: "24px",
+                  cursor: "pointer",
+                  padding: "0",
+                  lineHeight: "1"
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              {/* Start Date */}
+              <div>
+                <label style={{ display: "block", fontSize: "13px", color: "#9ca3af", marginBottom: "6px" }}>
+                  Start Date *
+                </label>
+                <input
+                  type="date"
+                  value={exportStartDate}
+                  onChange={(e) => setExportStartDate(e.target.value)}
+                  max={exportEndDate || new Date().toISOString().split('T')[0]}
+                  style={{
+                    width: "100%",
+                    padding: "10px 12px",
+                    backgroundColor: "#111827",
+                    border: "1px solid #374151",
+                    borderRadius: "6px",
+                    color: "white",
+                    fontSize: "14px"
+                  }}
+                />
+              </div>
+
+              {/* End Date */}
+              <div>
+                <label style={{ display: "block", fontSize: "13px", color: "#9ca3af", marginBottom: "6px" }}>
+                  End Date *
+                </label>
+                <input
+                  type="date"
+                  value={exportEndDate}
+                  onChange={(e) => setExportEndDate(e.target.value)}
+                  min={exportStartDate}
+                  max={new Date().toISOString().split('T')[0]}
+                  style={{
+                    width: "100%",
+                    padding: "10px 12px",
+                    backgroundColor: "#111827",
+                    border: "1px solid #374151",
+                    borderRadius: "6px",
+                    color: "white",
+                    fontSize: "14px"
+                  }}
+                />
+              </div>
+
+              {/* Quick Select Options */}
+              <div>
+                <label style={{ display: "block", fontSize: "13px", color: "#9ca3af", marginBottom: "6px" }}>
+                  Quick Select
+                </label>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  <button
+                    onClick={() => {
+                      const today = new Date();
+                      const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                      const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+                      setExportStartDate(lastMonth.toISOString().split('T')[0]);
+                      setExportEndDate(lastMonthEnd.toISOString().split('T')[0]);
+                    }}
+                    style={{
+                      padding: "6px 12px",
+                      backgroundColor: "#374151",
+                      color: "white",
+                      border: "1px solid #4b5563",
+                      borderRadius: "4px",
+                      fontSize: "12px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Last Month
+                  </button>
+                  <button
+                    onClick={() => {
+                      const today = new Date();
+                      const lastQuarter = new Date(today.getFullYear(), today.getMonth() - 3, 1);
+                      const quarterEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+                      setExportStartDate(lastQuarter.toISOString().split('T')[0]);
+                      setExportEndDate(quarterEnd.toISOString().split('T')[0]);
+                    }}
+                    style={{
+                      padding: "6px 12px",
+                      backgroundColor: "#374151",
+                      color: "white",
+                      border: "1px solid #4b5563",
+                      borderRadius: "4px",
+                      fontSize: "12px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Last Quarter
+                  </button>
+                  <button
+                    onClick={() => {
+                      const today = new Date();
+                      const yearStart = new Date(today.getFullYear(), 3, 1); // April 1 (Financial Year start)
+                      const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+                      // If current month is before April, use previous year
+                      const startDate = today.getMonth() < 4 ?
+                        new Date(today.getFullYear() - 1, 3, 1) :
+                        new Date(today.getFullYear(), 3, 1);
+                      setExportStartDate(startDate.toISOString().split('T')[0]);
+                      setExportEndDate(lastMonthEnd.toISOString().split('T')[0]);
+                    }}
+                    style={{
+                      padding: "6px 12px",
+                      backgroundColor: "#374151",
+                      color: "white",
+                      border: "1px solid #4b5563",
+                      borderRadius: "4px",
+                      fontSize: "12px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    This Financial Year
+                  </button>
+                </div>
+              </div>
+
+              {/* Buttons */}
+              <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
+                <button
+                  onClick={() => {
+                    setShowExportModal(false);
+                    setExportStartDate("");
+                    setExportEndDate("");
+                  }}
+                  disabled={exporting}
+                  style={{
+                    flex: 1,
+                    padding: "10px",
+                    backgroundColor: "#374151",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "6px",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    cursor: exporting ? "not-allowed" : "pointer"
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleExport}
+                  disabled={exporting}
+                  style={{
+                    flex: 1,
+                    padding: "10px",
+                    backgroundColor: "#22c55e",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "6px",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    cursor: exporting ? "not-allowed" : "pointer",
+                    opacity: exporting ? 0.6 : 1
+                  }}
+                >
+                  {exporting ? "Exporting..." : "Export Excel"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
