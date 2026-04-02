@@ -98,7 +98,7 @@ export default function UserConversion() {
             <button
               onClick={() => setActiveChart(activeChart === "conversion" ? "revenue" : "conversion")}
               style={{
-                backgroundColor: "#FF5757",
+                backgroundColor: "#10b981",
                 color: "white",
                 border: "none",
                 borderRadius: "8px",
@@ -154,8 +154,42 @@ export default function UserConversion() {
                     currentAngle = endAngle;
                     return (
                       <g key={slice.name}>
-                        <path d={pathData} fill={slice.color} stroke="#1f2937" strokeWidth="2" />
-                        <title>{slice.name}: {slice.value} ({slice.percentage}%)</title>
+                        <path
+                          d={pathData}
+                          fill={slice.color}
+                          stroke="#1f2937"
+                          strokeWidth="2"
+                          style={{
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                            opacity: hoveredSegment === slice.name ? 0.9 : 1,
+                            transform: hoveredSegment === slice.name ? "scale(1.02)" : "scale(1)",
+                            transformOrigin: `${centerX}px ${centerY}px`
+                          }}
+                          onMouseEnter={(e) => {
+                            setHoveredSegment(slice.name);
+                            setTooltip({
+                              visible: true,
+                              x: e.clientX,
+                              y: e.clientY,
+                              data: slice
+                            });
+                          }}
+                          onMouseLeave={() => {
+                            setHoveredSegment(null);
+                            setTooltip({ visible: false, x: 0, y: 0, data: null });
+                          }}
+                          onMouseMove={(e) => {
+                            if (tooltip.visible) {
+                              setTooltip({
+                                visible: true,
+                                x: e.clientX,
+                                y: e.clientY,
+                                data: slice
+                              });
+                            }
+                          }}
+                        />
                       </g>
                     );
                   })}
@@ -164,7 +198,21 @@ export default function UserConversion() {
                 </svg>
                 <div style={{ flex: 1, maxHeight: "250px", overflowY: "auto" }}>
                   {data.map((slice) => (
-                    <div key={slice.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #374151" }}>
+                    <div
+                      key={slice.name}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "8px 0",
+                        borderBottom: "1px solid #374151",
+                        cursor: "pointer",
+                        transition: "background 0.2s",
+                        backgroundColor: hoveredSegment === slice.name ? "#374151" : "transparent"
+                      }}
+                      onMouseEnter={() => setHoveredSegment(slice.name)}
+                      onMouseLeave={() => setHoveredSegment(null)}
+                    >
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         <div style={{ width: "12px", height: "12px", borderRadius: "2px", backgroundColor: slice.color }} />
                         <span style={{ color: "#fff", fontSize: "14px" }}>{slice.name}</span>
@@ -183,12 +231,12 @@ export default function UserConversion() {
             const totalRevenue = telecallersWithRevenue.reduce((sum, t) => sum + (t.total_revenue || 0), 0);
             if (totalRevenue === 0) return <div style={{ color: "#888", textAlign: "center", padding: "20px" }}>No data available</div>;
 
-            const revenueColors = ["#10b981", "#34d399", "#6ee7b7", "#a7f3d0", "#059669", "#047857", "#065f46", "#064e3b"];
+            const colors = ["#FF5757", "#FF8C42", "#FFC947", "#7FE4A3", "#4CAF50", "#2196F3", "#9C27B0", "#E91E63", "#00BCD4", "#FF5722"];
             const revenueData = telecallersWithRevenue.map((telecaller) => ({
               name: telecaller.name || "Unknown",
               value: telecaller.total_revenue || 0,
               percentage: ((telecaller.total_revenue || 0) / totalRevenue * 100).toFixed(2),
-              color: revenueColors[telecallersWithRevenue.indexOf(telecaller) % revenueColors.length]
+              color: colors[telecallersWithRevenue.indexOf(telecaller) % colors.length]
             })).sort((a, b) => b.value - a.value);
 
             let currentAngle = -Math.PI / 2;
@@ -216,8 +264,42 @@ export default function UserConversion() {
                     currentAngle = endAngle;
                     return (
                       <g key={slice.name}>
-                        <path d={pathData} fill={slice.color} stroke="#1f2937" strokeWidth="2" />
-                        <title>{slice.name}: ₹{slice.value.toLocaleString()} ({slice.percentage}%)</title>
+                        <path
+                          d={pathData}
+                          fill={slice.color}
+                          stroke="#1f2937"
+                          strokeWidth="2"
+                          style={{
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                            opacity: hoveredRevenueSegment === slice.name ? 0.9 : 1,
+                            transform: hoveredRevenueSegment === slice.name ? "scale(1.02)" : "scale(1)",
+                            transformOrigin: `${centerX}px ${centerY}px`
+                          }}
+                          onMouseEnter={(e) => {
+                            setHoveredRevenueSegment(slice.name);
+                            setRevenueTooltip({
+                              visible: true,
+                              x: e.clientX,
+                              y: e.clientY,
+                              data: slice
+                            });
+                          }}
+                          onMouseLeave={() => {
+                            setHoveredRevenueSegment(null);
+                            setRevenueTooltip({ visible: false, x: 0, y: 0, data: null });
+                          }}
+                          onMouseMove={(e) => {
+                            if (revenueTooltip.visible) {
+                              setRevenueTooltip({
+                                visible: true,
+                                x: e.clientX,
+                                y: e.clientY,
+                                data: slice
+                              });
+                            }
+                          }}
+                        />
                       </g>
                     );
                   })}
@@ -226,7 +308,21 @@ export default function UserConversion() {
                 </svg>
                 <div style={{ flex: 1, maxHeight: "250px", overflowY: "auto" }}>
                   {revenueData.map((slice) => (
-                    <div key={slice.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #374151" }}>
+                    <div
+                      key={slice.name}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "8px 0",
+                        borderBottom: "1px solid #374151",
+                        cursor: "pointer",
+                        transition: "background 0.2s",
+                        backgroundColor: hoveredRevenueSegment === slice.name ? "#374151" : "transparent"
+                      }}
+                      onMouseEnter={() => setHoveredRevenueSegment(slice.name)}
+                      onMouseLeave={() => setHoveredRevenueSegment(null)}
+                    >
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         <div style={{ width: "12px", height: "12px", borderRadius: "2px", backgroundColor: slice.color }} />
                         <span style={{ color: "#fff", fontSize: "14px" }}>{slice.name}</span>
@@ -309,6 +405,66 @@ export default function UserConversion() {
       </div>
 
       {/* Tooltip */}
+      {tooltip.visible && tooltip.data && (
+        <div
+          style={{
+            position: "fixed",
+            left: Math.min(tooltip.x + 15, window.innerWidth - 200),
+            top: Math.min(tooltip.y + 15, window.innerHeight - 100),
+            backgroundColor: "rgba(31, 41, 55, 0.98)",
+            border: "1px solid #4b5563",
+            borderRadius: "8px",
+            padding: "0.6rem 0.8rem",
+            pointerEvents: "none",
+            zIndex: 9999,
+            boxShadow: "0 10px 15px rgba(0, 0, 0, 0.5)",
+            minWidth: "140px",
+            backdropFilter: "blur(8px)"
+          }}
+        >
+          <div style={{ color: tooltip.data.color, fontSize: "0.7rem", fontWeight: "600", marginBottom: "0.2rem", textTransform: "uppercase", letterSpacing: "0.3px" }}>
+            {tooltip.data.name}
+          </div>
+          <div style={{ color: "white", fontSize: "0.95rem", fontWeight: "700" }}>
+            {tooltip.data.value} conversions
+          </div>
+          <div style={{ color: "#9ca3af", fontSize: "0.75rem", marginTop: "0.1rem" }}>
+            {tooltip.data.percentage}% of total
+          </div>
+        </div>
+      )}
+
+      {/* Revenue Tooltip */}
+      {revenueTooltip.visible && revenueTooltip.data && (
+        <div
+          style={{
+            position: "fixed",
+            left: Math.min(revenueTooltip.x + 15, window.innerWidth - 200),
+            top: Math.min(revenueTooltip.y + 15, window.innerHeight - 100),
+            backgroundColor: "rgba(31, 41, 55, 0.98)",
+            border: "1px solid #4b5563",
+            borderRadius: "8px",
+            padding: "0.6rem 0.8rem",
+            pointerEvents: "none",
+            zIndex: 9999,
+            boxShadow: "0 10px 15px rgba(0, 0, 0, 0.5)",
+            minWidth: "140px",
+            backdropFilter: "blur(8px)"
+          }}
+        >
+          <div style={{ color: revenueTooltip.data.color, fontSize: "0.7rem", fontWeight: "600", marginBottom: "0.2rem", textTransform: "uppercase", letterSpacing: "0.3px" }}>
+            {revenueTooltip.data.name}
+          </div>
+          <div style={{ color: "white", fontSize: "0.95rem", fontWeight: "700" }}>
+            ₹{revenueTooltip.data.value.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+          </div>
+          <div style={{ color: "#9ca3af", fontSize: "0.75rem", marginTop: "0.1rem" }}>
+            {revenueTooltip.data.percentage}% of total
+          </div>
+        </div>
+      )}
+
+      {/* Conversion Tooltip */}
       {tooltip.visible && tooltip.data && (
         <div
           style={{
