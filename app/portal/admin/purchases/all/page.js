@@ -363,7 +363,7 @@ export default function AllPurchases() {
                   margin: 0,
                 }}
               >
-                Distinct Clients
+                New Clients
               </label>
             </div>
 
@@ -394,7 +394,7 @@ export default function AllPurchases() {
                   margin: 0,
                 }}
               >
-                Distinct Gyms
+                New Gyms
               </label>
             </div>
           </div>

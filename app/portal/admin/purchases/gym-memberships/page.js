@@ -307,7 +307,7 @@ export default function GymMemberships() {
                   margin: 0,
                 }}
               >
-                Distinct Clients
+                New Clients
               </label>
             </div>
 
@@ -338,7 +338,7 @@ export default function GymMemberships() {
                   margin: 0,
                 }}
               >
-                Distinct Gyms
+                New Gyms
               </label>
             </div>
           </div>

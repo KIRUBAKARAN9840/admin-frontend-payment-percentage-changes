@@ -17,6 +17,7 @@ export default function TelecallerConvertedClients() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalClients, setTotalClients] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
   // Track expanded cards and their purchase data
   const [expandedCards, setExpandedCards] = useState({});
@@ -54,6 +55,7 @@ export default function TelecallerConvertedClients() {
         setClients(response.data.data.clients);
         setTelecaller(response.data.data.telecaller);
         setTotalClients(response.data.data.total);
+        setTotalRevenue(response.data.data.total_revenue || 0);
       }
     } catch (error) {
       console.error("Error fetching clients:", error);
@@ -330,6 +332,28 @@ export default function TelecallerConvertedClients() {
               <option value={20}>20 per page</option>
               <option value={50}>50 per page</option>
             </select>
+          </div>
+
+          <div className="col-lg-3 col-md-6 col-sm-12 ms-auto">
+            <div
+              style={{
+                background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                borderRadius: "8px",
+                padding: "12px 16px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <div>
+                <div style={{ fontSize: "12px", color: "#ecfdf5", marginBottom: "2px", fontWeight: "500" }}>
+                  Business by {telecaller?.name || "Telecaller"}
+                </div>
+                <div style={{ fontSize: "20px", fontWeight: "700", color: "#ffffff" }}>
+                  ₹{totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
