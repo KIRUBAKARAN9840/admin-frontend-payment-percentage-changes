@@ -168,7 +168,26 @@ export default function GymStats() {
       try {
         const response = await axiosInstance.get("/api/admin/gym-stats/cities");
         if (response.data.success) {
-          setCities(response.data.data.cities || []);
+          const rawCities = response.data.data.cities || [];
+          // Normalize city names: trim spaces, convert to lowercase for uniqueness, then store title case
+          const normalizedCities = new Set();
+          const displayCities = [];
+
+          for (const city of rawCities) {
+            if (city) {
+              // Normalize: trim spaces and convert to lowercase
+              const normalized = city.trim().toLowerCase();
+              if (!normalizedCities.has(normalized) && normalized) {
+                normalizedCities.add(normalized);
+                // Store as title case for display
+                displayCities.push(city.trim());
+              }
+            }
+          }
+
+          // Sort alphabetically
+          displayCities.sort();
+          setCities(displayCities);
         }
       } catch (error) {
         console.error("Error fetching cities:", error);
