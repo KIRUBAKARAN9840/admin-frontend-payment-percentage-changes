@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/lib/axios";
 import {
@@ -26,7 +26,11 @@ export default function GymStats() {
   const [totalGyms, setTotalGyms] = useState(0);
   const [registeredUsersFilter, setRegisteredUsersFilter] = useState(searchParams.get("registered_users") || "");
   const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
+  const [stateFilter, setStateFilter] = useState(searchParams.get("state") || "");
   const [cities, setCities] = useState([]);
+  const [states, setStates] = useState([]);
+  // Guard: only populate city/state dropdowns once (from the first API response)
+  const filtersInitialized = useRef(false);
   const [planTypeFilters, setPlanTypeFilters] = useState({
     sessionPlans: searchParams.get("has_session_plans") === "true",
     membershipPlans: searchParams.get("has_membership_plans") === "true",
@@ -83,6 +87,12 @@ export default function GymStats() {
       params.delete("city");
     }
 
+    if (stateFilter) {
+      params.set("state", stateFilter);
+    } else {
+      params.delete("state");
+    }
+
     if (planTypeFilters.sessionPlans) {
       params.set("has_session_plans", "true");
     } else {
@@ -107,7 +117,7 @@ export default function GymStats() {
     // Replace URL with new params without triggering navigation
     const newUrl = `${window.location.pathname}?${params.toString()}`;
     window.history.replaceState({}, "", newUrl);
-  }, [searchTerm, sortOrder, registeredUsersFilter, cityFilter, planTypeFilters, currentPage, itemsPerPage, searchParams]);
+  }, [searchTerm, sortOrder, registeredUsersFilter, cityFilter, stateFilter, planTypeFilters, currentPage, itemsPerPage, searchParams]);
 
   const fetchGyms = useCallback(async () => {
     try {
@@ -144,57 +154,62 @@ export default function GymStats() {
         params.city = cityFilter;
       }
 
+      // Add state filter
+      if (stateFilter) {
+        params.state = stateFilter;
+      }
+
       const response = await axiosInstance.get("/api/admin/gym-stats", { params });
 
       if (response.data.success) {
         setGyms(response.data.data.gyms);
         setTotalGyms(response.data.data.total);
+
+        // Populate city/state dropdowns only once from the first response
+        if (!filtersInitialized.current) {
+          const rawCities = response.data.data.cities || [];
+          const normalizedCitiesSet = new Set();
+          const dedupedCities = [];
+          for (const c of rawCities) {
+            if (c) {
+              const key = c.trim().toLowerCase();
+              if (!normalizedCitiesSet.has(key)) {
+                normalizedCitiesSet.add(key);
+                dedupedCities.push(c.trim());
+              }
+            }
+          }
+          setCities(dedupedCities);
+
+          const rawStates = response.data.data.states || [];
+          const normalizedStatesSet = new Set();
+          const dedupedStates = [];
+          for (const s of rawStates) {
+            if (s) {
+              const key = s.trim().toLowerCase();
+              if (!normalizedStatesSet.has(key)) {
+                normalizedStatesSet.add(key);
+                dedupedStates.push(s.trim());
+              }
+            }
+          }
+          setStates(dedupedStates);
+          filtersInitialized.current = true;
+        }
       }
     } catch (error) {
       setGyms([]);
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearchTerm, sortOrder, currentPage, itemsPerPage, planTypeFilters, registeredUsersFilter, cityFilter]);
+  }, [debouncedSearchTerm, sortOrder, currentPage, itemsPerPage, planTypeFilters, registeredUsersFilter, cityFilter, stateFilter]);
 
   // Fetch gyms when filters change
   useEffect(() => {
     fetchGyms();
   }, [fetchGyms]);
 
-  // Fetch unique cities
-  useEffect(() => {
-    const fetchCities = async () => {
-      try {
-        const response = await axiosInstance.get("/api/admin/gym-stats/cities");
-        if (response.data.success) {
-          const rawCities = response.data.data.cities || [];
-          // Normalize city names: trim spaces, convert to lowercase for uniqueness, then store title case
-          const normalizedCities = new Set();
-          const displayCities = [];
 
-          for (const city of rawCities) {
-            if (city) {
-              // Normalize: trim spaces and convert to lowercase
-              const normalized = city.trim().toLowerCase();
-              if (!normalizedCities.has(normalized) && normalized) {
-                normalizedCities.add(normalized);
-                // Store as title case for display
-                displayCities.push(city.trim());
-              }
-            }
-          }
-
-          // Sort alphabetically
-          displayCities.sort();
-          setCities(displayCities);
-        }
-      } catch (error) {
-        console.error("Error fetching cities:", error);
-      }
-    };
-    fetchCities();
-  }, []);
 
   const handleFilterChange = (filterType, value) => {
     setCurrentPage(1);
@@ -302,8 +317,9 @@ export default function GymStats() {
 
       {/* Filters Section */}
       <div className="filters-section">
+        {/* Row 1: Search, Sort, Per Page, Clients Filter */}
         <div className="row pb-0">
-          <div className="col-lg-3 col-md-6 col-sm-12">
+          <div className="col-lg-4 col-md-6 col-sm-12">
             <div className="search-box">
               <FaSearch className="search-icon" />
               <input
@@ -316,7 +332,7 @@ export default function GymStats() {
             </div>
           </div>
 
-          <div className="col-lg-2 col-md-6 col-sm-12">
+          <div className="col-lg-2 col-md-4 col-sm-6">
             <button
               className="sort-btn"
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
@@ -326,7 +342,7 @@ export default function GymStats() {
             </button>
           </div>
 
-          <div className="col-lg-2 col-md-6 col-sm-12">
+          <div className="col-lg-3 col-md-4 col-sm-6">
             <select
               className="filter-select"
               value={itemsPerPage}
@@ -342,7 +358,7 @@ export default function GymStats() {
             </select>
           </div>
 
-          <div className="col-lg-2 col-md-6 col-sm-12">
+          <div className="col-lg-3 col-md-4 col-sm-6">
             <select
               className="filter-select"
               value={registeredUsersFilter}
@@ -359,8 +375,11 @@ export default function GymStats() {
               <option value="250">&gt; 250 Clients</option>
             </select>
           </div>
+        </div>
 
-          <div className="col-lg-2 col-md-6 col-sm-12">
+        {/* Row 2: City & State Filters */}
+        <div className="row" style={{ marginTop: "10px" }}>
+          <div className="col-lg-3 col-md-4 col-sm-6">
             <select
               className="filter-select"
               value={cityFilter}
@@ -377,7 +396,27 @@ export default function GymStats() {
               ))}
             </select>
           </div>
+
+          <div className="col-lg-3 col-md-4 col-sm-6">
+            <select
+              className="filter-select"
+              value={stateFilter}
+              onChange={(e) => {
+                setStateFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+            >
+              <option value="">All States</option>
+              {states.map((state) => (
+                <option key={state} value={state}>
+                  {state}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+
+
 
         {/* Plan Type Filter Toggle Buttons */}
         <div className="row" style={{ marginTop: "10px" }}>

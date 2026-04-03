@@ -956,7 +956,7 @@ export default function Users() {
           <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
             Gym Active Clients
           </div>
-          <div style={{ fontSize: "32px", fontWeight: "600", color: "#10b981" }}>
+          <div style={{ fontSize: "32px", fontWeight: "600", color: "#fff" }}>
             {clientCounts.active_clients.toLocaleString()}
           </div>
         </div>
@@ -987,7 +987,7 @@ export default function Users() {
           <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
             Gym Inactive Clients
           </div>
-          <div style={{ fontSize: "32px", fontWeight: "600", color: "#ef4444" }}>
+          <div style={{ fontSize: "32px", fontWeight: "600", color: "#fff" }}>
             {clientCounts.inactive_clients.toLocaleString()}
           </div>
         </div>
@@ -1018,7 +1018,7 @@ export default function Users() {
           <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
             Gym Fymble Members
           </div>
-          <div style={{ fontSize: "32px", fontWeight: "600", color: "#3b82f6" }}>
+          <div style={{ fontSize: "32px", fontWeight: "600", color: "#fff" }}>
             {onlineOfflineCounts.online_members.toLocaleString()}
           </div>
         </div>
@@ -1049,7 +1049,7 @@ export default function Users() {
           <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
             Gym Offline Members
           </div>
-          <div style={{ fontSize: "32px", fontWeight: "600", color: "#8b5cf6" }}>
+          <div style={{ fontSize: "32px", fontWeight: "600", color: "#fff" }}>
             {onlineOfflineCounts.offline_members.toLocaleString()}
           </div>
         </div>
@@ -1062,6 +1062,29 @@ export default function Users() {
         marginBottom: "30px",
         flexWrap: "wrap"
       }}>
+        {/* Total Clients Card */}
+        <div
+          style={{
+            backgroundColor: "#2a2a2a",
+            padding: "20px",
+            borderRadius: "8px",
+            minWidth: "200px",
+            flex: 1,
+            border: "1px solid #444",
+          }}
+        >
+          <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
+            Total Clients
+          </div>
+          <div style={{ fontSize: "32px", fontWeight: "600", color: "#fff" }}>
+            {totalUsers.toLocaleString()}
+          </div>
+          <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
+            Total registered users
+          </div>
+        </div>
+
+        {/* Monthly Average Users */}
         <div
           style={{
             backgroundColor: "#2a2a2a",
@@ -1075,7 +1098,7 @@ export default function Users() {
           <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
             Monthly Average Users
           </div>
-          <div style={{ fontSize: "32px", fontWeight: "600", color: "#f59e0b" }}>
+          <div style={{ fontSize: "32px", fontWeight: "600", color: "#fff" }}>
             {Math.round(activeUsersMetrics.monthly_average_users).toLocaleString()}
           </div>
           <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
@@ -1096,7 +1119,7 @@ export default function Users() {
           <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
             Weekly Average Users
           </div>
-          <div style={{ fontSize: "32px", fontWeight: "600", color: "#10b981" }}>
+          <div style={{ fontSize: "32px", fontWeight: "600", color: "#fff" }}>
             {activeUsersMetrics.weekly_average_users.toLocaleString()}
           </div>
           <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
@@ -1117,7 +1140,7 @@ export default function Users() {
           <div style={{ color: "#888", fontSize: "14px", marginBottom: "8px" }}>
             Daily Average Users
           </div>
-          <div style={{ fontSize: "32px", fontWeight: "600", color: "#3b82f6" }}>
+          <div style={{ fontSize: "32px", fontWeight: "600", color: "#fff" }}>
             {activeUsersMetrics.daily_average_users.toLocaleString()}
           </div>
           <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
