@@ -17,6 +17,7 @@ import {
   HiOutlinePhone,
   HiOutlineCreditCard,
   HiOutlineReceiptTax,
+  HiOutlineShieldCheck,
 } from "react-icons/hi";
 import { MdWorkOutline, MdOutlineTabletMac, MdRestaurantMenu } from "react-icons/md";
 
@@ -563,6 +564,11 @@ export default function RoleBasedLayout({ children }) {
     }
   };
 
+  const handleTOTPSetup = () => {
+    setProfileDropdownOpen(false);
+    router.push("/portal/totp-setup");
+  };
+
   const sidebarStyle = {
     position: "fixed",
     left: 0,
@@ -976,6 +982,36 @@ export default function RoleBasedLayout({ children }) {
                   }}
                 >
                   <div style={{ padding: "8px 0" }}>
+                    {/* TOTP Setup Option */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "12px 16px",
+                        cursor: "pointer",
+                        transition: "background-color 0.2s",
+                        color: "#10b981",
+                      }}
+                      onClick={handleTOTPSetup}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#374151";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }}
+                    >
+                      <HiOutlineShieldCheck size={22} />
+                      <span
+                        style={{
+                          marginLeft: "12px",
+                          fontSize: "16px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        2FA Setup
+                      </span>
+                    </div>
+
                     {/* Logout Option */}
                     <div
                       style={{

@@ -6,15 +6,17 @@ import { useRouter } from "next/navigation";
 import axiosInstance, { verifyToken } from "@/lib/axios";
 
 export default function AdminLogin() {
-  const [step, setStep] = useState("mobile"); // "mobile", "otp", "set-password", "forgot-mobile", "forgot-otp", "forgot-password"
+  const [step, setStep] = useState("mobile"); // "mobile", "totp", "otp", "set-password", "forgot-mobile", "forgot-otp", "forgot-password"
   const [mobileNumber, setMobileNumber] = useState("");
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [totpCode, setTotpCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [totpSetupData, setTotpSetupData] = useState(null); // Store TOTP setup data
   const otpRefs = useRef([]);
   const router = useRouter();
 
@@ -22,6 +24,12 @@ export default function AdminLogin() {
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
+        // Skip authentication check if we're in the middle of login/OTP/TOTP flow
+        if (step !== "mobile") {
+          setCheckingAuth(false);
+          return;
+        }
+
         // Check if user data exists in localStorage
         const userData = localStorage.getItem("user");
         if (!userData) {
@@ -64,7 +72,7 @@ export default function AdminLogin() {
     };
 
     checkAuthentication();
-  }, [router]);
+  }, [router, step]);
 
 
   useEffect(() => {
@@ -89,7 +97,10 @@ export default function AdminLogin() {
           password: password,
         });
 
-        if (response.data.status === 200) {
+        if (response.data.require_totp) {
+          // TOTP is enabled, show TOTP verification step
+          setStep("totp");
+        } else if (response.data.status === 200) {
           localStorage.setItem("user", JSON.stringify(response.data.data));
           if (response.data.data.role === "admin") {
             router.push("/portal/admin/home");
@@ -175,6 +186,68 @@ export default function AdminLogin() {
             err.response?.data?.detail || "Incorrect OTP. Please try again."
           );
         }
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  // Handle TOTP verification
+  const handleTotpSubmit = async (e) => {
+    e.preventDefault();
+    if (totpCode.length === 6) {
+      setLoading(true);
+      setError("");
+
+      try {
+        const response = await axiosInstance.post("/api/admin/auth/totp/verify", {
+          mobile_number: mobileNumber,
+          totp_code: totpCode,
+        });
+
+        if (response.data.status === 200) {
+          localStorage.setItem("user", JSON.stringify(response.data.data));
+          if (response.data.data.role === "admin") {
+            router.push("/portal/admin/home");
+          } else if (response.data.data.role === "support") {
+            router.push("/portal/support/fittbotbusiness");
+          }
+        }
+      } catch (err) {
+        setError(
+          err.response?.data?.detail || "Invalid TOTP code. Please try again."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  // Handle backup code submission
+  const handleBackupCodeSubmit = async (e) => {
+    e.preventDefault();
+    if (totpCode.length > 0) {
+      setLoading(true);
+      setError("");
+
+      try {
+        const response = await axiosInstance.post("/api/admin/auth/totp/verify", {
+          mobile_number: mobileNumber,
+          backup_code: totpCode,
+        });
+
+        if (response.data.status === 200) {
+          localStorage.setItem("user", JSON.stringify(response.data.data));
+          if (response.data.data.role === "admin") {
+            router.push("/portal/admin/home");
+          } else if (response.data.data.role === "support") {
+            router.push("/portal/support/fittbotbusiness");
+          }
+        }
+      } catch (err) {
+        setError(
+          err.response?.data?.detail || "Invalid backup code. Please try again."
+        );
       } finally {
         setLoading(false);
       }
@@ -468,6 +541,99 @@ export default function AdminLogin() {
               Forgot Password
             </button>
           </form>
+        )}
+
+        {/* TOTP Verification Step */}
+        {step === "totp" && (
+          <div className={styles.otpContainer}>
+            <button onClick={handleBack} className={styles.backButton}>
+              ← Back
+            </button>
+
+            <div className={styles.otpHeader}>
+              <h2 className={styles.otpTitle}>Two-Factor Authentication</h2>
+              <p className={styles.otpSubtitle}>
+                Enter the 6-digit code from your authenticator app
+              </p>
+            </div>
+
+            <form onSubmit={handleTotpSubmit} className={styles.form}>
+              <div className={styles.inputGroup}>
+                <label htmlFor="totp" className={styles.label}>
+                  Authentication Code
+                </label>
+                <div className={styles.phoneInputContainer}>
+                  <input
+                    id="totp"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={totpCode}
+                    onChange={(e) => setTotpCode(e.target.value)}
+                    placeholder="Enter 6-digit code"
+                    className={styles.phoneInput}
+                    maxLength="6"
+                    autoComplete="one-time-code"
+                    required
+                  />
+                </div>
+              </div>
+
+              {error && <div className={styles.errorMessage}>{error}</div>}
+
+              <button
+                type="submit"
+                className={styles.submitButton}
+                disabled={totpCode.length < 6 || loading}
+              >
+                {loading ? <div className={styles.loader}></div> : "Verify"}
+              </button>
+            </form>
+
+            <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setTotpCode("");
+                  setError("");
+                }}
+                className={styles.resendButton}
+                style={{ fontSize: "0.875rem" }}
+                disabled={loading}
+              >
+                Lost your device? Use backup code
+              </button>
+              <input
+                type="text"
+                inputMode="text"
+                pattern="[A-Za-z0-9]*"
+                value={totpCode}
+                onChange={(e) => setTotpCode(e.target.value)}
+                placeholder="Enter backup code"
+                style={{
+                  marginTop: "0.5rem",
+                  padding: "0.75rem",
+                  width: "100%",
+                  border: "1px solid #ddd",
+                  borderRadius: "0.5rem",
+                  fontSize: "1rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "2px",
+                  textAlign: "center",
+                }}
+                maxLength="8"
+              />
+              <button
+                type="button"
+                onClick={handleBackupCodeSubmit}
+                className={styles.submitButton}
+                style={{ marginTop: "0.5rem", width: "100%" }}
+                disabled={!totpCode || loading}
+              >
+                {loading ? <div className={styles.loader}></div> : "Use Backup Code"}
+              </button>
+            </div>
+          </div>
         )}
 
         {/* OTP Step */}
