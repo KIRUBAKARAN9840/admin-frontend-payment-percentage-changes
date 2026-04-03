@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/lib/axios";
-import { FaSpinner, FaChevronLeft, FaChevronRight, FaTicketAlt } from "react-icons/fa";
+import { FaSpinner, FaChevronLeft, FaChevronRight, FaTicketAlt, FaFileExport, FaDownload, FaTimes, FaCalendarAlt, FaHistory } from "react-icons/fa";
 
 export default function AdminTickets() {
   const router = useRouter();
@@ -22,6 +22,12 @@ export default function AdminTickets() {
     hasNext: false,
     hasPrev: false,
   });
+
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [isAllTime, setIsAllTime] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     fetchTickets();
@@ -79,8 +85,50 @@ export default function AdminTickets() {
   };
 
   const handleStatusFilter = (status) => {
-    setPagination({ ...pagination, page: 1 });
-    router.push(`/portal/admin/tickets?type=${ticketType}&status=${status}`);
+    const params = new URLSearchParams(searchParams);
+    params.set("status", status);
+    params.set("page", "1");
+    router.push(`?${params.toString()}`);
+  };
+
+  const handleExport = async (e) => {
+    if (e) e.preventDefault();
+    setExporting(true);
+    try {
+      const source = ticketType === "gym" ? "Fittbot Business" : "Fittbot";
+      const response = await axiosInstance.get(
+        `/api/admin/dashboard/support-tickets-export`,
+        {
+          params: { 
+            source, 
+            start_date: isAllTime ? undefined : (startDate || undefined), 
+            end_date: isAllTime ? undefined : (endDate || undefined) 
+          },
+          responseType: 'blob'
+        }
+      );
+      
+      const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const dateStr = new Date().toISOString().split('T')[0];
+      const filenamePrefix = isAllTime ? "All_Time_" : "";
+      link.setAttribute('download', `${filenamePrefix}Support_Tickets_${source.replace(/ /g, '_')}_${dateStr}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      setIsExportModalOpen(false);
+      setStartDate("");
+      setEndDate("");
+      setIsAllTime(false);
+    } catch (err) {
+      console.error("Export failed:", err);
+      alert("Failed to export tickets. Please try again.");
+    } finally {
+      setExporting(false);
+    }
   };
 
   const handleTypeFilter = (type) => {
@@ -351,7 +399,7 @@ export default function AdminTickets() {
               borderRadius: "0.5rem",
               color: "white",
               fontSize: "0.875rem",
-              minWidth: "280px",
+              minWidth: "250px",
             }}
           />
           <button
@@ -377,6 +425,32 @@ export default function AdminTickets() {
             Search
           </button>
         </form>
+
+        <button
+          onClick={() => setIsExportModalOpen(true)}
+          style={{
+            padding: "0.5rem 1rem",
+            backgroundColor: "#10b981",
+            border: "none",
+            borderRadius: "0.5rem",
+            color: "white",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            fontSize: "0.875rem",
+            fontWeight: "500",
+            transition: "background-color 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "#059669";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "#10b981";
+          }}
+        >
+          <FaFileExport /> Export
+        </button>
       </div>
 
       {/* Tickets Table */}
@@ -626,10 +700,137 @@ export default function AdminTickets() {
         </div>
       )}
 
+      {/* Export Modal */}
+      {isExportModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.75)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+          onClick={(e) => {
+             if (e.target === e.currentTarget) setIsExportModalOpen(false);
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#111827",
+              border: "1px solid #374151",
+              borderRadius: "1rem",
+              padding: "2rem",
+              width: "100%",
+              maxWidth: "400px",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+              animation: "fadeIn 0.3s ease-out",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+              <h2 style={{ fontSize: "1.25rem", fontWeight: "600", color: "white", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <FaDownload style={{ color: "#10b981" }} />
+                Export Support Tickets
+              </h2>
+              <button 
+                onClick={() => setIsExportModalOpen(false)}
+                style={{ background: "none", border: "none", color: "#9ca3af", cursor: "pointer", padding: "0.5rem" }}
+              >
+                <FaTimes size={18} />
+              </button>
+            </div>
+            
+            <p style={{ color: "#9ca3af", fontSize: "0.875rem", marginBottom: "1.5rem" }}>
+              Select a date range for <strong>{ticketType === "gym" ? "Fymble Business" : "Fymble"}</strong>.
+            </p>
+            
+            <form onSubmit={handleExport}>
+              <div style={{ marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <input
+                  type="checkbox"
+                  id="allTime"
+                  checked={isAllTime}
+                  onChange={(e) => setIsAllTime(e.target.checked)}
+                  style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer", accentColor: "#10b981" }}
+                />
+                <label htmlFor="allTime" style={{ color: "white", fontSize: "0.875rem", cursor: "pointer", userSelect: "none" }}>
+                  Export All Time (ignores date range)
+                </label>
+              </div>
+
+              {!isAllTime && (
+                <>
+                  <div style={{ marginBottom: "1rem" }}>
+                    <label style={{ display: "block", color: "white", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.5rem" }}>
+                      Start Date
+                    </label>
+                    <input
+                      type="date"
+                      required={!isAllTime}
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "0.75rem",
+                        backgroundColor: "#1f2937",
+                        border: "1px solid #374151",
+                        borderRadius: "0.5rem",
+                        color: "white",
+                        outline: "none",
+                      }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: "1.5rem" }}>
+                    <label style={{ display: "block", color: "white", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.5rem" }}>
+                      End Date
+                    </label>
+                    <input
+                      type="date"
+                      required={!isAllTime}
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "0.75rem",
+                        backgroundColor: "#1f2937",
+                        border: "1px solid #374151",
+                        borderRadius: "0.5rem",
+                        color: "white",
+                        outline: "none",
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+              <button
+                type="submit"
+                disabled={exporting}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  backgroundColor: "#10b981",
+                  borderRadius: "0.5rem",
+                  color: "white",
+                  fontWeight: "600",
+                  cursor: exporting ? "not-allowed" : "pointer",
+                }}
+              >
+                {exporting ? "Exporting..." : "Download Excel"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
         }
       `}</style>
     </div>
