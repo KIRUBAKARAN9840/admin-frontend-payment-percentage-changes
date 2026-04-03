@@ -13,6 +13,7 @@ export default function AdminLogin() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [totpCode, setTotpCode] = useState("");
+  const [backupCode, setBackupCode] = useState(""); // Separate state for backup code
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -226,14 +227,14 @@ export default function AdminLogin() {
   // Handle backup code submission
   const handleBackupCodeSubmit = async (e) => {
     e.preventDefault();
-    if (totpCode.length > 0) {
+    if (backupCode.length > 0) {
       setLoading(true);
       setError("");
 
       try {
         const response = await axiosInstance.post("/api/admin/auth/totp/verify", {
           mobile_number: mobileNumber,
-          backup_code: totpCode,
+          backup_code: backupCode,
         });
 
         if (response.data.status === 200) {
@@ -607,8 +608,8 @@ export default function AdminLogin() {
                 type="text"
                 inputMode="text"
                 pattern="[A-Za-z0-9]*"
-                value={totpCode}
-                onChange={(e) => setTotpCode(e.target.value)}
+                value={backupCode}
+                onChange={(e) => setBackupCode(e.target.value)}
                 placeholder="Enter backup code"
                 style={{
                   marginTop: "0.5rem",
@@ -628,7 +629,7 @@ export default function AdminLogin() {
                 onClick={handleBackupCodeSubmit}
                 className={styles.submitButton}
                 style={{ marginTop: "0.5rem", width: "100%" }}
-                disabled={!totpCode || loading}
+                disabled={!backupCode || loading}
               >
                 {loading ? <div className={styles.loader}></div> : "Use Backup Code"}
               </button>
