@@ -1219,7 +1219,7 @@ export default function Home() {
       {/* Recurring Subscribers Section */}
       <div className="section-container">
         <h3 className="section-heading">
-          <span style={{ color: "#FF5757" }}>Recurring</span> Subscribers
+          <span style={{ color: "#FF5757" }}>Recurring Nutrition</span> Subscribers
         </h3>
         <div className="row g-4">
           <div className="col-xl-4 col-lg-6 col-md-6">
@@ -1229,7 +1229,7 @@ export default function Home() {
               onClick={() => router.push("/portal/admin/recurring-subscribers")}
             >
               <div className="card-header-custom extra-space">
-                <h6 className="card-title">Total Recurring Subscribers</h6>
+                <h6 className="card-title">Total Recurring Nutrition Subscribers</h6>
               </div>
               <div className="card-body-custom">
                 <div className="metric-number">

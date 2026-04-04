@@ -125,7 +125,7 @@ export default function RecurringSubscribers() {
           </button>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginLeft: "1rem" }}>
             <h2 className="users-title" style={{ margin: 0 }}>
-              <span style={{ color: "#FF5757" }}>Recurring</span> Subscribers
+              <span style={{ color: "#FF5757" }}>Recurring Nutrition</span> Subscribers
             </h2>
           </div>
         </div>
