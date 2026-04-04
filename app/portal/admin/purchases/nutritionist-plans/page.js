@@ -70,25 +70,13 @@ export default function NutritionistPlans() {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
+    if (!dateString || dateString === "N/A") return "N/A";
     const date = new Date(dateString);
     return date.toLocaleDateString("en-IN", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
-  };
-
-  const getDaysLeftColor = (daysLeft) => {
-    if (daysLeft < 0) return "#6b7280"; // Gray - expired
-    if (daysLeft <= 2) return "#ef4444"; // Red - expiring very soon
-    if (daysLeft <= 5) return "#f59e0b"; // Orange - expiring soon
-    return "#10b981"; // Green - plenty of time
-  };
-
-  const getDaysLeftLabel = (daysLeft) => {
-    if (daysLeft < 0) return "Expired";
-    return `${daysLeft} days`;
   };
 
   const totalPages = Math.ceil(totalUsers / 10);
@@ -140,7 +128,7 @@ export default function NutritionistPlans() {
             <input
               type="text"
               className="form-control"
-              placeholder="Search by name, email, mobile..."
+              placeholder="Search by client name or mobile..."
               value={searchTerm}
               onChange={(e) => handleFilterChange("search", e.target.value)}
               style={{
@@ -221,51 +209,37 @@ export default function NutritionistPlans() {
                   <th>Client Name</th>
                   <th>Contact</th>
                   <th>Gym Name</th>
-                  <th>Subscription Period</th>
-                  <th>Status</th>
+                  <th>Purchased Date</th>
+                  <th>Booked Date</th>
+                  <th>Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
-                  <tr key={user.customer_id}>
+                  <tr key={user.id}>
                     <td className="client-name">
-                      <div>{user.name || "N/A"}</div>
-                      <div style={{ fontSize: "12px", color: "#888", marginTop: "4px" }}>
-                        Joined: {formatDate(user.client_joined_date)}
-                      </div>
+                      <div>{user.client_name || "N/A"}</div>
                     </td>
                     <td className="client-contact">
                       <div>{user.mobile || "N/A"}</div>
-                      <div style={{ fontSize: "12px", color: "#888", marginTop: "4px" }}>
-                        {user.email || "N/A"}
-                      </div>
                     </td>
                     <td className="gym-name">
                       <div>{user.gym_name || "N/A"}</div>
-                      <div style={{ fontSize: "12px", color: "#888", marginTop: "4px" }}>
-                        {user.gym_location || "N/A"}
+                    </td>
+                    <td>
+                      <div style={{ fontSize: "13px", color: "#ccc" }}>
+                        {formatDate(user.purchased_date)}
                       </div>
                     </td>
                     <td>
                       <div style={{ fontSize: "13px", color: "#ccc" }}>
-                        <div>Start: {formatDate(user.subscription_start_date)}</div>
-                        <div>End: {formatDate(user.subscription_end_date)}</div>
+                        {formatDate(user.booked_date)}
                       </div>
                     </td>
-                    <td className="status" style={{ textAlign: "center" }}>
-                      <span
-                        style={{
-                          padding: "4px 12px",
-                          borderRadius: "4px",
-                          fontSize: "12px",
-                          fontWeight: "600",
-                          textTransform: "uppercase",
-                          backgroundColor: "rgba(255, 255, 255, 0.1)",
-                          color: getDaysLeftColor(user.days_left),
-                        }}
-                      >
-                        {getDaysLeftLabel(user.days_left)}
-                      </span>
+                    <td>
+                      <div style={{ fontSize: "14px", color: "#10b981", fontWeight: "600" }}>
+                        ₹{user.amount?.toFixed(2) || "0.00"}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -363,11 +337,6 @@ export default function NutritionistPlans() {
           color: #fff !important;
           border: none !important;
           background-color: transparent !important;
-        }
-
-        table.purchases-table > tbody > tr > td.status {
-          text-align: center !important;
-          padding: 12px !important;
         }
 
         table.purchases-table .client-name {
