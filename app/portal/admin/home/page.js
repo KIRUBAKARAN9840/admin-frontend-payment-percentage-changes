@@ -1008,25 +1008,6 @@ export default function Home() {
           <span style={{ color: "#FF5757" }}>Nutrition</span><span style={{ color: "#fff" }}>ist Plans</span>
         </h3>
         <div className="row g-4">
-          {/* Free Trial Card */}
-          <div className="col-xl-4 col-lg-6 col-md-6">
-            <div
-              className="dashboard-card"
-              style={{ cursor: "pointer" }}
-              onClick={() => router.push("/portal/admin/freetrial")}
-            >
-              <div className="card-header-custom extra-space">
-                <h6 className="card-title">Free Trial</h6>
-              </div>
-              <div className="card-body-custom">
-                <div className="metric-number">
-                  {dashboardData.plans.freeTrial}
-                </div>
-                <div className="metric-change positive">Active Users</div>
-              </div>
-            </div>
-          </div>
-
           {/* Nutritionist Plans Card */}
           <div className="col-xl-4 col-lg-6 col-md-6">
             <div
@@ -1068,25 +1049,6 @@ export default function Home() {
                     ? "6 Months"
                     : "12 Months"}
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Complimentary Subscriptions Card */}
-          <div className="col-xl-4 col-lg-6 col-md-6">
-            <div
-              className="dashboard-card"
-              style={{ cursor: "pointer" }}
-              onClick={() => router.push("/portal/admin/complimentary")}
-            >
-              <div className="card-header-custom extra-space">
-                <h6 className="card-title">Complimentary Subscriptions</h6>
-              </div>
-              <div className="card-body-custom">
-                <div className="metric-number">
-                  {dashboardData.plans.complimentary}
-                </div>
-                <div className="metric-change positive">Fymble Users</div>
               </div>
             </div>
           </div>
