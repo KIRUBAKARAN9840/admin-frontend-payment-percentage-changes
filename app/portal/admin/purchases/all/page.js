@@ -7,6 +7,7 @@ export default function AllPurchases() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [purchases, setPurchases] = useState([]);
+  const [categoryBreakdown, setCategoryBreakdown] = useState(null);
   const [distinctClients, setDistinctClients] = useState(new Set());
   const [distinctGyms, setDistinctGyms] = useState(new Set());
   const [page, setPage] = useState(1);

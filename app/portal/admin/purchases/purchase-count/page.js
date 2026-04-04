@@ -207,6 +207,7 @@ export default function PurchaseCountPage() {
     daily_pass: "Daily Pass",
     sessions: "Fitness Class",
     fittbot_subscription: "Nutritionist Plan",
+    ai_credits: "AI Credits",
     gym_membership: "Gym Membership"
   };
 
@@ -214,6 +215,7 @@ export default function PurchaseCountPage() {
     daily_pass: "#ffffffff",
     sessions: "#4CAF50",
     fittbot_subscription: "#9C27B0",
+    ai_credits: "#FF9800",
     gym_membership: "#2196F3"
   };
 
@@ -354,6 +356,7 @@ export default function PurchaseCountPage() {
               <option value="daily_pass">Daily Pass</option>
               <option value="sessions">Fitness Class</option>
               <option value="fittbot_subscription">Nutritionist Plan</option>
+              <option value="ai_credits">AI Credits</option>
               <option value="gym_membership">Gym Membership</option>
             </select>
           </div>
