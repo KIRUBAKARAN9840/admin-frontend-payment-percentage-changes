@@ -176,7 +176,7 @@ export default function PurchaseHistory() {
       XLSX.utils.book_append_sheet(workbook, dailyPassWorksheet, "Daily Pass");
     }
 
-    // Sheet 2: Sessions
+    // Sheet 2: Fitness Classes
     if (sessionData.length > 0) {
       const sessionsWorksheet = XLSX.utils.json_to_sheet(
         sessionData.map((session) => {
@@ -189,7 +189,7 @@ export default function PurchaseHistory() {
           return {
             "Purchase Date": formatDateTime(session.created_at),
             "Booking Date": formatDate(session.booking_date),
-            "Session Name": session.session_name
+            "Class Name": session.session_name
               .replace(/_/g, " ")
               .replace(/\b\w/g, (l) => l.toUpperCase()),
             "Gym Name": session.gym_name || "-",
@@ -199,10 +199,10 @@ export default function PurchaseHistory() {
           };
         })
       );
-      XLSX.utils.book_append_sheet(workbook, sessionsWorksheet, "Sessions");
+      XLSX.utils.book_append_sheet(workbook, sessionsWorksheet, "Fitness Classes");
     }
 
-    // Sheet 3: Fymble Subscription
+    // Sheet 3: Nutrition Plan
     if (subscriptionData.length > 0) {
       const subscriptionWorksheet = XLSX.utils.json_to_sheet(
         subscriptionData.map((sub) => ({
@@ -210,7 +210,7 @@ export default function PurchaseHistory() {
           "Amount": sub.amount ? `₹${(sub.amount / 100).toFixed(2)}` : "-",
         }))
       );
-      XLSX.utils.book_append_sheet(workbook, subscriptionWorksheet, "Fymble Subscription");
+      XLSX.utils.book_append_sheet(workbook, subscriptionWorksheet, "Nutrition Plan");
     }
 
     // Sheet 4: Gym Membership
@@ -319,13 +319,13 @@ export default function PurchaseHistory() {
           className={`tab-button ${activeTab === "sessions" ? "active" : ""}`}
           onClick={() => setActiveTab("sessions")}
         >
-          Sessions
+          Fitness Classes
         </button>
         <button
           className={`tab-button ${activeTab === "subscription" ? "active" : ""}`}
           onClick={() => setActiveTab("subscription")}
         >
-          Fymble Subscription
+          Nutrition Plan
         </button>
         <button
           className={`tab-button ${activeTab === "gym-membership" ? "active" : ""}`}
@@ -430,7 +430,7 @@ export default function PurchaseHistory() {
             ) : sessionData.length === 0 ? (
               <div className="no-data-message">
                 <div style={{ fontSize: "48px", marginBottom: "1rem" }}>🏋️</div>
-                <p>No session bookings found</p>
+                <p>No fitness class bookings found</p>
               </div>
             ) : (
               <div className="table-responsive">
@@ -525,7 +525,7 @@ export default function PurchaseHistory() {
             ) : subscriptionData.length === 0 ? (
               <div className="no-data-message">
                 <div style={{ fontSize: "48px", marginBottom: "1rem" }}>💎</div>
-                <p>No Fymble subscription found</p>
+                <p>No Nutrition Plan found</p>
               </div>
             ) : (
               <div className="table-responsive">
