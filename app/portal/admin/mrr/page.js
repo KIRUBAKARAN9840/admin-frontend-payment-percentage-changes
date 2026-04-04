@@ -11,6 +11,7 @@ export default function MRR() {
     breakdown: {
       current_month: {
         fittbot_subscription: 0,
+        ai_credits: 0,
         gym_membership: 0,
         daily_pass: 0,
         sessions: 0,
@@ -45,6 +46,7 @@ export default function MRR() {
           breakdown: response.data.data.breakdown || {
             current_month: {
               fittbot_subscription: 0,
+              ai_credits: 0,
               gym_membership: 0,
               daily_pass: 0,
               sessions: 0,
@@ -158,6 +160,7 @@ export default function MRR() {
 
             // Calculate percentages
             const fittbotPercent = ((breakdown.fittbot_subscription || 0) / total) * 100;
+            const aiCreditsPercent = ((breakdown.ai_credits || 0) / total) * 100;
             const gymPercent = ((breakdown.gym_membership || 0) / total) * 100;
             const dailyPassPercent = ((breakdown.daily_pass || 0) / total) * 100;
             const sessionsPercent = ((breakdown.sessions || 0) / total) * 100;
@@ -174,13 +177,22 @@ export default function MRR() {
                 endAngle: fittbotPercent * 3.6
               },
               {
+                id: 'aiCredits',
+                name: 'AI Credits',
+                value: breakdown.ai_credits || 0,
+                percent: aiCreditsPercent,
+                color: '#a855f7',
+                startAngle: fittbotPercent * 3.6,
+                endAngle: (fittbotPercent + aiCreditsPercent) * 3.6
+              },
+              {
                 id: 'gym',
                 name: 'Gym Membership',
                 value: breakdown.gym_membership || 0,
                 percent: gymPercent,
                 color: '#4ade80',
-                startAngle: fittbotPercent * 3.6,
-                endAngle: (fittbotPercent + gymPercent) * 3.6
+                startAngle: (fittbotPercent + aiCreditsPercent) * 3.6,
+                endAngle: (fittbotPercent + aiCreditsPercent + gymPercent) * 3.6
               },
               {
                 id: 'dailyPass',
@@ -188,8 +200,8 @@ export default function MRR() {
                 value: breakdown.daily_pass || 0,
                 percent: dailyPassPercent,
                 color: '#60a5fa',
-                startAngle: (fittbotPercent + gymPercent) * 3.6,
-                endAngle: (fittbotPercent + gymPercent + dailyPassPercent) * 3.6
+                startAngle: (fittbotPercent + aiCreditsPercent + gymPercent) * 3.6,
+                endAngle: (fittbotPercent + aiCreditsPercent + gymPercent + dailyPassPercent) * 3.6
               },
               {
                 id: 'sessions',
@@ -197,7 +209,7 @@ export default function MRR() {
                 value: breakdown.sessions || 0,
                 percent: sessionsPercent,
                 color: '#fbbf24',
-                startAngle: (fittbotPercent + gymPercent + dailyPassPercent) * 3.6,
+                startAngle: (fittbotPercent + aiCreditsPercent + gymPercent + dailyPassPercent) * 3.6,
                 endAngle: 360
               }
             ];
