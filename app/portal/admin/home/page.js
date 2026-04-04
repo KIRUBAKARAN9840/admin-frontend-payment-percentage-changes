@@ -13,8 +13,6 @@ export default function Home() {
   const [businessGymOwnersFilter, setBusinessGymOwnersFilter] =
     useState("month");
   const [businessGymsFilter, setBusinessGymsFilter] = useState("month");
-  const [fittbotSubscriptionsFilter, setFittbotSubscriptionsFilter] =
-    useState("total");
   const { role } = useRole();
 
   // Custom date range states - separate for each metric
@@ -1017,37 +1015,13 @@ export default function Home() {
             >
               <div className="card-header-custom">
                 <h6 className="card-title">Nutritionist Plans</h6>
-                <select
-                  className="filter-dropdown"
-                  value={fittbotSubscriptionsFilter}
-                  onChange={(e) => {
-                    setFittbotSubscriptionsFilter(e.target.value);
-                    e.stopPropagation();
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <option value="total">Total</option>
-                  <option value="gold">Gold</option>
-                  <option value="platinum">Platinum</option>
-                  <option value="diamond">Diamond</option>
-                </select>
               </div>
               <div className="card-body-custom">
                 <div className="metric-number">
-                  {
-                    dashboardData.plans.fittbotSubscriptions[
-                      fittbotSubscriptionsFilter
-                    ]
-                  }
+                  {dashboardData.plans.fittbotSubscriptions.total}
                 </div>
                 <div className="metric-change positive">
-                  {fittbotSubscriptionsFilter === "total"
-                    ? "All Plans"
-                    : fittbotSubscriptionsFilter === "gold"
-                    ? "1 Month"
-                    : fittbotSubscriptionsFilter === "platinum"
-                    ? "6 Months"
-                    : "12 Months"}
+                  Unique Users
                 </div>
               </div>
             </div>

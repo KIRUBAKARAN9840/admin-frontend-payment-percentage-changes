@@ -1,14 +1,13 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import axiosInstance from "@/lib/axios";
 import {
   FaSearch,
-  FaSortUp,
-  FaSortDown,
   FaChevronLeft,
   FaChevronRight,
   FaArrowLeft,
+  FaDownload,
 } from "react-icons/fa";
 
 export default function FittbotSubscriptions() {
@@ -23,6 +22,10 @@ export default function FittbotSubscriptions() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalUsers, setTotalUsers] = useState(0);
+  const [totalPurchases, setTotalPurchases] = useState(0);
+  const [exporting, setExporting] = useState(false);
+
+  const isFetchingRef = useRef(false);
 
   // Debounce search term
   useEffect(() => {
@@ -47,7 +50,10 @@ export default function FittbotSubscriptions() {
   }, []);
 
   const fetchUsers = useCallback(async () => {
+    if (isFetchingRef.current) return;
+
     try {
+      isFetchingRef.current = true;
       setLoading(true);
 
       const params = {
@@ -60,16 +66,18 @@ export default function FittbotSubscriptions() {
         params.search = debouncedSearchTerm;
       }
 
-      const response = await axiosInstance.get("/api/admin/fittbot-subscriptions/list", { params });
+      const response = await axiosInstance.get("/api/admin/purchases/nutritionist-plans", { params });
 
       if (response.data.success) {
         setUsers(response.data.data.users);
-        setTotalUsers(response.data.data.total);
+        setTotalUsers(response.data.data.unique_users || response.data.data.total);
+        setTotalPurchases(response.data.data.total);
       }
     } catch (error) {
       setUsers([]);
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
   }, [debouncedSearchTerm, sortOrder, currentPage, itemsPerPage]);
 
@@ -84,21 +92,16 @@ export default function FittbotSubscriptions() {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString("en-IN", {
+    if (!dateString || dateString === "N/A") return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-IN", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
   };
 
-  const getDaysLeftColor = (daysLeft) => {
-    if (daysLeft <= 2) return "#ef4444"; // Red - expiring very soon
-    if (daysLeft <= 5) return "#f59e0b"; // Orange - expiring soon
-    return "#10b981"; // Green - plenty of time
-  };
-
-  const totalPages = Math.ceil(totalUsers / itemsPerPage);
+  const totalPages = Math.ceil(totalPurchases / itemsPerPage);
 
   const getPaginationNumbers = () => {
     const pages = [];
@@ -135,13 +138,65 @@ export default function FittbotSubscriptions() {
     return pages;
   };
 
+  const handleExport = async () => {
+    try {
+      setExporting(true);
+
+      const response = await axiosInstance.get("/api/admin/purchases/export-nutritionist-plans", {
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      }));
+      const link = document.createElement("a");
+      link.href = url;
+
+      const contentDisposition = response.headers["content-disposition"];
+      let filename = "nutritionist_plans.xlsx";
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename=(.+)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/"/g, "");
+        }
+      }
+
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export failed:", err);
+      alert("Failed to export nutritionist plans. Please try again.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (loading && users.length === 0) {
     return (
       <div className="users-container">
         <div className="users-header">
-          <h2 className="users-title">
-            <span style={{ color: "#FF5757" }}>Nutrition</span><span style={{ color: "#fff" }}>ist Plans</span>
-          </h2>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <button
+              onClick={() => router.push("/portal/admin/home")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "0",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                fontSize: "20px",
+              }}
+            >
+              <FaArrowLeft style={{ color: "#FF5757" }} />
+            </button>
+            <h2 className="users-title">
+              <span style={{ color: "#FF5757" }}>Nutrition</span><span style={{ color: "#fff" }}>ist Plans</span>
+            </h2>
+          </div>
         </div>
         <div
           style={{
@@ -164,7 +219,7 @@ export default function FittbotSubscriptions() {
                 margin: "0 auto 1rem",
               }}
             />
-            <p style={{ fontSize: "14px", color: "#ccc" }}>Loading fymble subscriptions...</p>
+            <p style={{ fontSize: "14px", color: "#ccc" }}>Loading nutritionist plans...</p>
           </div>
         </div>
       </div>
@@ -193,7 +248,29 @@ export default function FittbotSubscriptions() {
             <span style={{ color: "#FF5757" }}>Nutrition</span><span style={{ color: "#fff" }}>ist Plans</span>
           </h2>
         </div>
-        <div className="users-count">Total: {totalUsers} users</div>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div className="users-count">Total: {totalUsers} users</div>
+          <button
+            className="btn"
+            onClick={handleExport}
+            disabled={exporting || loading}
+            style={{
+              backgroundColor: exporting || loading ? "#444" : "#28a745",
+              border: "none",
+              color: "#fff",
+              padding: "8px 16px",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              cursor: exporting || loading ? "not-allowed" : "pointer",
+              borderRadius: "6px",
+              fontSize: "14px",
+            }}
+          >
+            <FaDownload />
+            {exporting ? "Exporting..." : "Export"}
+          </button>
+        </div>
       </div>
 
       {/* Filters Section */}
@@ -205,7 +282,7 @@ export default function FittbotSubscriptions() {
               <input
                 type="text"
                 className="search-input"
-                placeholder="Search by name, email, mobile..."
+                placeholder="Search by name or mobile..."
                 value={searchTerm}
                 onChange={(e) => handleFilterChange("search", e.target.value)}
               />
@@ -217,8 +294,8 @@ export default function FittbotSubscriptions() {
               className="sort-btn"
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
             >
-              {sortOrder === "asc" ? <FaSortUp /> : <FaSortDown />}
-              Sort Date
+              {sortOrder === "asc" ? "↑" : "↓"}
+              Sort by Date
             </button>
           </div>
 
@@ -246,18 +323,19 @@ export default function FittbotSubscriptions() {
           <table className="users-table">
             <thead>
               <tr>
-                <th>User Name</th>
+                <th>Client Name</th>
                 <th>Contact</th>
-                <th>Gym</th>
-                <th>Subscription Period</th>
-                <th>Days Left</th>
+                <th>Gym Name</th>
+                <th>Purchased Date</th>
+                <th>Booked Date</th>
+                <th>Amount</th>
               </tr>
             </thead>
             <tbody>
               {users.length > 0 ? (
                 users.map((user) => (
                   <tr
-                    key={user.customer_id}
+                    key={user.id}
                     style={{
                       transition: "background-color 0.2s ease",
                     }}
@@ -269,49 +347,35 @@ export default function FittbotSubscriptions() {
                     }}
                   >
                     <td>
-                      <div className="user-name">{user.name}</div>
-                      <div style={{ fontSize: "12px", color: "#666" }}>
-                        Joined: {formatDate(user.client_joined_date)}
-                      </div>
+                      <div className="user-name">{user.client_name}</div>
                     </td>
                     <td>
                       <div>{user.mobile}</div>
-                      <div style={{ fontSize: "12px", color: "#888" }}>
-                        {user.email}
-                      </div>
                     </td>
                     <td>
                       <div>{user.gym_name}</div>
-                      <div style={{ fontSize: "12px", color: "#888" }}>
-                        {user.gym_location}
+                    </td>
+                    <td>
+                      <div style={{ fontSize: "13px", color: "#ccc" }}>
+                        {formatDate(user.purchased_date)}
                       </div>
                     </td>
                     <td>
-                      <div style={{ fontSize: "13px" }}>
-                        <div style={{ color: "#888" }}>Start: {formatDate(user.subscription_start_date)}</div>
-                        <div style={{ color: "#888" }}>End: {formatDate(user.subscription_end_date)}</div>
+                      <div style={{ fontSize: "13px", color: "#ccc" }}>
+                        {formatDate(user.booked_date)}
                       </div>
                     </td>
                     <td>
-                      <span
-                        style={{
-                          padding: "4px 12px",
-                          borderRadius: "12px",
-                          fontSize: "13px",
-                          fontWeight: "600",
-                          backgroundColor: getDaysLeftColor(user.days_left) + "20",
-                          color: getDaysLeftColor(user.days_left),
-                        }}
-                      >
-                        {user.days_left} days
-                      </span>
+                      <div style={{ fontSize: "14px", color: "#10b981", fontWeight: "600" }}>
+                        ₹{user.amount?.toFixed(2) || "0.00"}
+                      </div>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="no-data">
-                    No fittbot subscriptions found matching your criteria
+                  <td colSpan={6} className="no-data">
+                    No nutritionist plans found matching your criteria
                   </td>
                 </tr>
               )}
@@ -325,7 +389,7 @@ export default function FittbotSubscriptions() {
         <div className="pagination-container">
           <div className="pagination-info">
             Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-            {Math.min(currentPage * itemsPerPage, totalUsers)} of {totalUsers}
+            {Math.min(currentPage * itemsPerPage, totalPurchases)} of {totalPurchases}
             entries
           </div>
 
