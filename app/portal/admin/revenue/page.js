@@ -473,14 +473,16 @@ export default function RevenueAnalytics() {
     daily_pass: "Daily Pass",
     sessions: "Fitness Class",
     fittbot_subscription: "Nutritionist Plan",
-    gym_membership: "Gym Membership"
+    gym_membership: "Gym Membership",
+    ai_credits: "AI Credits"
   };
 
   const sourceColors = {
     daily_pass: "#ffffffff",
     sessions: "#4CAF50",
     fittbot_subscription: "#9C27B0",
-    gym_membership: "#2196F3"
+    gym_membership: "#2196F3",
+    ai_credits: "#FF9800"
   };
 
   // Combined gym list from both analytics data for dropdown
@@ -713,6 +715,7 @@ export default function RevenueAnalytics() {
               <option value="sessions">Fitness Class</option>
               <option value="fittbot_subscription">Nutritionist Plan</option>
               <option value="gym_membership">Gym Membership</option>
+              <option value="ai_credits">AI Credits</option>
             </select>
           </div>
           {activeTab === "revenue" && (
