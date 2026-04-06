@@ -55,11 +55,11 @@ function StatCard({ label, icon, count, revenue, color, loading }) {
   return (
     <div style={{
       flex: 1,
-      minWidth: "260px",
+      minWidth: "240px",
       background: "linear-gradient(135deg, #1a1a1a 0%, #212121 100%)",
       border: `1px solid ${color}33`,
       borderRadius: "16px",
-      padding: "28px 30px",
+      padding: "24px 26px",
       position: "relative",
       overflow: "hidden",
       transition: "transform 0.2s, box-shadow 0.2s",
@@ -68,43 +68,35 @@ function StatCard({ label, icon, count, revenue, color, loading }) {
       onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
     >
       {/* Glow blob */}
-      <div style={{ position: "absolute", top: "-30px", right: "-30px", width: "120px", height: "120px", borderRadius: "50%", background: `radial-gradient(circle, ${color}22 0%, transparent 70%)`, pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: "-30px", right: "-30px", width: "110px", height: "110px", borderRadius: "50%", background: `radial-gradient(circle, ${color}22 0%, transparent 70%)`, pointerEvents: "none" }} />
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
-        <div style={{ width: "42px", height: "42px", borderRadius: "10px", background: `${color}22`, border: `1px solid ${color}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
+        <div style={{ width: "38px", height: "38px", borderRadius: "10px", background: `${color}22`, border: `1px solid ${color}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>
           {icon}
         </div>
-        <span style={{ fontSize: "15px", fontWeight: "600", color: "#fff" }}>{label}</span>
+        <span style={{ fontSize: "14px", fontWeight: "600", color: "#fff" }}>{label}</span>
       </div>
 
       {/* Metrics */}
-      <div style={{ display: "flex", gap: "24px" }}>
+      <div style={{ display: "flex", gap: "20px" }}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: "11px", color: "#666", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>
-            Purchase Count
-          </div>
+          <div style={{ fontSize: "10px", color: "#666", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "5px" }}>Purchase Count</div>
           {loading ? (
-            <div style={{ height: "32px", background: "#2a2a2a", borderRadius: "6px", animation: "pulse 1.5s ease-in-out infinite" }} />
+            <div style={{ height: "30px", background: "#2a2a2a", borderRadius: "6px", animation: "pulse 1.5s ease-in-out infinite" }} />
           ) : (
-            <div style={{ fontSize: "28px", fontWeight: "700", color: color, lineHeight: 1 }}>
-              {formatCount(count)}
-            </div>
+            <div style={{ fontSize: "26px", fontWeight: "700", color: color, lineHeight: 1 }}>{formatCount(count)}</div>
           )}
         </div>
 
         <div style={{ width: "1px", background: "#2a2a2a" }} />
 
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: "11px", color: "#666", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>
-            Total Revenue
-          </div>
+          <div style={{ fontSize: "10px", color: "#666", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "5px" }}>Total Revenue</div>
           {loading ? (
-            <div style={{ height: "32px", background: "#2a2a2a", borderRadius: "6px", animation: "pulse 1.5s ease-in-out infinite" }} />
+            <div style={{ height: "30px", background: "#2a2a2a", borderRadius: "6px", animation: "pulse 1.5s ease-in-out infinite" }} />
           ) : (
-            <div style={{ fontSize: "20px", fontWeight: "700", color: "#fff", lineHeight: 1 }}>
-              {formatCurrency(revenue)}
-            </div>
+            <div style={{ fontSize: "18px", fontWeight: "700", color: "#fff", lineHeight: 1 }}>{formatCurrency(revenue)}</div>
           )}
         </div>
       </div>
@@ -116,9 +108,9 @@ function StatCard({ label, icon, count, revenue, color, loading }) {
 }
 
 // ── Combined totals bar ───────────────────────────────────────────────────────
-function TotalsBar({ dpCount, dpRevenue, sessCount, sessRevenue, nutriCount, nutriRevenue, loading }) {
-  const totalCount = (dpCount || 0) + (sessCount || 0) + (nutriCount || 0);
-  const totalRevenue = (dpRevenue || 0) + (sessRevenue || 0) + (nutriRevenue || 0);
+function TotalsBar({ data, loading }) {
+  const totalCount = (data?.daily_pass?.count || 0) + (data?.session?.count || 0) + (data?.nutrition_plan?.count || 0) + (data?.gym_membership?.count || 0);
+  const totalRevenue = (data?.daily_pass?.total_revenue || 0) + (data?.session?.total_revenue || 0) + (data?.nutrition_plan?.total_revenue || 0) + (data?.gym_membership?.total_revenue || 0);
 
   return (
     <div style={{
@@ -134,11 +126,9 @@ function TotalsBar({ dpCount, dpRevenue, sessCount, sessRevenue, nutriCount, nut
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         <div style={{ fontSize: "22px" }}>📊</div>
-        <span style={{ fontSize: "16px", fontWeight: "700", color: "#fff" }}>
-          Combined GMV
-        </span>
-        <span style={{ fontSize: "12px", color: "#666", background: "#2a2a2a", padding: "2px 8px", borderRadius: "12px" }}>
-          Daily Pass + Fitness Class + Nutrition Plans
+        <span style={{ fontSize: "16px", fontWeight: "700", color: "#fff" }}>Combined GMV</span>
+        <span style={{ fontSize: "11px", color: "#666", background: "#2a2a2a", padding: "2px 8px", borderRadius: "12px" }}>
+          Daily Pass · Fitness Class · Nutrition · Gym Membership
         </span>
       </div>
 
@@ -165,18 +155,23 @@ function TotalsBar({ dpCount, dpRevenue, sessCount, sessRevenue, nutriCount, nut
   );
 }
 
-// ── Revenue share bar chart ───────────────────────────────────────────────────
-function RevenueShareBar({ dpRevenue, sessRevenue, nutriRevenue, loading }) {
-  const total = (dpRevenue || 0) + (sessRevenue || 0) + (nutriRevenue || 0);
-  const dpPct    = total > 0 ? ((dpRevenue    || 0) / total) * 100 : 33.3;
-  const sessPct  = total > 0 ? ((sessRevenue  || 0) / total) * 100 : 33.3;
-  const nutriPct = total > 0 ? ((nutriRevenue || 0) / total) * 100 : 33.4;
-
-  const segments = [
-    { key: "dp",    label: "Daily Pass",       pct: dpPct,    color1: "#3b82f6", color2: "#2563eb" },
-    { key: "sess",  label: "Fitness Class",    pct: sessPct,  color1: "#f59e0b", color2: "#d97706" },
-    { key: "nutri", label: "Nutrition Plans",  pct: nutriPct, color1: "#a855f7", color2: "#9333ea" },
+// ── Revenue share bar ─────────────────────────────────────────────────────────
+function RevenueShareBar({ data, loading }) {
+  const SEGMENTS_CONFIG = [
+    { key: "daily_pass",    label: "Daily Pass",       color1: "#3b82f6", color2: "#2563eb" },
+    { key: "session",       label: "Fitness Class",    color1: "#f59e0b", color2: "#d97706" },
+    { key: "nutrition_plan",label: "Nutrition Plans",  color1: "#a855f7", color2: "#9333ea" },
+    { key: "gym_membership",label: "Gym Membership",   color1: "#4ade80", color2: "#22c55e" },
   ];
+
+  const total = SEGMENTS_CONFIG.reduce((s, seg) => s + (data?.[seg.key]?.total_revenue || 0), 0);
+
+  const segments = SEGMENTS_CONFIG.map((seg, i) => ({
+    ...seg,
+    pct: total > 0 ? ((data?.[seg.key]?.total_revenue || 0) / total) * 100 : 25,
+    isLast: i === SEGMENTS_CONFIG.length - 1,
+    isFirst: i === 0,
+  }));
 
   return (
     <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "16px", padding: "24px 28px" }}>
@@ -186,29 +181,26 @@ function RevenueShareBar({ dpRevenue, sessRevenue, nutriRevenue, loading }) {
         <div style={{ height: "24px", background: "#2a2a2a", borderRadius: "12px", animation: "pulse 1.5s ease-in-out infinite" }} />
       ) : (
         <>
-          {/* Stacked bar */}
           <div style={{ display: "flex", borderRadius: "12px", overflow: "hidden", height: "24px", gap: "2px" }}>
-            {segments.map((seg, i) => (
+            {segments.map((seg) => (
               <div key={seg.key} style={{
                 width: `${seg.pct}%`,
                 height: "100%",
                 background: `linear-gradient(90deg, ${seg.color1}, ${seg.color2})`,
-                borderRadius: i === 0 ? "12px 0 0 12px" : i === segments.length - 1 ? "0 12px 12px 0" : "0",
+                borderRadius: seg.isFirst ? "12px 0 0 12px" : seg.isLast ? "0 12px 12px 0" : "0",
                 transition: "width 0.6s cubic-bezier(0.4,0,0.2,1)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "11px", fontWeight: "700", color: "#fff",
-                minWidth: seg.pct > 5 ? undefined : 0,
+                fontSize: "10px", fontWeight: "700", color: "#fff",
                 overflow: "hidden",
               }}>
-                {seg.pct > 10 && `${seg.pct.toFixed(1)}%`}
+                {seg.pct > 8 && `${seg.pct.toFixed(1)}%`}
               </div>
             ))}
           </div>
 
-          {/* Legend */}
           <div style={{ display: "flex", gap: "20px", marginTop: "14px", flexWrap: "wrap" }}>
             {segments.map(seg => (
-              <div key={seg.key} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div key={seg.key} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 <div style={{ width: "10px", height: "10px", borderRadius: "3px", background: seg.color1 }} />
                 <span style={{ fontSize: "12px", color: "#888" }}>{seg.label}</span>
                 <span style={{ fontSize: "12px", color: "#aaa", fontWeight: "600" }}>{seg.pct.toFixed(1)}%</span>
@@ -234,7 +226,6 @@ export default function GMVPage() {
     try {
       setLoading(true);
       const params = {};
-
       if (filter === "custom") {
         if (!cStart || !cEnd) return;
         params.start_date = cStart;
@@ -244,7 +235,6 @@ export default function GMVPage() {
         if (start) params.start_date = start;
         if (end) params.end_date = end;
       }
-
       const res = await axiosInstance.get("/api/admin/purchases/gmv-summary", { params });
       if (res.data.success) {
         setData(res.data.data);
@@ -258,24 +248,20 @@ export default function GMVPage() {
   }, []);
 
   useEffect(() => {
-    if (dateFilter !== "custom") {
-      fetchGMV(dateFilter, null, null);
-    }
+    if (dateFilter !== "custom") fetchGMV(dateFilter, null, null);
   }, [dateFilter, fetchGMV]);
 
   useEffect(() => {
-    if (dateFilter === "custom" && customStart && customEnd) {
-      fetchGMV("custom", customStart, customEnd);
-    }
+    if (dateFilter === "custom" && customStart && customEnd) fetchGMV("custom", customStart, customEnd);
   }, [customStart, customEnd, dateFilter, fetchGMV]);
 
   const todayStr = new Date().toISOString().split("T")[0];
 
-  // Table rows config
-  const tableRows = [
-    { name: "Daily Pass",       icon: "🎟️", color: "#3b82f6", count: data?.daily_pass?.count    ?? 0, revenue: data?.daily_pass?.total_revenue    ?? 0 },
-    { name: "Fitness Class",    icon: "🏋️", color: "#f59e0b", count: data?.session?.count       ?? 0, revenue: data?.session?.total_revenue       ?? 0 },
-    { name: "Nutrition Plans",  icon: "🥗", color: "#a855f7", count: data?.nutrition_plan?.count ?? 0, revenue: data?.nutrition_plan?.total_revenue ?? 0 },
+  const TABLE_ROWS = [
+    { key: "daily_pass",     name: "Daily Pass",        icon: "🎟️", color: "#3b82f6" },
+    { key: "session",        name: "Fitness Class",     icon: "🏋️", color: "#f59e0b" },
+    { key: "nutrition_plan", name: "Nutrition Plans",   icon: "🥗", color: "#a855f7" },
+    { key: "gym_membership", name: "Gym Membership",    icon: "🏢", color: "#4ade80" },
   ];
 
   return (
@@ -294,7 +280,7 @@ export default function GMVPage() {
               <span style={{ color: "#FF5757" }}>GMV</span> Overview
             </h3>
             <p style={{ fontSize: "13px", color: "#666", margin: "4px 0 0" }}>
-              Gross Merchandise Value — Daily Pass, Fitness Class &amp; Nutrition Plans
+              Gross Merchandise Value — Daily Pass, Fitness Class, Nutrition Plans &amp; Gym Membership
               {lastUpdated && (
                 <span style={{ marginLeft: "12px", color: "#444", fontSize: "11px" }}>
                   Updated {lastUpdated.toLocaleTimeString()}
@@ -348,39 +334,27 @@ export default function GMVPage() {
 
       {/* ── Combined totals ── */}
       <div className="section-container gmv-card-enter" style={{ animationDelay: "0ms" }}>
-        <TotalsBar
-          dpCount={data?.daily_pass?.count}
-          dpRevenue={data?.daily_pass?.total_revenue}
-          sessCount={data?.session?.count}
-          sessRevenue={data?.session?.total_revenue}
-          nutriCount={data?.nutrition_plan?.count}
-          nutriRevenue={data?.nutrition_plan?.total_revenue}
-          loading={loading}
-        />
+        <TotalsBar data={data} loading={loading} />
       </div>
 
       {/* ── Individual cards ── */}
       <div className="section-container gmv-card-enter" style={{ animationDelay: "80ms" }}>
-        <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-          <StatCard label="Daily Pass"            icon="🎟️" count={data?.daily_pass?.count}    revenue={data?.daily_pass?.total_revenue}    color="#3b82f6" loading={loading} />
-          <StatCard label="Fitness Class (Session)" icon="🏋️" count={data?.session?.count}       revenue={data?.session?.total_revenue}       color="#f59e0b" loading={loading} />
-          <StatCard label="Nutrition Plans"        icon="🥗" count={data?.nutrition_plan?.count} revenue={data?.nutrition_plan?.total_revenue} color="#a855f7" loading={loading} />
+        <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+          <StatCard label="Daily Pass"             icon="🎟️" count={data?.daily_pass?.count}     revenue={data?.daily_pass?.total_revenue}     color="#3b82f6" loading={loading} />
+          <StatCard label="Fitness Class"          icon="🏋️" count={data?.session?.count}        revenue={data?.session?.total_revenue}        color="#f59e0b" loading={loading} />
+          <StatCard label="Nutrition Plans"        icon="🥗" count={data?.nutrition_plan?.count}  revenue={data?.nutrition_plan?.total_revenue}  color="#a855f7" loading={loading} />
+          <StatCard label="Gym Membership"         icon="🏢" count={data?.gym_membership?.count}  revenue={data?.gym_membership?.total_revenue}  color="#4ade80" loading={loading} />
         </div>
       </div>
 
       {/* ── Revenue share ── */}
       {!loading && data && (
         <div className="section-container gmv-card-enter" style={{ animationDelay: "160ms" }}>
-          <RevenueShareBar
-            dpRevenue={data?.daily_pass?.total_revenue}
-            sessRevenue={data?.session?.total_revenue}
-            nutriRevenue={data?.nutrition_plan?.total_revenue}
-            loading={loading}
-          />
+          <RevenueShareBar data={data} loading={loading} />
         </div>
       )}
 
-      {/* ── Data table ── */}
+      {/* ── Detailed table ── */}
       <div className="section-container gmv-card-enter" style={{ animationDelay: "200ms" }}>
         <div style={{ fontSize: "14px", fontWeight: "600", color: "#aaa", marginBottom: "16px" }}>Detailed Breakdown</div>
         <div style={{ overflow: "auto" }}>
@@ -393,10 +367,12 @@ export default function GMVPage() {
               </tr>
             </thead>
             <tbody>
-              {tableRows.map((row, i) => {
-                const avg = row.count > 0 ? row.revenue / row.count : 0;
+              {TABLE_ROWS.map((row, i) => {
+                const count   = data?.[row.key]?.count ?? 0;
+                const revenue = data?.[row.key]?.total_revenue ?? 0;
+                const avg     = count > 0 ? revenue / count : 0;
                 return (
-                  <tr key={row.name} style={{ borderBottom: "1px solid #1f1f1f", background: i % 2 === 0 ? "transparent" : "#1a1a1a22" }}>
+                  <tr key={row.key} style={{ borderBottom: "1px solid #1f1f1f", background: i % 2 === 0 ? "transparent" : "#1a1a1a22" }}>
                     <td style={{ padding: "14px 16px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                         <div style={{ width: "28px", height: "28px", borderRadius: "6px", background: `${row.color}22`, border: `1px solid ${row.color}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>
@@ -407,12 +383,12 @@ export default function GMVPage() {
                     </td>
                     <td style={{ padding: "14px 16px" }}>
                       {loading ? <div style={{ height: "18px", width: "60px", background: "#2a2a2a", borderRadius: "4px", animation: "pulse 1.5s infinite" }} /> : (
-                        <span style={{ fontSize: "16px", fontWeight: "700", color: row.color }}>{formatCount(row.count)}</span>
+                        <span style={{ fontSize: "16px", fontWeight: "700", color: row.color }}>{formatCount(count)}</span>
                       )}
                     </td>
                     <td style={{ padding: "14px 16px" }}>
                       {loading ? <div style={{ height: "18px", width: "90px", background: "#2a2a2a", borderRadius: "4px", animation: "pulse 1.5s infinite" }} /> : (
-                        <span style={{ fontSize: "15px", fontWeight: "700", color: "#fff" }}>{formatCurrency(row.revenue)}</span>
+                        <span style={{ fontSize: "15px", fontWeight: "700", color: "#fff" }}>{formatCurrency(revenue)}</span>
                       )}
                     </td>
                     <td style={{ padding: "14px 16px" }}>
@@ -426,9 +402,9 @@ export default function GMVPage() {
 
               {/* Totals row */}
               {!loading && data && (() => {
-                const totalCount = tableRows.reduce((s, r) => s + r.count, 0);
-                const totalRev = tableRows.reduce((s, r) => s + r.revenue, 0);
-                const totalAvg = totalCount > 0 ? totalRev / totalCount : 0;
+                const totalCount = TABLE_ROWS.reduce((s, r) => s + (data?.[r.key]?.count || 0), 0);
+                const totalRev   = TABLE_ROWS.reduce((s, r) => s + (data?.[r.key]?.total_revenue || 0), 0);
+                const totalAvg   = totalCount > 0 ? totalRev / totalCount : 0;
                 return (
                   <tr style={{ borderTop: "2px solid #3a3a3a", background: "#1e1e1e" }}>
                     <td style={{ padding: "14px 16px" }}>
