@@ -7,14 +7,16 @@ const SOURCE_COLORS = {
   daily_pass: "#FF5757",
   sessions: "#28a745",
   gym_membership: "#ffc107",
-  fittbot_subscription: "#17a2b8"
+  fittbot_subscription: "#17a2b8",
+  ai_credits: "#06b6d4"
 };
 
 const SOURCE_LABELS = {
   daily_pass: "Daily Pass",
   sessions: "Fitness Classes",
   gym_membership: "Gym Membership",
-  fittbot_subscription: "Nutritionist Plan"
+  fittbot_subscription: "Nutritionist Plan",
+  ai_credits: "AI Credits"
 };
 
 export default function BookingAverages() {
