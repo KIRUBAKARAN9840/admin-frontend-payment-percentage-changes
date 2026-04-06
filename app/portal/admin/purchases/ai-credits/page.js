@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import axiosInstance from "@/lib/axios";
+import { FaDownload } from "react-icons/fa";
 
 export default function AICredits() {
   const [loading, setLoading] = useState(true);
@@ -12,6 +13,7 @@ export default function AICredits() {
   const [totalPurchases, setTotalPurchases] = useState(0);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [exporting, setExporting] = useState(false);
 
   const isFetchingRef = useRef(false);
 
@@ -55,65 +57,143 @@ export default function AICredits() {
     fetchPurchases();
   }, [fetchPurchases]);
 
+  const handleExport = async () => {
+    try {
+      setExporting(true);
+
+      const params = {};
+      if (debouncedSearchTerm) params.search = debouncedSearchTerm;
+      if (startDate) params.start_date = startDate;
+      if (endDate) params.end_date = endDate;
+
+      const response = await axiosInstance.get("/api/admin/purchases/export-ai-credits", {
+        params,
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(
+        new Blob([response.data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        })
+      );
+      const link = document.createElement("a");
+      link.href = url;
+
+      const contentDisposition = response.headers["content-disposition"];
+      let filename = "ai_credits.xlsx";
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename=(.+)/);
+        if (match && match[1]) filename = match[1].replace(/"/g, "");
+      }
+
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export failed:", err);
+      alert("Failed to export AI credits. Please try again.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const formatDate = (dateString) => {
     if (!dateString || dateString === "N/A") return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
   const totalPages = Math.ceil(totalPurchases / 10);
 
-  const handleReset = () => {
-    setSearchTerm("");
-    setStartDate("");
-    setEndDate("");
-    setCurrentPage(1);
-  };
-
   return (
-    <div style={{ padding: "20px" }}>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px", marginBottom: "20px" }}>
-        {/* Search */}
-        <div className="input-group" style={{ maxWidth: "340px" }}>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search by client name or mobile..."
-            value={searchTerm}
-            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-            style={{ backgroundColor: "#222", border: "1px solid #333", color: "#fff" }}
-          />
-          <button className="btn" type="button" style={{ backgroundColor: "#FF5757", border: "none", color: "#fff" }}>
-            Search
+    <div>
+      {/* ── Filters Card ── */}
+      <div
+        style={{
+          backgroundColor: "#1a1a1a",
+          border: "1px solid #333",
+          borderRadius: "8px",
+          padding: "20px",
+          marginBottom: "20px",
+        }}
+      >
+        {/* Row 1: Search + Export */}
+        <div className="d-flex gap-3 align-items-center" style={{ marginBottom: "15px" }}>
+          {/* Search */}
+          <div className="input-group flex-grow-1" style={{ maxWidth: "320px" }}>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by client name or mobile..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              style={{ backgroundColor: "#222", border: "1px solid #333", color: "#fff" }}
+            />
+            <button
+              className="btn"
+              type="button"
+              style={{ backgroundColor: "#FF5757", border: "none", color: "#fff" }}
+            >
+              Search
+            </button>
+          </div>
+
+          {/* Spacer */}
+          <div style={{ flex: 1 }} />
+
+          {/* Export */}
+          <button
+            className="btn"
+            onClick={handleExport}
+            disabled={exporting || loading}
+            style={{
+              backgroundColor: exporting || loading ? "#444" : "#28a745",
+              border: "none",
+              color: "#fff",
+              padding: "8px 16px",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              cursor: exporting || loading ? "not-allowed" : "pointer",
+            }}
+          >
+            <FaDownload />
+            {exporting ? "Exporting..." : "Export Excel"}
           </button>
         </div>
 
-        {/* Date filters */}
-        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
-          <div>
-            <label style={{ fontSize: "11px", color: "#888", display: "block", marginBottom: "3px" }}>From</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => { setStartDate(e.target.value); setCurrentPage(1); }}
-              style={{ padding: "7px 10px", background: "#222", border: "1px solid #333", borderRadius: "6px", color: "#fff", fontSize: "13px" }}
-            />
-          </div>
-          <div>
-            <label style={{ fontSize: "11px", color: "#888", display: "block", marginBottom: "3px" }}>To</label>
-            <input
-              type="date"
-              value={endDate}
-              min={startDate}
-              onChange={(e) => { setEndDate(e.target.value); setCurrentPage(1); }}
-              style={{ padding: "7px 10px", background: "#222", border: "1px solid #333", borderRadius: "6px", color: "#fff", fontSize: "13px" }}
-            />
-          </div>
+        {/* Row 2: Date Filters */}
+        <div className="d-flex gap-3 align-items-center flex-wrap">
+          <span style={{ color: "#888", fontSize: "14px" }}>From:</span>
+          <input
+            type="date"
+            className="form-control"
+            value={startDate}
+            onChange={(e) => { setStartDate(e.target.value); setCurrentPage(1); }}
+            style={{ backgroundColor: "#222", border: "1px solid #333", color: "#fff", width: "140px" }}
+          />
+          <span style={{ color: "#888", fontSize: "14px", marginLeft: "8px" }}>To:</span>
+          <input
+            type="date"
+            className="form-control"
+            value={endDate}
+            min={startDate}
+            onChange={(e) => { setEndDate(e.target.value); setCurrentPage(1); }}
+            style={{ backgroundColor: "#222", border: "1px solid #333", color: "#fff", width: "140px" }}
+          />
           {(startDate || endDate || searchTerm) && (
             <button
-              onClick={handleReset}
-              style={{ marginTop: "18px", padding: "7px 14px", background: "#333", border: "1px solid #444", borderRadius: "6px", color: "#aaa", fontSize: "13px", cursor: "pointer" }}
+              className="btn btn-sm"
+              onClick={() => { setSearchTerm(""); setStartDate(""); setEndDate(""); setCurrentPage(1); }}
+              style={{ backgroundColor: "#333", border: "1px solid #444", color: "#aaa", fontSize: "13px" }}
             >
               Reset
             </button>
@@ -121,16 +201,30 @@ export default function AICredits() {
         </div>
       </div>
 
-      {/* Loading */}
+      {/* ── Table Area ── */}
       {loading ? (
         <div className="text-center py-5">
-          <div style={{ width: "50px", height: "50px", border: "4px solid #3a3a3a", borderTop: "4px solid #06b6d4", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 1rem" }} />
+          <div
+            style={{
+              width: "50px",
+              height: "50px",
+              border: "4px solid #3a3a3a",
+              borderTop: "4px solid #06b6d4",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite",
+              margin: "0 auto 1rem",
+            }}
+          />
           <p style={{ fontSize: "14px", color: "#ccc" }}>Loading AI credits...</p>
         </div>
       ) : error ? (
         <div className="text-center py-5">
           <p style={{ fontSize: "16px", color: "#ef4444" }}>Error: {error}</p>
-          <button className="btn btn-sm mt-3" onClick={() => fetchPurchases()} style={{ backgroundColor: "#FF5757", border: "none", color: "#fff" }}>
+          <button
+            className="btn btn-sm mt-3"
+            onClick={() => fetchPurchases()}
+            style={{ backgroundColor: "#FF5757", border: "none", color: "#fff" }}
+          >
             Retry
           </button>
         </div>
@@ -140,7 +234,6 @@ export default function AICredits() {
         </div>
       ) : (
         <>
-          {/* Table */}
           <div className="table-responsive" style={{ overflowX: "auto" }}>
             <table className="table purchases-table">
               <thead>
@@ -177,14 +270,20 @@ export default function AICredits() {
           {/* Pagination */}
           <div className="d-flex justify-content-between align-items-center mt-4">
             <div style={{ color: "#888", fontSize: "14px" }}>
-              Showing {(currentPage - 1) * 10 + 1} to {Math.min(currentPage * 10, totalPurchases)} of {totalPurchases} entries
+              Showing {(currentPage - 1) * 10 + 1} to{" "}
+              {Math.min(currentPage * 10, totalPurchases)} of {totalPurchases} entries
             </div>
             <div className="btn-group">
               <button
                 className="btn btn-sm"
                 disabled={currentPage === 1 || loading}
                 onClick={() => setCurrentPage(currentPage - 1)}
-                style={{ backgroundColor: "#1a1a1a", border: "1px solid #333", color: currentPage > 1 && !loading ? "#fff" : "#555", cursor: currentPage > 1 && !loading ? "pointer" : "not-allowed" }}
+                style={{
+                  backgroundColor: "#1a1a1a",
+                  border: "1px solid #333",
+                  color: currentPage > 1 && !loading ? "#fff" : "#555",
+                  cursor: currentPage > 1 && !loading ? "pointer" : "not-allowed",
+                }}
               >
                 Previous
               </button>
@@ -192,7 +291,12 @@ export default function AICredits() {
                 className="btn btn-sm"
                 disabled={currentPage >= totalPages || loading}
                 onClick={() => setCurrentPage(currentPage + 1)}
-                style={{ backgroundColor: "#1a1a1a", border: "1px solid #333", color: currentPage < totalPages && !loading ? "#fff" : "#555", cursor: currentPage < totalPages && !loading ? "pointer" : "not-allowed" }}
+                style={{
+                  backgroundColor: "#1a1a1a",
+                  border: "1px solid #333",
+                  color: currentPage < totalPages && !loading ? "#fff" : "#555",
+                  cursor: currentPage < totalPages && !loading ? "pointer" : "not-allowed",
+                }}
               >
                 Next
               </button>
@@ -203,14 +307,16 @@ export default function AICredits() {
 
       <style jsx global>{`
         .table-responsive { overflow-x: auto !important; position: relative !important; }
-        table.purchases-table { width: 100% !important; min-width: 900px !important; border-collapse: separate !important; border-spacing: 0 !important; background-color: #1a1a1a !important; color: #fff !important; border-radius: 8px !important; }
+        table.purchases-table { width: 100% !important; min-width: 700px !important; border-collapse: separate !important; border-spacing: 0 !important; background-color: #1a1a1a !important; color: #fff !important; border-radius: 8px !important; overflow: hidden !important; }
         table.purchases-table > thead { background-color: #222 !important; border-bottom: 2px solid #06b6d4 !important; }
         table.purchases-table > thead > tr > th { padding: 12px !important; font-weight: 600 !important; text-align: left !important; color: #fff !important; border: none !important; background-color: transparent !important; }
         table.purchases-table > tbody > tr { border-bottom: 1px solid #333 !important; transition: background-color 0.2s ease !important; background-color: transparent !important; }
         table.purchases-table > tbody > tr:hover { background-color: #222 !important; }
+        table.purchases-table > tbody > tr:last-child { border-bottom: none !important; }
         table.purchases-table > tbody > tr > td { padding: 12px !important; color: #fff !important; border: none !important; background-color: transparent !important; }
         table.purchases-table .client-name { font-weight: 500 !important; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
       `}</style>
     </div>
   );
