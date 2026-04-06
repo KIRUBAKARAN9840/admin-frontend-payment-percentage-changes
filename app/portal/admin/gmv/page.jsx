@@ -109,8 +109,8 @@ function StatCard({ label, icon, count, revenue, color, loading }) {
 
 // ── Combined totals bar ───────────────────────────────────────────────────────
 function TotalsBar({ data, loading }) {
-  const totalCount = (data?.daily_pass?.count || 0) + (data?.session?.count || 0) + (data?.nutrition_plan?.count || 0) + (data?.gym_membership?.count || 0);
-  const totalRevenue = (data?.daily_pass?.total_revenue || 0) + (data?.session?.total_revenue || 0) + (data?.nutrition_plan?.total_revenue || 0) + (data?.gym_membership?.total_revenue || 0);
+  const totalCount = (data?.daily_pass?.count || 0) + (data?.session?.count || 0) + (data?.nutrition_plan?.count || 0) + (data?.gym_membership?.count || 0) + (data?.ai_credits?.count || 0);
+  const totalRevenue = (data?.daily_pass?.total_revenue || 0) + (data?.session?.total_revenue || 0) + (data?.nutrition_plan?.total_revenue || 0) + (data?.gym_membership?.total_revenue || 0) + (data?.ai_credits?.total_revenue || 0);
 
   return (
     <div style={{
@@ -128,7 +128,7 @@ function TotalsBar({ data, loading }) {
         <div style={{ fontSize: "22px" }}>📊</div>
         <span style={{ fontSize: "16px", fontWeight: "700", color: "#fff" }}>Combined GMV</span>
         <span style={{ fontSize: "11px", color: "#666", background: "#2a2a2a", padding: "2px 8px", borderRadius: "12px" }}>
-          Daily Pass · Fitness Class · Nutrition · Gym Membership
+          Daily Pass · Fitness Class · Nutrition · Gym Membership · AI Credits
         </span>
       </div>
 
@@ -158,10 +158,11 @@ function TotalsBar({ data, loading }) {
 // ── Revenue share bar ─────────────────────────────────────────────────────────
 function RevenueShareBar({ data, loading }) {
   const SEGMENTS_CONFIG = [
-    { key: "daily_pass",    label: "Daily Pass",       color1: "#3b82f6", color2: "#2563eb" },
-    { key: "session",       label: "Fitness Class",    color1: "#f59e0b", color2: "#d97706" },
-    { key: "nutrition_plan",label: "Nutrition Plans",  color1: "#a855f7", color2: "#9333ea" },
-    { key: "gym_membership",label: "Gym Membership",   color1: "#4ade80", color2: "#22c55e" },
+    { key: "daily_pass",     label: "Daily Pass",      color1: "#3b82f6", color2: "#2563eb" },
+    { key: "session",        label: "Fitness Class",   color1: "#f59e0b", color2: "#d97706" },
+    { key: "nutrition_plan", label: "Nutrition Plans", color1: "#a855f7", color2: "#9333ea" },
+    { key: "gym_membership", label: "Gym Membership",  color1: "#4ade80", color2: "#22c55e" },
+    { key: "ai_credits",     label: "AI Credits",      color1: "#06b6d4", color2: "#0891b2" },
   ];
 
   const total = SEGMENTS_CONFIG.reduce((s, seg) => s + (data?.[seg.key]?.total_revenue || 0), 0);
@@ -258,10 +259,11 @@ export default function GMVPage() {
   const todayStr = new Date().toISOString().split("T")[0];
 
   const TABLE_ROWS = [
-    { key: "daily_pass",     name: "Daily Pass",        icon: "🎟️", color: "#3b82f6" },
-    { key: "session",        name: "Fitness Class",     icon: "🏋️", color: "#f59e0b" },
-    { key: "nutrition_plan", name: "Nutrition Plans",   icon: "🥗", color: "#a855f7" },
-    { key: "gym_membership", name: "Gym Membership",    icon: "🏢", color: "#4ade80" },
+    { key: "daily_pass",     name: "Daily Pass",      icon: "🎟️", color: "#3b82f6" },
+    { key: "session",        name: "Fitness Class",   icon: "🏋️", color: "#f59e0b" },
+    { key: "nutrition_plan", name: "Nutrition Plans", icon: "🥗", color: "#a855f7" },
+    { key: "gym_membership", name: "Gym Membership",  icon: "🏢", color: "#4ade80" },
+    { key: "ai_credits",     name: "AI Credits",      icon: "🤖", color: "#06b6d4" },
   ];
 
   return (
@@ -280,7 +282,7 @@ export default function GMVPage() {
               <span style={{ color: "#FF5757" }}>GMV</span> Overview
             </h3>
             <p style={{ fontSize: "13px", color: "#666", margin: "4px 0 0" }}>
-              Gross Merchandise Value — Daily Pass, Fitness Class, Nutrition Plans &amp; Gym Membership
+              Gross Merchandise Value — Daily Pass, Fitness Class, Nutrition Plans, Gym Membership &amp; AI Credits
               {lastUpdated && (
                 <span style={{ marginLeft: "12px", color: "#444", fontSize: "11px" }}>
                   Updated {lastUpdated.toLocaleTimeString()}
@@ -340,10 +342,11 @@ export default function GMVPage() {
       {/* ── Individual cards ── */}
       <div className="section-container gmv-card-enter" style={{ animationDelay: "80ms" }}>
         <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
-          <StatCard label="Daily Pass"             icon="🎟️" count={data?.daily_pass?.count}     revenue={data?.daily_pass?.total_revenue}     color="#3b82f6" loading={loading} />
-          <StatCard label="Fitness Class"          icon="🏋️" count={data?.session?.count}        revenue={data?.session?.total_revenue}        color="#f59e0b" loading={loading} />
-          <StatCard label="Nutrition Plans"        icon="🥗" count={data?.nutrition_plan?.count}  revenue={data?.nutrition_plan?.total_revenue}  color="#a855f7" loading={loading} />
-          <StatCard label="Gym Membership"         icon="🏢" count={data?.gym_membership?.count}  revenue={data?.gym_membership?.total_revenue}  color="#4ade80" loading={loading} />
+          <StatCard label="Daily Pass"      icon="🎟️" count={data?.daily_pass?.count}      revenue={data?.daily_pass?.total_revenue}      color="#3b82f6" loading={loading} />
+          <StatCard label="Fitness Class"   icon="🏋️" count={data?.session?.count}         revenue={data?.session?.total_revenue}         color="#f59e0b" loading={loading} />
+          <StatCard label="Nutrition Plans" icon="🥗" count={data?.nutrition_plan?.count}  revenue={data?.nutrition_plan?.total_revenue}  color="#a855f7" loading={loading} />
+          <StatCard label="Gym Membership"  icon="🏢" count={data?.gym_membership?.count}  revenue={data?.gym_membership?.total_revenue}  color="#4ade80" loading={loading} />
+          <StatCard label="AI Credits"      icon="🤖" count={data?.ai_credits?.count}      revenue={data?.ai_credits?.total_revenue}      color="#06b6d4" loading={loading} />
         </div>
       </div>
 
@@ -368,9 +371,9 @@ export default function GMVPage() {
             </thead>
             <tbody>
               {TABLE_ROWS.map((row, i) => {
-                const count   = data?.[row.key]?.count ?? 0;
+                const count = data?.[row.key]?.count ?? 0;
                 const revenue = data?.[row.key]?.total_revenue ?? 0;
-                const avg     = count > 0 ? revenue / count : 0;
+                const avg = count > 0 ? revenue / count : 0;
                 return (
                   <tr key={row.key} style={{ borderBottom: "1px solid #1f1f1f", background: i % 2 === 0 ? "transparent" : "#1a1a1a22" }}>
                     <td style={{ padding: "14px 16px" }}>
@@ -403,8 +406,8 @@ export default function GMVPage() {
               {/* Totals row */}
               {!loading && data && (() => {
                 const totalCount = TABLE_ROWS.reduce((s, r) => s + (data?.[r.key]?.count || 0), 0);
-                const totalRev   = TABLE_ROWS.reduce((s, r) => s + (data?.[r.key]?.total_revenue || 0), 0);
-                const totalAvg   = totalCount > 0 ? totalRev / totalCount : 0;
+                const totalRev = TABLE_ROWS.reduce((s, r) => s + (data?.[r.key]?.total_revenue || 0), 0);
+                const totalAvg = totalCount > 0 ? totalRev / totalCount : 0;
                 return (
                   <tr style={{ borderTop: "2px solid #3a3a3a", background: "#1e1e1e" }}>
                     <td style={{ padding: "14px 16px" }}>

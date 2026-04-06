@@ -24,6 +24,8 @@ export default function PurchasesLayout({ children }) {
       setActiveTab("gym-memberships");
     } else if (pathname.includes("/nutritionist-plans")) {
       setActiveTab("nutritionist-plans");
+    } else if (pathname.includes("/ai-credits")) {
+      setActiveTab("ai-credits");
     } else {
       setActiveTab(defaultTab);
     }
@@ -34,6 +36,7 @@ export default function PurchasesLayout({ children }) {
     { id: "all", name: "Fitness Class/Daily Pass", path: "/portal/admin/purchases/all" },
     { id: "nutritionist-plans", name: "Nutritionist Plans", path: "/portal/admin/purchases/nutritionist-plans" },
     { id: "gym-memberships", name: "Gym Memberships", path: "/portal/admin/purchases/gym-memberships" },
+    { id: "ai-credits", name: "AI Credits", path: "/portal/admin/purchases/ai-credits" },
     { id: "today", name: "Today's Schedule", path: "/portal/admin/purchases/today" },
     ...(role !== "support" ? [{ id: "purchase-count", name: "Purchase Analysis", path: "/portal/admin/purchases/purchase-count" }] : []),
   ];
