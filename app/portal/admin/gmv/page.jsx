@@ -50,12 +50,12 @@ function formatCount(val) {
   return val.toLocaleString("en-IN");
 }
 
-// ── Stat card ───────────────────────────────────────────────────────────────
+// ── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ label, icon, count, revenue, color, loading }) {
   return (
     <div style={{
       flex: 1,
-      minWidth: "280px",
+      minWidth: "260px",
       background: "linear-gradient(135deg, #1a1a1a 0%, #212121 100%)",
       border: `1px solid ${color}33`,
       borderRadius: "16px",
@@ -75,7 +75,7 @@ function StatCard({ label, icon, count, revenue, color, loading }) {
         <div style={{ width: "42px", height: "42px", borderRadius: "10px", background: `${color}22`, border: `1px solid ${color}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>
           {icon}
         </div>
-        <span style={{ fontSize: "16px", fontWeight: "600", color: "#fff" }}>{label}</span>
+        <span style={{ fontSize: "15px", fontWeight: "600", color: "#fff" }}>{label}</span>
       </div>
 
       {/* Metrics */}
@@ -102,7 +102,7 @@ function StatCard({ label, icon, count, revenue, color, loading }) {
           {loading ? (
             <div style={{ height: "32px", background: "#2a2a2a", borderRadius: "6px", animation: "pulse 1.5s ease-in-out infinite" }} />
           ) : (
-            <div style={{ fontSize: "22px", fontWeight: "700", color: "#fff", lineHeight: 1 }}>
+            <div style={{ fontSize: "20px", fontWeight: "700", color: "#fff", lineHeight: 1 }}>
               {formatCurrency(revenue)}
             </div>
           )}
@@ -115,10 +115,10 @@ function StatCard({ label, icon, count, revenue, color, loading }) {
   );
 }
 
-// ── Combined totals bar ──────────────────────────────────────────────────────
-function TotalsBar({ dpCount, dpRevenue, sessCount, sessRevenue, loading }) {
-  const totalCount = (dpCount || 0) + (sessCount || 0);
-  const totalRevenue = (dpRevenue || 0) + (sessRevenue || 0);
+// ── Combined totals bar ───────────────────────────────────────────────────────
+function TotalsBar({ dpCount, dpRevenue, sessCount, sessRevenue, nutriCount, nutriRevenue, loading }) {
+  const totalCount = (dpCount || 0) + (sessCount || 0) + (nutriCount || 0);
+  const totalRevenue = (dpRevenue || 0) + (sessRevenue || 0) + (nutriRevenue || 0);
 
   return (
     <div style={{
@@ -138,7 +138,7 @@ function TotalsBar({ dpCount, dpRevenue, sessCount, sessRevenue, loading }) {
           Combined GMV
         </span>
         <span style={{ fontSize: "12px", color: "#666", background: "#2a2a2a", padding: "2px 8px", borderRadius: "12px" }}>
-          Daily Pass + Fitness Class
+          Daily Pass + Fitness Class + Nutrition Plans
         </span>
       </div>
 
@@ -165,11 +165,18 @@ function TotalsBar({ dpCount, dpRevenue, sessCount, sessRevenue, loading }) {
   );
 }
 
-// ── Revenue share bar chart ──────────────────────────────────────────────────
-function RevenueShareBar({ dpRevenue, sessRevenue, loading }) {
-  const total = (dpRevenue || 0) + (sessRevenue || 0);
-  const dpPct = total > 0 ? ((dpRevenue || 0) / total) * 100 : 50;
-  const sessPct = total > 0 ? ((sessRevenue || 0) / total) * 100 : 50;
+// ── Revenue share bar chart ───────────────────────────────────────────────────
+function RevenueShareBar({ dpRevenue, sessRevenue, nutriRevenue, loading }) {
+  const total = (dpRevenue || 0) + (sessRevenue || 0) + (nutriRevenue || 0);
+  const dpPct    = total > 0 ? ((dpRevenue    || 0) / total) * 100 : 33.3;
+  const sessPct  = total > 0 ? ((sessRevenue  || 0) / total) * 100 : 33.3;
+  const nutriPct = total > 0 ? ((nutriRevenue || 0) / total) * 100 : 33.4;
+
+  const segments = [
+    { key: "dp",    label: "Daily Pass",       pct: dpPct,    color1: "#3b82f6", color2: "#2563eb" },
+    { key: "sess",  label: "Fitness Class",    pct: sessPct,  color1: "#f59e0b", color2: "#d97706" },
+    { key: "nutri", label: "Nutrition Plans",  pct: nutriPct, color1: "#a855f7", color2: "#9333ea" },
+  ];
 
   return (
     <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "16px", padding: "24px 28px" }}>
@@ -179,38 +186,34 @@ function RevenueShareBar({ dpRevenue, sessRevenue, loading }) {
         <div style={{ height: "24px", background: "#2a2a2a", borderRadius: "12px", animation: "pulse 1.5s ease-in-out infinite" }} />
       ) : (
         <>
+          {/* Stacked bar */}
           <div style={{ display: "flex", borderRadius: "12px", overflow: "hidden", height: "24px", gap: "2px" }}>
-            <div style={{
-              width: `${dpPct}%`, height: "100%",
-              background: "linear-gradient(90deg, #3b82f6, #2563eb)",
-              borderRadius: "12px 0 0 12px",
-              transition: "width 0.6s cubic-bezier(0.4,0,0.2,1)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "11px", fontWeight: "700", color: "#fff",
-            }}>
-              {dpPct > 10 && `${dpPct.toFixed(1)}%`}
-            </div>
-            <div style={{
-              flex: 1, height: "100%",
-              background: "linear-gradient(90deg, #f59e0b, #d97706)",
-              borderRadius: "0 12px 12px 0",
-              transition: "flex 0.6s cubic-bezier(0.4,0,0.2,1)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "11px", fontWeight: "700", color: "#fff",
-            }}>
-              {sessPct > 10 && `${sessPct.toFixed(1)}%`}
-            </div>
+            {segments.map((seg, i) => (
+              <div key={seg.key} style={{
+                width: `${seg.pct}%`,
+                height: "100%",
+                background: `linear-gradient(90deg, ${seg.color1}, ${seg.color2})`,
+                borderRadius: i === 0 ? "12px 0 0 12px" : i === segments.length - 1 ? "0 12px 12px 0" : "0",
+                transition: "width 0.6s cubic-bezier(0.4,0,0.2,1)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: "11px", fontWeight: "700", color: "#fff",
+                minWidth: seg.pct > 5 ? undefined : 0,
+                overflow: "hidden",
+              }}>
+                {seg.pct > 10 && `${seg.pct.toFixed(1)}%`}
+              </div>
+            ))}
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <div style={{ width: "10px", height: "10px", borderRadius: "3px", background: "#3b82f6" }} />
-              <span style={{ fontSize: "12px", color: "#888" }}>Daily Pass</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ fontSize: "12px", color: "#888" }}>Fitness Class</span>
-              <div style={{ width: "10px", height: "10px", borderRadius: "3px", background: "#f59e0b" }} />
-            </div>
+          {/* Legend */}
+          <div style={{ display: "flex", gap: "20px", marginTop: "14px", flexWrap: "wrap" }}>
+            {segments.map(seg => (
+              <div key={seg.key} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div style={{ width: "10px", height: "10px", borderRadius: "3px", background: seg.color1 }} />
+                <span style={{ fontSize: "12px", color: "#888" }}>{seg.label}</span>
+                <span style={{ fontSize: "12px", color: "#aaa", fontWeight: "600" }}>{seg.pct.toFixed(1)}%</span>
+              </div>
+            ))}
           </div>
         </>
       )}
@@ -218,7 +221,7 @@ function RevenueShareBar({ dpRevenue, sessRevenue, loading }) {
   );
 }
 
-// ── Main page ────────────────────────────────────────────────────────────────
+// ── Main page ─────────────────────────────────────────────────────────────────
 export default function GMVPage() {
   const [dateFilter, setDateFilter] = useState("overall");
   const [customStart, setCustomStart] = useState("");
@@ -268,6 +271,13 @@ export default function GMVPage() {
 
   const todayStr = new Date().toISOString().split("T")[0];
 
+  // Table rows config
+  const tableRows = [
+    { name: "Daily Pass",       icon: "🎟️", color: "#3b82f6", count: data?.daily_pass?.count    ?? 0, revenue: data?.daily_pass?.total_revenue    ?? 0 },
+    { name: "Fitness Class",    icon: "🏋️", color: "#f59e0b", count: data?.session?.count       ?? 0, revenue: data?.session?.total_revenue       ?? 0 },
+    { name: "Nutrition Plans",  icon: "🥗", color: "#a855f7", count: data?.nutrition_plan?.count ?? 0, revenue: data?.nutrition_plan?.total_revenue ?? 0 },
+  ];
+
   return (
     <div className="dashboard-container">
       <style>{`
@@ -284,7 +294,7 @@ export default function GMVPage() {
               <span style={{ color: "#FF5757" }}>GMV</span> Overview
             </h3>
             <p style={{ fontSize: "13px", color: "#666", margin: "4px 0 0" }}>
-              Gross Merchandise Value — Daily Pass &amp; Fitness Class
+              Gross Merchandise Value — Daily Pass, Fitness Class &amp; Nutrition Plans
               {lastUpdated && (
                 <span style={{ marginLeft: "12px", color: "#444", fontSize: "11px" }}>
                   Updated {lastUpdated.toLocaleTimeString()}
@@ -343,6 +353,8 @@ export default function GMVPage() {
           dpRevenue={data?.daily_pass?.total_revenue}
           sessCount={data?.session?.count}
           sessRevenue={data?.session?.total_revenue}
+          nutriCount={data?.nutrition_plan?.count}
+          nutriRevenue={data?.nutrition_plan?.total_revenue}
           loading={loading}
         />
       </div>
@@ -350,22 +362,9 @@ export default function GMVPage() {
       {/* ── Individual cards ── */}
       <div className="section-container gmv-card-enter" style={{ animationDelay: "80ms" }}>
         <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-          <StatCard
-            label="Daily Pass"
-            icon="🎟️"
-            count={data?.daily_pass?.count}
-            revenue={data?.daily_pass?.total_revenue}
-            color="#3b82f6"
-            loading={loading}
-          />
-          <StatCard
-            label="Fitness Class (Session)"
-            icon="🏋️"
-            count={data?.session?.count}
-            revenue={data?.session?.total_revenue}
-            color="#f59e0b"
-            loading={loading}
-          />
+          <StatCard label="Daily Pass"            icon="🎟️" count={data?.daily_pass?.count}    revenue={data?.daily_pass?.total_revenue}    color="#3b82f6" loading={loading} />
+          <StatCard label="Fitness Class (Session)" icon="🏋️" count={data?.session?.count}       revenue={data?.session?.total_revenue}       color="#f59e0b" loading={loading} />
+          <StatCard label="Nutrition Plans"        icon="🥗" count={data?.nutrition_plan?.count} revenue={data?.nutrition_plan?.total_revenue} color="#a855f7" loading={loading} />
         </div>
       </div>
 
@@ -375,6 +374,7 @@ export default function GMVPage() {
           <RevenueShareBar
             dpRevenue={data?.daily_pass?.total_revenue}
             sessRevenue={data?.session?.total_revenue}
+            nutriRevenue={data?.nutrition_plan?.total_revenue}
             loading={loading}
           />
         </div>
@@ -393,22 +393,7 @@ export default function GMVPage() {
               </tr>
             </thead>
             <tbody>
-              {[
-                {
-                  name: "Daily Pass",
-                  icon: "🎟️",
-                  color: "#3b82f6",
-                  count: data?.daily_pass?.count ?? 0,
-                  revenue: data?.daily_pass?.total_revenue ?? 0,
-                },
-                {
-                  name: "Fitness Class",
-                  icon: "🏋️",
-                  color: "#f59e0b",
-                  count: data?.session?.count ?? 0,
-                  revenue: data?.session?.total_revenue ?? 0,
-                },
-              ].map((row, i) => {
+              {tableRows.map((row, i) => {
                 const avg = row.count > 0 ? row.revenue / row.count : 0;
                 return (
                   <tr key={row.name} style={{ borderBottom: "1px solid #1f1f1f", background: i % 2 === 0 ? "transparent" : "#1a1a1a22" }}>
@@ -438,6 +423,29 @@ export default function GMVPage() {
                   </tr>
                 );
               })}
+
+              {/* Totals row */}
+              {!loading && data && (() => {
+                const totalCount = tableRows.reduce((s, r) => s + r.count, 0);
+                const totalRev = tableRows.reduce((s, r) => s + r.revenue, 0);
+                const totalAvg = totalCount > 0 ? totalRev / totalCount : 0;
+                return (
+                  <tr style={{ borderTop: "2px solid #3a3a3a", background: "#1e1e1e" }}>
+                    <td style={{ padding: "14px 16px" }}>
+                      <span style={{ fontWeight: "700", color: "#FF5757", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Total</span>
+                    </td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <span style={{ fontSize: "16px", fontWeight: "800", color: "#FF5757" }}>{formatCount(totalCount)}</span>
+                    </td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <span style={{ fontSize: "15px", fontWeight: "800", color: "#4ade80" }}>{formatCurrency(totalRev)}</span>
+                    </td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <span style={{ fontSize: "14px", color: "#888" }}>{formatCurrency(totalAvg)}</span>
+                    </td>
+                  </tr>
+                );
+              })()}
             </tbody>
           </table>
         </div>
