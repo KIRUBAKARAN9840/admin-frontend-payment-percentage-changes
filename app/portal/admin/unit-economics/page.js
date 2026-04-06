@@ -341,25 +341,6 @@ export default function UnitEconomicsPage() {
               </div>
             )}
 
-            {/* Cohort Retention (Month N) Card */}
-            {unitEconomicsData && unitEconomicsData.cohortRetentionRate !== undefined && (
-              <div className="col-xl-4 col-lg-6">
-                <div className="dashboard-card">
-                  <div className="card-header-custom extra-space">
-                    <h6 className="card-title">Cohort Retention</h6>
-                  </div>
-                  <div className="card-body-custom">
-                    <div className="metric-number" style={{ fontSize: "32px", fontWeight: "700", color: "#22c55e" }}>
-                      {(unitEconomicsData.cohortRetentionRate * 100).toFixed(2)}%
-                    </div>
-                    <div style={{ fontSize: "13px", color: "#888", marginTop: "8px" }}>
-                      Retention rate from previous month
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* User Churn Rate Card */}
             {unitEconomicsData && unitEconomicsData.cohortRetentionRate !== undefined && (
               <div className="col-xl-4 col-lg-6">
@@ -378,6 +359,104 @@ export default function UnitEconomicsPage() {
                 </div>
               </div>
             )}
+
+            {/* GMV Card */}
+            <div className="col-xl-4 col-lg-6">
+              <div className="dashboard-card">
+                <div className="card-header-custom extra-space">
+                  <h6 className="card-title">GMV</h6>
+                </div>
+                <div className="card-body-custom">
+                  {loading ? (
+                    <div style={{ color: "#888", fontSize: "14px" }}>Loading...</div>
+                  ) : unitEconomicsData?.gmv ? (() => {
+                    const gmvData = unitEconomicsData.gmv;
+                    const totalRevenue =
+                      (gmvData.daily_pass?.total_revenue || 0) +
+                      (gmvData.session?.total_revenue || 0) +
+                      (gmvData.nutrition_plan?.total_revenue || 0) +
+                      (gmvData.gym_membership?.total_revenue || 0) +
+                      (gmvData.ai_credits?.total_revenue || 0);
+
+                    return (
+                      <>
+                        <div className="metric-number" style={{ fontSize: "28px", fontWeight: "700", color: "#FF5757" }}>
+                          {formatCurrency(totalRevenue)}
+                        </div>
+                        <div style={{ fontSize: "13px", color: "#888", marginTop: "6px" }}>
+                          Total Gross Merchandise Value
+                        </div>
+                      </>
+                    );
+                  })() : (
+                    <div style={{ color: "#888", fontSize: "14px" }}>No data</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* GMV / Bookings Card */}
+            <div className="col-xl-4 col-lg-6">
+              <div className="dashboard-card">
+                <div className="card-header-custom extra-space">
+                  <h6 className="card-title">GMV / Bookings</h6>
+                </div>
+                <div className="card-body-custom">
+                  {loading ? (
+                    <div style={{ color: "#888", fontSize: "14px" }}>Loading...</div>
+                  ) : unitEconomicsData?.gmv ? (() => {
+                    const gmvData = unitEconomicsData.gmv;
+                    const totalRevenue =
+                      (gmvData.daily_pass?.total_revenue || 0) +
+                      (gmvData.session?.total_revenue || 0) +
+                      (gmvData.nutrition_plan?.total_revenue || 0) +
+                      (gmvData.gym_membership?.total_revenue || 0) +
+                      (gmvData.ai_credits?.total_revenue || 0);
+                    const totalBookings =
+                      (gmvData.daily_pass?.count || 0) +
+                      (gmvData.session?.count || 0) +
+                      (gmvData.nutrition_plan?.count || 0) +
+                      (gmvData.gym_membership?.count || 0) +
+                      (gmvData.ai_credits?.count || 0);
+                    const revenuePerBooking = totalBookings > 0 ? totalRevenue / totalBookings : 0;
+
+                    return (
+                      <>
+                        <div className="metric-number" style={{ fontSize: "28px", fontWeight: "700", color: "#f59e0b" }}>
+                          {formatCurrency(revenuePerBooking)}
+                        </div>
+                        <div style={{ fontSize: "13px", color: "#888", marginTop: "6px" }}>
+                          Revenue per booking &nbsp;·&nbsp;
+                          <span style={{ color: "#9ca3af" }}>{totalBookings.toLocaleString()} total bookings</span>
+                        </div>
+                      </>
+                    );
+                  })() : (
+                    <div style={{ color: "#888", fontSize: "14px" }}>No data</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Cohort Retention Card */}
+            {unitEconomicsData && unitEconomicsData.cohortRetentionRate !== undefined && (
+              <div className="col-xl-4 col-lg-6">
+                <div className="dashboard-card">
+                  <div className="card-header-custom extra-space">
+                    <h6 className="card-title">Cohort Retention</h6>
+                  </div>
+                  <div className="card-body-custom">
+                    <div className="metric-number" style={{ fontSize: "32px", fontWeight: "700", color: "#22c55e" }}>
+                      {(unitEconomicsData.cohortRetentionRate * 100).toFixed(2)}%
+                    </div>
+                    <div style={{ fontSize: "13px", color: "#888", marginTop: "8px" }}>
+                      Retention rate from previous month
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       ) : (
