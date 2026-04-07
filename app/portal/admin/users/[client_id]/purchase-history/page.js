@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { FaDownload, FaChevronLeft } from "react-icons/fa";
 import axiosInstance from "@/lib/axios";
-import * as XLSX from "xlsx";
 
 export default function PurchaseHistory() {
   const params = useParams();
@@ -21,6 +20,7 @@ export default function PurchaseHistory() {
   const [gymMembershipLoading, setGymMembershipLoading] = useState(false);
   const [aiCreditsData, setAiCreditsData] = useState([]);
   const [aiCreditsLoading, setAiCreditsLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   // Fetch daily pass data
   const fetchDailyPassData = useCallback(async () => {
@@ -159,107 +159,31 @@ export default function PurchaseHistory() {
     }
   };
 
-  // Export to Excel function - exports all tabs to one Excel file with 4 sheets
-  const exportToExcel = useCallback(() => {
-    // Check if any data exists
-    const hasData =
-      dailyPassData.length > 0 ||
-      sessionData.length > 0 ||
-      subscriptionData.length > 0 ||
-      gymMembershipData.length > 0 ||
-      aiCreditsData.length > 0;
+  // Export to Excel function - calls backend to generate Excel file
+  const exportToExcel = useCallback(async () => {
+    try {
+      setExporting(true);
+      const response = await axiosInstance.get(`/api/admin/users/${clientId}/export-purchases`, {
+        responseType: "blob", // Important for binary data
+      });
 
-    if (!hasData) {
-      alert("No data to export!");
-      return;
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      const filename = `purchase_history_user_${clientId}_${new Date().toISOString().split("T")[0]}.xlsx`;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Failed to export purchase history. Please try again.");
+    } finally {
+      setExporting(false);
     }
-
-    // Create workbook
-    const workbook = XLSX.utils.book_new();
-
-    // Sheet 1: Daily Pass
-    if (dailyPassData.length > 0) {
-      const dailyPassWorksheet = XLSX.utils.json_to_sheet(
-        dailyPassData.map((pass) => ({
-          "Purchase Date": formatDateTime(pass.created_at),
-          "Gym Name": pass.gym_name || "-",
-          "Valid From": formatDate(pass.valid_from),
-          "Valid Until": formatDate(pass.valid_until),
-          "Total Days": pass.days_total || "-",
-          "Days Used": pass.days_used || 0,
-          "Days Remaining": pass.days_remaining || 0,
-          "Amount": pass.amount_paid ? `₹${(pass.amount_paid / 100).toFixed(2)}` : "-",
-        }))
-      );
-      XLSX.utils.book_append_sheet(workbook, dailyPassWorksheet, "Daily Pass");
-    }
-
-    // Sheet 2: Fitness Classes
-    if (sessionData.length > 0) {
-      const sessionsWorksheet = XLSX.utils.json_to_sheet(
-        sessionData.map((session) => {
-          const timeRange =
-            session.start_time && session.end_time
-              ? `${formatTime(session.start_time)} - ${formatTime(session.end_time)}`
-              : session.start_time
-              ? formatTime(session.start_time)
-              : "-";
-          return {
-            "Purchase Date": formatDateTime(session.created_at),
-            "Booking Date": formatDate(session.booking_date),
-            "Class Name": session.session_name
-              .replace(/_/g, " ")
-              .replace(/\b\w/g, (l) => l.toUpperCase()),
-            "Gym Name": session.gym_name || "-",
-            "Time": timeRange,
-            "Amount": session.price_paid ? `₹${session.price_paid}` : "-",
-            "Status": session.status || "-",
-          };
-        })
-      );
-      XLSX.utils.book_append_sheet(workbook, sessionsWorksheet, "Fitness Classes");
-    }
-
-    // Sheet 3: Nutrition Plan
-    if (subscriptionData.length > 0) {
-      const subscriptionWorksheet = XLSX.utils.json_to_sheet(
-        subscriptionData.map((sub) => ({
-          "Purchase Date": formatDateTime(sub.captured_at || sub.created_at),
-          "Amount": sub.amount ? `₹${(sub.amount / 100).toFixed(2)}` : "-",
-        }))
-      );
-      XLSX.utils.book_append_sheet(workbook, subscriptionWorksheet, "Nutrition Plan");
-    }
-
-    // Sheet 4: Gym Membership
-    if (gymMembershipData.length > 0) {
-      const gymMembershipWorksheet = XLSX.utils.json_to_sheet(
-        gymMembershipData.map((membership) => ({
-          "Purchase Date": formatDateTime(membership.captured_at || membership.created_at),
-          "Gym Name": membership.gym_name || "-",
-          "Provider": membership.provider?.replace(/_/g, " ") || "-",
-          "Order Status": membership.order_status || membership.status || "-",
-          "Amount": membership.amount ? `₹${(membership.amount / 100).toFixed(2)}` : "-",
-        }))
-      );
-      XLSX.utils.book_append_sheet(workbook, gymMembershipWorksheet, "Gym Membership");
-    }
-
-    // Sheet 5: AI Credits
-    if (aiCreditsData.length > 0) {
-      const aiCreditsWorksheet = XLSX.utils.json_to_sheet(
-        aiCreditsData.map((ai) => ({
-          "Purchase Date": formatDateTime(ai.captured_at || ai.created_at),
-          "Amount": ai.amount ? `₹${(ai.amount / 100).toFixed(2)}` : "-",
-          "Status": ai.status || "-",
-        }))
-      );
-      XLSX.utils.book_append_sheet(workbook, aiCreditsWorksheet, "AI Credits");
-    }
-
-    // Export to file
-    XLSX.writeFile(workbook, `purchase_history_${clientId}_${new Date().toISOString().split('T')[0]}.xlsx`);
-  }, [dailyPassData, sessionData, subscriptionData, gymMembershipData]);
+  }, [clientId]);
 
   return (
     <div className="purchase-history-container">
@@ -291,11 +215,13 @@ export default function PurchaseHistory() {
         <button
           onClick={exportToExcel}
           disabled={
-            dailyPassData.length === 0 &&
-            sessionData.length === 0 &&
-            subscriptionData.length === 0 &&
-            gymMembershipData.length === 0 &&
-            aiCreditsData.length === 0
+            exporting || (
+              dailyPassData.length === 0 &&
+              sessionData.length === 0 &&
+              subscriptionData.length === 0 &&
+              gymMembershipData.length === 0 &&
+              aiCreditsData.length === 0
+            )
           }
           style={{
             background: "#FF5757",
@@ -303,24 +229,26 @@ export default function PurchaseHistory() {
             color: "white",
             padding: "8px 16px",
             borderRadius: "6px",
-            cursor: "pointer",
+            cursor: exporting ? "not-allowed" : "pointer",
             fontSize: "13px",
             fontWeight: "500",
             display: "flex",
             alignItems: "center",
             gap: "0.5rem",
             opacity:
-              dailyPassData.length === 0 &&
-              sessionData.length === 0 &&
-              subscriptionData.length === 0 &&
-              gymMembershipData.length === 0 &&
-              aiCreditsData.length === 0
+              exporting || (
+                dailyPassData.length === 0 &&
+                sessionData.length === 0 &&
+                subscriptionData.length === 0 &&
+                gymMembershipData.length === 0 &&
+                aiCreditsData.length === 0
+              )
                 ? 0.5
                 : 1,
           }}
           onMouseEnter={(e) => {
             if (
-              !(
+              !exporting && !(
                 dailyPassData.length === 0 &&
                 sessionData.length === 0 &&
                 subscriptionData.length === 0 &&
@@ -336,7 +264,7 @@ export default function PurchaseHistory() {
           }}
         >
           <FaDownload />
-          Export Excel
+          {exporting ? "Exporting..." : "Export Excel"}
         </button>
       </div>
 
