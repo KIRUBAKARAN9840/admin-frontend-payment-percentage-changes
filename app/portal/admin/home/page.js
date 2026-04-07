@@ -879,7 +879,7 @@ export default function Home() {
               onClick={() => router.push("/portal/admin/revenue?filter=overall")}
             >
               <div className="card-header-custom">
-                <h6 className="card-title">Total Revenue</h6>
+                <h6 className="card-title">GMV</h6>
                 <select
                   className="filter-dropdown"
                   value={fittbotRevenueFilter}

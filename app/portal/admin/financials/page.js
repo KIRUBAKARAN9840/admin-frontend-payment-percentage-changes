@@ -420,7 +420,7 @@ export default function FinancialsDashboard() {
             <div className="col-xl-12">
               <div className="dashboard-card">
                 <div className="card-header-custom extra-space">
-                  <h6 className="card-title" style={{ textAlign: "center" }}>Total Net Revenue</h6>
+                  <h6 className="card-title" style={{ textAlign: "center" }}>Net Merchandise Value</h6>
                 </div>
                 <div className="card-body-custom">
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "60px" }}>
@@ -604,7 +604,7 @@ export default function FinancialsDashboard() {
               <div style={{ marginTop: "30px" }}>
                 <div className="dashboard-card">
                   <div className="card-header-custom extra-space">
-                    <h6 className="card-title" style={{ textAlign: "center" }}>Net Revenue Distribution</h6>
+                    <h6 className="card-title" style={{ textAlign: "center" }}>Net Merchandise Value Distribution</h6>
                   </div>
                   <div className="card-body-custom">
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "50px", flexWrap: "wrap", padding: "20px 0" }}>
