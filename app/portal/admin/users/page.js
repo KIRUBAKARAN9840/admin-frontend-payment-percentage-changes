@@ -411,8 +411,8 @@ export default function Users() {
   const renderPurchaseItem = (purchase, type) => {
     if (!purchase) return null;
 
-    // Only show amount for subscription and membership types
-    const showAmount = type === "subscription" || type === "membership";
+    // Only show amount for subscription, membership and AI credits types
+    const showAmount = type === "subscription" || type === "membership" || type === "ai_credits";
 
     return (
       <div
@@ -433,7 +433,7 @@ export default function Users() {
         <div style={{ flex: 1, minWidth: "0" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
             <span style={{ color: "#28a745", fontWeight: "600", fontSize: "14px" }}>
-              {purchase.type}
+              {purchase.type === "Session" ? "Fitness class" : purchase.type}
             </span>
             {purchase.gym_name && (
               <>
@@ -1362,11 +1362,13 @@ export default function Users() {
                           {renderPurchaseItem(purchasesData[user.client_id].session, "session")}
                           {renderPurchaseItem(purchasesData[user.client_id].membership, "membership")}
                           {renderPurchaseItem(purchasesData[user.client_id].subscription, "subscription")}
+                          {renderPurchaseItem(purchasesData[user.client_id].ai_credits, "ai_credits")}
                         </div>
                         {!purchasesData[user.client_id].daily_pass &&
                           !purchasesData[user.client_id].session &&
                           !purchasesData[user.client_id].membership &&
-                          !purchasesData[user.client_id].subscription && (
+                          !purchasesData[user.client_id].subscription && 
+                          !purchasesData[user.client_id].ai_credits && (
                           <div
                             style={{
                               padding: "20px",

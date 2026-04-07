@@ -125,8 +125,8 @@ export default function TelecallerConvertedClients() {
   const renderPurchaseItem = (purchase, type) => {
     if (!purchase) return null;
 
-    // Only show amount for subscription and membership types
-    const showAmount = type === "subscription" || type === "membership";
+    // Only show amount for subscription, membership and AI credits types
+    const showAmount = type === "subscription" || type === "membership" || type === "ai_credits";
 
     return (
       <div
@@ -147,7 +147,7 @@ export default function TelecallerConvertedClients() {
         <div style={{ flex: 1, minWidth: "0" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
             <span style={{ color: "#28a745", fontWeight: "600", fontSize: "14px" }}>
-              {purchase.type}
+              {purchase.type === "Session" ? "Fitness class" : purchase.type}
             </span>
             {purchase.gym_name && (
               <>
@@ -452,11 +452,13 @@ export default function TelecallerConvertedClients() {
                                   {renderPurchaseItem(purchasesData[clientId].session, "session")}
                                   {renderPurchaseItem(purchasesData[clientId].membership, "membership")}
                                   {renderPurchaseItem(purchasesData[clientId].subscription, "subscription")}
+                                  {renderPurchaseItem(purchasesData[clientId].ai_credits, "ai_credits")}
                                 </div>
                                 {!purchasesData[clientId].daily_pass &&
                                   !purchasesData[clientId].session &&
                                   !purchasesData[clientId].membership &&
-                                  !purchasesData[clientId].subscription && (
+                                  !purchasesData[clientId].subscription &&
+                                  !purchasesData[clientId].ai_credits && (
                                     <div
                                       style={{
                                         padding: "20px",
