@@ -1480,7 +1480,7 @@ a {
   min-width: 160px;
 }
 
-.table-col-plan {
+.table-col-ai-credits {
   flex: 0 0 16%;
   max-width: 16%;
   min-width: 110px;
@@ -1559,7 +1559,7 @@ a {
   min-width: 160px;
 }
 
-.table-cell.table-col-plan {
+.table-cell.table-col-ai-credits {
   flex: 0 0 16%;
   width: 16%;
   min-width: 110px;
@@ -1700,8 +1700,8 @@ a {
     content: "Gym";
   }
 
-  .table-cell.table-col-plan::before {
-    content: "Plan";
+  .table-cell.table-col-ai-credits::before {
+    content: "AI Credits";
   }
 
   .table-cell.table-col-platform::before {

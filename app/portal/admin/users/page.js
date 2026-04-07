@@ -22,7 +22,7 @@ export default function Users() {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState(gymFromUrl);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(gymFromUrl);
-  const [planFilter, setPlanFilter] = useState("all");
+
   const [platformFilter, setPlatformFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all"); // all, today, week, month, custom
   const [customStartDate, setCustomStartDate] = useState("");
@@ -32,7 +32,7 @@ export default function Users() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalUsers, setTotalUsers] = useState(0);
-  const [availablePlans, setAvailablePlans] = useState([]);
+
   const [exportLoading, setExportLoading] = useState(false);
   const [showExportConfirm, setShowExportConfirm] = useState(false);
   const [clientCounts, setClientCounts] = useState({
@@ -122,7 +122,7 @@ export default function Users() {
         // Set all data from single response
         setUsers(data.users);
         setTotalUsers(data.total);
-        setAvailablePlans(data.plans);
+
         setClientCounts(data.clientCounts);
         setOnlineOfflineCounts(data.onlineOfflineCounts);
         setPlatformCounts(data.platformCounts || { android: 0, ios: 0, total_platform_users: 0 });
@@ -165,9 +165,7 @@ export default function Users() {
         params.search = debouncedSearchTerm;
       }
 
-      if (planFilter && planFilter !== "all") {
-        params.plan = planFilter;
-      }
+
 
       if (platformFilter && platformFilter !== "all") {
         params.platform = platformFilter;
@@ -206,7 +204,7 @@ export default function Users() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, itemsPerPage, planFilter, platformFilter, debouncedSearchTerm, sortOrder, dateFilter, customStartDate, customEndDate, gymFromUrl]);
+  }, [currentPage, itemsPerPage, platformFilter, debouncedSearchTerm, sortOrder, dateFilter, customStartDate, customEndDate, gymFromUrl]);
 
   // Fetch initial data and restore state if returning - only run once on mount
   useEffect(() => {
@@ -220,7 +218,7 @@ export default function Users() {
 
           // Restore all state in a batch
           const restoredSearchTerm = state.searchTerm || gymFromUrl;
-          const restoredPlanFilter = state.planFilter || "all";
+
           const restoredPlatformFilter = state.platformFilter || "all";
           const restoredDateFilter = state.dateFilter || "all";
           const restoredCustomStartDate = state.customStartDate || "";
@@ -240,7 +238,7 @@ export default function Users() {
           // Restore all state - use batched state updates
           setSearchTerm(restoredSearchTerm);
           setDebouncedSearchTerm(restoredSearchTerm);
-          setPlanFilter(restoredPlanFilter);
+
           setPlatformFilter(restoredPlatformFilter);
           setDateFilter(restoredDateFilter);
           setCustomStartDate(restoredCustomStartDate);
@@ -266,9 +264,6 @@ export default function Users() {
                 params.search = restoredSearchTerm;
               }
 
-              if (restoredPlanFilter && restoredPlanFilter !== "all") {
-                params.plan = restoredPlanFilter;
-              }
 
               if (restoredPlatformFilter && restoredPlatformFilter !== "all") {
                 params.platform = restoredPlatformFilter;
@@ -292,7 +287,7 @@ export default function Users() {
                 const data = response.data.data;
                 setUsers(data.users);
                 setTotalUsers(data.total);
-                setAvailablePlans(data.plans);
+
                 setClientCounts(data.clientCounts);
                 setOnlineOfflineCounts(data.onlineOfflineCounts);
                 setPlatformCounts(data.platformCounts || { android: 0, ios: 0, total_platform_users: 0 });
@@ -341,7 +336,7 @@ export default function Users() {
   useEffect(() => {
     const stateToSave = {
       searchTerm,
-      planFilter,
+
       platformFilter,
       dateFilter,
       customStartDate,
@@ -353,7 +348,7 @@ export default function Users() {
       isReturning: false
     };
     sessionStorage.setItem('usersListState', JSON.stringify(stateToSave));
-  }, [searchTerm, planFilter, platformFilter, dateFilter, customStartDate, customEndDate, sortOrder, currentPage, itemsPerPage, initialDataLoaded]);
+  }, [searchTerm, platformFilter, dateFilter, customStartDate, customEndDate, sortOrder, currentPage, itemsPerPage, initialDataLoaded]);
 
   const formatDate = (dateString) => {
     if (!dateString) return "-";
@@ -484,12 +479,12 @@ export default function Users() {
         const workbook = XLSX.utils.book_new();
 
         // Prepare data for export
-        const headers = ["Name", "Mobile", "Gym Name", "Plan", "Joined Date"];
+        const headers = ["Name", "Mobile", "Gym Name", "AI Credits", "Joined Date"];
         const rows = response.data.data.map((user) => [
           user.name || "-",
           user.contact || "-",
           user.gym_name || "-",
-          user.plan_name || "No",
+          user.ai_credits || 0,
           user.created_at
             ? new Date(user.created_at).toLocaleDateString("en-IN", {
                 day: "2-digit",
@@ -1168,23 +1163,7 @@ export default function Users() {
             </div>
           </div>
 
-          <div style={{ flex: "1 1 130px", minWidth: "120px" }}>
-            <select
-              className="filter-select"
-              value={planFilter}
-              onChange={(e) => {
-                setPlanFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-            >
-              <option value="all">All Plans</option>
-              {availablePlans.map((plan) => (
-                <option key={plan.id} value={plan.plan_name}>
-                  {plan.plan_name}
-                </option>
-              ))}
-            </select>
-          </div>
+
 
           <div style={{ flex: "1 1 130px", minWidth: "120px" }}>
             <select
@@ -1260,7 +1239,7 @@ export default function Users() {
         <div className="users-table-header">
           <div className="table-header-cell table-col-name">Name</div>
           <div className="table-header-cell table-col-gym">Gym</div>
-          <div className="table-header-cell table-col-plan">Plan</div>
+          <div className="table-header-cell table-col-ai-credits">AI Credits</div>
           <div className="table-header-cell table-col-platform">Platform</div>
           <div className="table-header-cell table-col-joined">Joined Date</div>
           <div className="table-header-cell table-col-action"></div>
@@ -1276,7 +1255,7 @@ export default function Users() {
                 onClick={() => {
                   const currentState = {
                     searchTerm,
-                    planFilter,
+
                     platformFilter,
                     dateFilter,
                     customStartDate,
@@ -1304,20 +1283,9 @@ export default function Users() {
                   <div className="cell-value">{user.gym_name || "-"}</div>
                 </div>
 
-                {/* Plan Column */}
-                <div className="table-cell table-col-plan" data-label="Plan">
-                  <span
-                    className="plan-badge"
-                    style={{
-                      color: user.plan_name ? "#FFFFFF" : "red",
-                      backgroundColor: user.plan_name
-                        ? "rgba(79, 140, 79, 0.1)"
-                        : "rgba(255, 0, 0, 0.1)",
-                      borderColor: user.plan_name ? "green" : "red",
-                    }}
-                  >
-                    {user.plan_name || "No"}
-                  </span>
+                {/* AI Credits Column */}
+                <div className="table-cell table-col-ai-credits" data-label="AI Credits">
+                  <div className="cell-value">{user.ai_credits || 0}</div>
                 </div>
 
                 {/* Platform Column */}
