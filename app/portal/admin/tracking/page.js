@@ -148,6 +148,9 @@ export default function AdminTrackingPage() {
 
       if (response.data.status === 200) {
         setClients(response.data.data);
+        if (response.data.telecallers) {
+          setTelecallers(response.data.telecallers);
+        }
         setPagination(response.data.pagination);
       } else {
         setClients([]);
@@ -167,20 +170,7 @@ export default function AdminTrackingPage() {
     }
   }, []);
 
-  // Fetch telecallers list for the filter dropdown
-  useEffect(() => {
-    const fetchTelecallers = async () => {
-      try {
-        const response = await axiosInstance.get("/api/admin/user-conversion/telecallers");
-        if (response.data.success) {
-          setTelecallers(response.data.data.telecallers || []);
-        }
-      } catch (error) {
-        console.error("Error fetching telecallers:", error);
-      }
-    };
-    fetchTelecallers();
-  }, []);
+  // Fetching of telecallers is now handled within fetchClients API response
 
   // Reset filters when navigating away from tracking page
   useEffect(() => {

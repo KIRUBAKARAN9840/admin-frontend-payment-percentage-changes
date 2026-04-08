@@ -72,7 +72,7 @@ function FinanceIcon({ size = 20 }) {
       style={{ filter: 'brightness(0) saturate(100%) invert(1)' }}
     />
   );
-  
+
 }
 
 function ExpensesIcon({ size = 24 }) {
@@ -86,7 +86,7 @@ function ExpensesIcon({ size = 24 }) {
     />
   );
 }
-function  GymsIcon({ size = 20 }) {
+function GymsIcon({ size = 20 }) {
   return (
     <img
       src="/gyms.svg"
@@ -108,7 +108,7 @@ function UnitEconomicsIcon({ size = 20 }) {
       style={{ filter: 'brightness(0) saturate(100%) invert(1)' }}
     />
   );
-  
+
 }
 function UserStatsIcon({ size = 20 }) {
   return (
@@ -120,7 +120,7 @@ function UserStatsIcon({ size = 20 }) {
       style={{ filter: 'brightness(0) saturate(100%) invert(1)' }}
     />
   );
-  
+
 }
 function CashFlowIcon({ size = 20 }) {
   return (
