@@ -1,11 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import axiosInstance from "@/lib/axios";
+import { FaDownload } from "react-icons/fa";
 
 export default function ClientPurchaseCountPage() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [exporting, setExporting] = useState(false);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -50,6 +52,40 @@ export default function ClientPurchaseCountPage() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      setExporting(true);
+      const response = await axiosInstance.get("/api/admin/purchases/export-purchase-count-summary", {
+        params: { search: search || undefined },
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      
+      const contentDisposition = response.headers["content-disposition"];
+      let filename = `client_purchase_count_${new Date().toISOString().split('T')[0]}.xlsx`;
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename=(.+)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/"/g, "");
+        }
+      }
+
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export failed:", err);
+      alert("Failed to export data. Please try again.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div style={{ minHeight: "80vh", color: "white" }}>
       {/* Header & Search */}
@@ -69,23 +105,49 @@ export default function ClientPurchaseCountPage() {
             Client Purchase Counts
           </p>
         </div>
-        <div style={{ position: "relative" }}>
-          <input
-            type="text"
-            placeholder="Search name or contact..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+        
+        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+          <div style={{ position: "relative" }}>
+            <input
+              type="text"
+              placeholder="Search name or contact..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "6px",
+                border: "1px solid #333",
+                backgroundColor: "#1a1a1a",
+                color: "white",
+                width: "250px",
+                outline: "none",
+                fontSize: "14px",
+              }}
+            />
+          </div>
+          <button
+            onClick={handleExport}
+            disabled={exporting || loading}
             style={{
+              backgroundColor: exporting || loading ? "#444" : "#28a745",
+              border: "none",
+              color: "#fff",
               padding: "8px 16px",
               borderRadius: "6px",
-              border: "1px solid #333",
-              backgroundColor: "#1a1a1a",
-              color: "white",
-              width: "250px",
-              outline: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              cursor: exporting || loading ? "not-allowed" : "pointer",
               fontSize: "14px",
+              fontWeight: "500",
+              transition: "background-color 0.2s"
             }}
-          />
+            onMouseEnter={(e) => { if(!exporting && !loading) e.target.style.backgroundColor = "#218838"}}
+            onMouseLeave={(e) => { if(!exporting && !loading) e.target.style.backgroundColor = "#28a745"}}
+          >
+            <FaDownload />
+            {exporting ? "Exporting..." : "Export Excel"}
+          </button>
         </div>
       </div>
 
