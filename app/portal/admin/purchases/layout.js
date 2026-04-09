@@ -14,7 +14,9 @@ export default function PurchasesLayout({ children }) {
 
 
   useEffect(() => {
-    if (pathname.includes("/purchase-count")) {
+    if (pathname.includes("/client-purchase-count")) {
+      setActiveTab("client-purchase-count");
+    } else if (pathname.includes("/purchase-count")) {
       setActiveTab("purchase-count");
     } else if (pathname.includes("/all")) {
       setActiveTab("all");
@@ -38,6 +40,7 @@ export default function PurchasesLayout({ children }) {
     { id: "gym-memberships", name: "Gym Memberships", path: "/portal/admin/purchases/gym-memberships" },
     { id: "ai-credits", name: "AI Credits", path: "/portal/admin/purchases/ai-credits" },
     { id: "today", name: "Today's Schedule", path: "/portal/admin/purchases/today" },
+    { id: "client-purchase-count", name: "Purchase Count", path: "/portal/admin/purchases/client-purchase-count" },
     ...(role !== "support" ? [{ id: "purchase-count", name: "Purchase Analysis", path: "/portal/admin/purchases/purchase-count" }] : []),
   ];
 
