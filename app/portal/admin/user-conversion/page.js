@@ -346,6 +346,7 @@ export default function UserConversion() {
                 <th>Name</th>
                 <th>Mobile Number</th>
                 <th>Total Converted</th>
+                <th>Bookings count</th>
                 <th>Revenue</th>
               </tr>
             </thead>
@@ -384,6 +385,16 @@ export default function UserConversion() {
                       <span
                         style={{
                           fontWeight: "600",
+                          color: telecaller.bookings_count > 0 ? "#fff" : "#888",
+                        }}
+                      >
+                        {telecaller.bookings_count}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        style={{
+                          fontWeight: "600",
                           color: telecaller.total_revenue > 0 ? "#10b981" : "#888",
                         }}
                       >
@@ -394,7 +405,7 @@ export default function UserConversion() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="no-data">
+                  <td colSpan="5" className="no-data">
                     No telecallers found
                   </td>
                 </tr>
